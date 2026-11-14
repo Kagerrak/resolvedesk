@@ -5,7 +5,7 @@ import { ArrowRight, ExternalLink } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { authClient } from "@/lib/auth-client";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
 
 export default function Home() {
   const router = useRouter();
@@ -25,7 +25,18 @@ export default function Home() {
             result.error.message ?? "Could not start a demo session.",
           );
       }
-      await api("demo", "POST");
+      try {
+        await api("demo", "POST");
+      } catch (error) {
+        if (!(error instanceof ApiError) || error.status !== 410) throw error;
+        const ended = await authClient.signOut();
+        if (ended.error)
+          throw new Error("Could not end the expired session. Try again.");
+        const fresh = await authClient.signIn.anonymous();
+        if (fresh.error)
+          throw new Error("Could not start a fresh demo. Try again.");
+        await api("demo", "POST");
+      }
       router.push("/inbox");
     } catch (error) {
       setError(

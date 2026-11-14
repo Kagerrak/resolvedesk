@@ -491,9 +491,6 @@ a.nav-item {
   .header-actions {
     gap: 8px;
   }
-  .header-actions .badge {
-    display: none;
-  }
   .inbox {
     display: block;
   }
@@ -513,7 +510,8 @@ a.nav-item {
     font-size: 24px;
   }
   .mobile-back {
-    display: inline-flex;
+    display: flex;
+    width: fit-content;
     margin-bottom: 20px;
   }
   .message-header {

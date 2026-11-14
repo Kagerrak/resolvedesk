@@ -9,7 +9,7 @@ export const auth = betterAuth({
   trustedOrigins: [process.env.BETTER_AUTH_URL ?? "http://localhost:3000"],
   session: {
     expiresIn: 60 * 60,
-    updateAge: 0,
+    disableSessionRefresh: true,
     cookieCache: { enabled: false },
   },
   rateLimit: { enabled: true, window: 60, max: 60, storage: "database" },

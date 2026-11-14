@@ -47,6 +47,17 @@ try:
         a.get(detail_path).json() == detail,
         "Reload preserves ticket and message identities/content",
     )
+    with engine.begin() as db:
+        expires_before = db.scalar(
+            text('SELECT "expiresAt" FROM "session" WHERE "userId"=:u'), {"u": users[0]}
+        )
+    a.get("/api/auth/get-session")
+    a.get("/api/backend/workspaces")
+    with engine.begin() as db:
+        expires_after = db.scalar(
+            text('SELECT "expiresAt" FROM "session" WHERE "userId"=:u'), {"u": users[0]}
+        )
+    check(expires_before == expires_after, "Session reads do not extend fixed demo lifetime")
     check(b.get(detail_path).status_code == 404, "Other session cannot read workspace ticket")
     check(
         a.get(f"/api/backend/workspaces/{wa['id']}/tickets/{tb['id']}").status_code == 404,
@@ -119,6 +130,15 @@ try:
     check(
         b.get("/api/backend/workspaces").status_code == 401,
         "Expired Better Auth session is rejected",
+    )
+    with engine.begin() as db:
+        db.execute(
+            text("UPDATE workspace SET expires_at=now()-interval '1 minute' WHERE id=:w"),
+            {"w": wa["id"]},
+        )
+    check(
+        a.post("/api/backend/demo").status_code == 410,
+        "Expired workspace has explicit fresh-demo recovery status",
     )
     check(
         a.post("/api/auth/sign-out", json={}).status_code == 200, "Session can be explicitly ended"

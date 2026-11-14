@@ -25,7 +25,15 @@ export async function api<T>(
       "We couldn't reach your workspace. Check your connection and try again.",
     );
   }
-  const body = await response.json();
+  let body;
+  try {
+    body = await response.json();
+  } catch {
+    throw new ApiError(
+      response.ok ? 502 : response.status,
+      "The workspace service couldn't complete this request. Your saved work is safe. Try again.",
+    );
+  }
   if (!response.ok)
     throw new ApiError(
       response.status,

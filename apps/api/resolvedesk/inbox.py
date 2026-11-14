@@ -19,6 +19,8 @@ def create_demo(db: Session, visitor: Identity) -> Workspace:
     )
     workspace = db.scalar(select(Workspace).where(Workspace.demo_owner == visitor.user_id))
     if workspace:
+        if workspace.expires_at and workspace.expires_at <= datetime.now(UTC):
+            raise HTTPException(410, "This demo has expired. Start a new demo to continue.")
         membership(db, workspace.id, visitor)
         return workspace
     now = datetime.now(UTC)

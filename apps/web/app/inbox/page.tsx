@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   BookOpen,
@@ -35,9 +35,19 @@ export default function InboxPage() {
   const [loading, setLoading] = useState(true);
   const [detailOpen, setDetailOpen] = useState(false);
   const [retry, setRetry] = useState(0);
+  const selectedWorkspace = useRef("");
+  const hadDetailOpen = useRef(false);
   const workspace = workspaces.find((w) => w.id === workspaceId);
   function fail(error: unknown) {
     if (error instanceof Error && error.name === "AbortError") return;
+    if (
+      error instanceof ApiError &&
+      [401, 403, 404, 410].includes(error.status)
+    ) {
+      setTickets([]);
+      setTicketId("");
+      setDetail(null);
+    }
     if (error instanceof ApiError && error.status === 401) {
       setExpired(true);
       setWorkspaces([]);
@@ -54,9 +64,17 @@ export default function InboxPage() {
     api<Workspace[]>("workspaces", "GET", controller.signal)
       .then((rows) => {
         setWorkspaces(rows);
-        setWorkspaceId((current) =>
-          rows.some((w) => w.id === current) ? current : (rows[0]?.id ?? ""),
-        );
+        const nextId = rows.some((w) => w.id === selectedWorkspace.current)
+          ? selectedWorkspace.current
+          : (rows[0]?.id ?? "");
+        if (nextId !== selectedWorkspace.current) {
+          setTickets([]);
+          setTicketId("");
+          setDetail(null);
+          setDetailOpen(false);
+        }
+        selectedWorkspace.current = nextId;
+        setWorkspaceId(nextId);
         if (!rows.length) setLoading(false);
       })
       .catch(fail);
@@ -86,6 +104,17 @@ export default function InboxPage() {
       .catch(fail);
     return () => controller.abort();
   }, [ticketId, workspaceId, retry]);
+  useEffect(() => {
+    if (detailOpen && detail) {
+      document.querySelector<HTMLElement>(".ticket-detail h2")?.focus();
+      hadDetailOpen.current = true;
+    } else if (!detailOpen && hadDetailOpen.current) {
+      document
+        .querySelector<HTMLElement>(".ticket-row[aria-pressed=true]")
+        ?.focus();
+      hadDetailOpen.current = false;
+    }
+  }, [detailOpen, detail]);
   async function leave() {
     const result = await authClient.signOut();
     if (result.error) {
@@ -95,6 +124,7 @@ export default function InboxPage() {
     router.push("/");
   }
   function changeWorkspace(id: string) {
+    selectedWorkspace.current = id;
     setWorkspaceId(id);
     setTickets([]);
     setTicketId("");
@@ -133,12 +163,11 @@ export default function InboxPage() {
             Inbox
           </Link>
           {[
-            [BookOpen, "Knowledge"],
-            [Activity, "Activity"],
-            [ChartNoAxesColumn, "Quality"],
-            [Settings, "Settings"],
-          ].map(([Icon, label]) => {
-            const Glyph = Icon as typeof BookOpen;
+            { icon: BookOpen, label: "Knowledge" },
+            { icon: Activity, label: "Activity" },
+            { icon: ChartNoAxesColumn, label: "Quality" },
+            { icon: Settings, label: "Settings" },
+          ].map(({ icon: Glyph, label }) => {
             return (
               <span className="nav-item" key={String(label)}>
                 <Glyph size={18} />
@@ -252,7 +281,7 @@ export default function InboxPage() {
                   <span className="eyebrow">
                     Ticket #{detail.number} · Email
                   </span>
-                  <h2>{detail.subject}</h2>
+                  <h2 tabIndex={-1}>{detail.subject}</h2>
                   <div className="ticket-meta">
                     <span className="badge open">{detail.status}</span>
                     <span>{detail.priority} priority</span>
