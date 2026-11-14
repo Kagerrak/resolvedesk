@@ -1,0 +1,84 @@
+[
+  {
+    "theme": "light",
+    "pairs": [
+      {
+        "fg": "text",
+        "bg": "canvas",
+        "ratio": 13.53,
+        "pass": true
+      },
+      {
+        "fg": "secondary",
+        "bg": "canvas",
+        "ratio": 5.83,
+        "pass": true
+      },
+      {
+        "fg": "accent",
+        "bg": "selection",
+        "ratio": 5.3,
+        "pass": true
+      },
+      {
+        "fg": "on-accent",
+        "bg": "accent",
+        "ratio": 6.17,
+        "pass": true
+      },
+      {
+        "fg": "control",
+        "bg": "surface",
+        "ratio": 3.6,
+        "pass": true
+      },
+      {
+        "fg": "focus",
+        "bg": "surface",
+        "ratio": 5.41,
+        "pass": true
+      }
+    ]
+  },
+  {
+    "theme": "dark",
+    "pairs": [
+      {
+        "fg": "text",
+        "bg": "canvas",
+        "ratio": 15.57,
+        "pass": true
+      },
+      {
+        "fg": "secondary",
+        "bg": "canvas",
+        "ratio": 10.17,
+        "pass": true
+      },
+      {
+        "fg": "accent",
+        "bg": "selection",
+        "ratio": 5.7,
+        "pass": true
+      },
+      {
+        "fg": "on-accent",
+        "bg": "accent",
+        "ratio": 9.38,
+        "pass": true
+      },
+      {
+        "fg": "control",
+        "bg": "surface",
+        "ratio": 4.77,
+        "pass": true
+      },
+      {
+        "fg": "focus",
+        "bg": "surface",
+        "ratio": 10.32,
+        "pass": true
+      }
+    ]
+  }
+]

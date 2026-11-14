@@ -187,7 +187,9 @@ export default function InboxPage() {
       <main id="main" className="workspace-main">
         <header className="workspace-header">
           <div>
-            <span className="eyebrow">Meridian support</span>
+            <span className="eyebrow">
+              {workspace?.name ?? "Support workspace"}
+            </span>
             <h1>Inbox</h1>
           </div>
           <div className="header-actions">
@@ -258,7 +260,7 @@ export default function InboxPage() {
                       <span>#{t.number}</span>
                     </span>
                     <strong>{t.subject}</strong>
-                    <p>Role changes and project permissions</p>
+                    <p>{t.customer_email}</p>
                     <span className="badge open">{t.status}</span>
                   </button>
                 ))
