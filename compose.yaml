@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17@sha256:b513c48566e4777cd3370451400000c78eda6a08131d68f4c31d4a76f27bd8fd
+    environment:
+      POSTGRES_DB: resolvedesk
+      POSTGRES_USER: resolvedesk
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U resolvedesk -d resolvedesk"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+volumes:
+  postgres-data:

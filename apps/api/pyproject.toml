@@ -1,0 +1,18 @@
+[project]
+name = "resolvedesk-api"
+version = "0.1.0"
+requires-python = ">=3.12,<3.15"
+dependencies = [
+  "fastapi", "uvicorn[standard]", "sqlalchemy", "psycopg[binary]", "alembic", "httpx", "pydantic-settings"
+]
+
+[dependency-groups]
+dev = ["ruff", "pyright"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.pyright]
+include = ["resolvedesk"]
+pythonVersion = "3.13"
+typeCheckingMode = "standard"
