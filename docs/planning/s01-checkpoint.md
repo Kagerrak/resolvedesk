@@ -1,18 +1,9 @@
 # S01 checkpoint
 
-Status: preparatory work only. No session, ticket API, migration or runnable UI journey exists yet.
+Implemented: Better Auth anonymous sessions, transactional isolated demo creation, persisted membership/ticket/message, scoped API reads, real workspace selector, light/dark responsive inbox and session-end recovery. Working branch feat/s01-workspace, PR #16, issue #2.
 
-- Setup merged in PR #15; specification #1, S01 #2.
-- Working branch: feat/s01-workspace.
-- Interactive decision pending: Better Auth anonymous sessions for demo; staff sign-in follows for live workspaces. Do not treat elapsed time as approval.
-- Infrastructure budget is separately pending; no paid resources provisioned.
-- Installed locked Next.js/React/TypeScript and FastAPI/SQLAlchemy/Alembic dependencies.
-- Local Docker PostgreSQL 17.12 / pgvector 0.8.7 starts healthy. Container is digest-pinned.
-- Initial theme tokens, responsive styles and provisional logo mark are preparatory, not visually verified or final branding. Complete three-construction logo exploration before brand selection.
-- Local .env contains a generated local-only database password and is ignored. Only .env.example is public.
-- Next: settle auth choice, implement session -> isolated membership -> persisted ticket -> rendered inbox, then API/database scenarios and ego-browser journeys. No unit tests.
+Confirmed: Better Auth, up to USD 25/month infrastructure separately from USD 20/month AI allowance. No paid resources provisioned.
 
-## Checks run on preparation
+Verified locally so far: production build, web lint/typecheck, Python static checks, 21 real HTTP/PostgreSQL assertions; desktop ego-browser entry/read/reload/both themes. Mobile, keyboard, expiration UI and final review remain in progress. No hosted deployment, live providers, AI evaluations or unattended browser CI claimed.
 
-- Web lint and TypeScript checks passed for the current minimal files; no application build or browser journey is claimed.
-- npm audit reports seven moderate development-tool dependency findings through minimatch. `npm audit fix` did not resolve them; investigate compatible tooling updates before S01 completion. Production dependency audit is separate.
+Remaining project scope: S02–S13. This slice must not imply drafting, knowledge, Gmail, automated cleanup or public abuse protection exist. Local-only until S12.

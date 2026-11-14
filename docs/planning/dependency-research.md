@@ -7,3 +7,7 @@
 - Fontsource Manrope and Source Sans 3 assets are self-hosted packages; retain bundled OFL licenses. https://github.com/fontsource/fontsource
 
 Package compatibility must also pass the application build and integration verification. Registry availability alone is not verification. OpenAI models/pricing will be verified before S06 paid requests are enabled.
+
+## S01 verified resolution
+
+Web dependencies are now delivered in apps/web/package-lock.json and API dependencies in apps/api/uv.lock. Better Auth 1.7.23 is approved and session migration/real HTTP scenarios pass. The TypeScript-ESLint minimatch dependency is overridden to patched 11.0.1; lint and build validate its use. ESLint 10 uses the maintained Next, TypeScript and React Hooks plugins directly because the aggregate Next config still includes plugins whose declared peers stop at ESLint 9. No peer override flag is required. The resulting npm audit has zero reported vulnerabilities (14 November 2026); this is a point-in-time registry check, not a security guarantee.

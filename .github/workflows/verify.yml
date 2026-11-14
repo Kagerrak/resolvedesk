@@ -1,0 +1,55 @@
+name: Verify
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: apps/api/uv.lock
+      - name: Configure disposable environment
+        run: python3 scripts/configure-local.py
+      - name: Start real PostgreSQL
+        run: docker compose up -d --wait
+      - name: Install API and migrate domain schema
+        working-directory: apps/api
+        run: |
+          uv sync --frozen
+          uv run alembic upgrade head
+          uv run ruff check resolvedesk migrations scenarios
+          uv run pyright
+      - name: Install web and migrate auth schema
+        working-directory: apps/web
+        run: |
+          npm ci
+          npm run auth:migrate
+          npm run lint
+          npm run typecheck
+          npm run build
+          npm audit --audit-level=moderate
+      - name: Start application and verify public seams
+        run: |
+          (cd apps/api && uv run uvicorn resolvedesk.main:app --host 127.0.0.1 --port 8000) > /tmp/resolvedesk-api.log 2>&1 &
+          (cd apps/web && npm run start) > /tmp/resolvedesk-web.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8000/health >/dev/null && curl --fail --silent http://localhost:3000/ >/dev/null; then break; fi
+            sleep 1
+          done
+          cd apps/api
+          uv run python -m scenarios.s01
+      - name: Stop disposable services
+        if: always()
+        run: docker compose down --volumes
