@@ -12,4 +12,4 @@ Implementation comes before verification. No TDD or unit tests. Verification wil
 
 ## Status
 
-Repository bootstrap and skill refresh complete. Setup configuration and ticket breakdown await review. License undecided; no license grant is published. No paid infrastructure has been provisioned.
+Repository bootstrap and skill refresh complete. Setup configuration, ticket breakdown and MIT license approved. No paid infrastructure has been provisioned.

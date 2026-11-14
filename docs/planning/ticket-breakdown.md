@@ -1,6 +1,6 @@
-# Proposed ticket breakdown — awaiting review
+# Approved ticket breakdown
 
-Retain the agreed S01–S13 vertical slices below. Each includes UI, API, persisted state, failure handling and verification after implementation. Split a slice further before implementation if it cannot fit a bounded delivery.
+Approved by the user on 14 November 2026. Retain the agreed S01–S13 vertical slices below. Each includes UI, API, persisted state, failure handling and verification after implementation. Split a slice further before implementation if it cannot fit a bounded delivery.
 
 Verification uses the running API with a real disposable PostgreSQL database, browser journeys through ego-browser, and separately labeled fixture/live evaluations. No unit tests.
 
