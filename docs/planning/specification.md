@@ -15,17 +15,19 @@ An owned B2B ticket inbox with published knowledge, cited draft assistance, expl
 6. As a recruiter, I want an isolated synthetic session so I can explore without real customer access.
 7. As a support product user, I want to sign in or create an isolated demo session, select the permitted workspace and open a persisted ticket.
 8. As a support product user, I want to filter/search tickets, open a conversation, save a manual draft and change assignment/priority/status with explicit permission.
-9. As a support product user, I want to admin uploads Markdown/text, inspects parsed sections, publishes a version and opens it from Knowledge.
+9. As an Admin, I want to upload Markdown/text, inspects parsed sections, publishes a version and opens it from Knowledge.
 10. As a support product user, I want to upload a text-based PDF and inspect page-aware extracted passages before publication.
 11. As a support product user, I want to open a ticket, request relevant knowledge and inspect ranked excerpts with citations.
 12. As a support product user, I want to generate an answer, inspect sources, edit it and save a new revision; insufficient evidence creates an escalation draft instead.
 13. As a support product user, I want to review exact content and proposed internal ticket changes, approve, then see the simulated message and immutable activity history.
-14. As a support product user, I want to admin connects a dedicated label, starts sync and reads an imported thread in the owned inbox.
+14. As an Admin, I want to connect a dedicated label, starts sync and reads an imported thread in the owned inbox.
 15. As a support product user, I want to approve a response to an imported ticket, deliver to its verified thread/recipient and inspect confirmed status.
 16. As a support product user, I want to open a failed indexing/sync/delivery operation, understand next action and recover without duplicating work.
 17. As a support product user, I want to run an evaluation dataset, open aggregate results and inspect failed examples and source support.
-18. As a support product user, I want to a new visitor gets an isolated workspace, explores synthetic tickets, generates a bounded draft or uses fixtures, approves a simulated reply and sees the outcome.
+18. As a visitor, I want to receive an isolated workspace, explores synthetic tickets, generates a bounded draft or uses fixtures, approves a simulated reply and sees the outcome.
 19. As a support product user, I want to follow the README from clean checkout, run local fixture mode, inspect live-mode setup, view branded product screens and the evaluation report.
+
+The implementation plan is canonical for shared architecture and verification policy; update this specification and its GitHub issue whenever that policy changes.
 
 ## Implementation Decisions
 
