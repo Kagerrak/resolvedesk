@@ -8,7 +8,8 @@
     "start": "next start --hostname 127.0.0.1",
     "typecheck": "next typegen && tsc --noEmit",
     "lint": "eslint .",
-    "auth:migrate": "node --env-file=.env.local --import tsx scripts/migrate-auth.ts"
+    "auth:migrate": "node --env-file=.env.local --import tsx scripts/migrate-auth.ts",
+    "prototype": "next dev --hostname 127.0.0.1 --port 3100"
   },
   "engines": {
     "node": ">=22"

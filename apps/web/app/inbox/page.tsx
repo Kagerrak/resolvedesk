@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { DesignDirections } from "./prototype/directions";
+import { Suspense, useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   BookOpen,
@@ -24,6 +25,14 @@ import {
 import { authClient } from "@/lib/auth-client";
 
 export default function InboxPage() {
+  return (
+    <Suspense fallback={<p>Loading preview…</p>}>
+      <InboxContent />
+    </Suspense>
+  );
+}
+function InboxContent() {
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [workspaceId, setWorkspaceId] = useState("");
@@ -133,6 +142,13 @@ export default function InboxPage() {
     setLoading(true);
     setDetailOpen(false);
   }
+  if (process.env.NODE_ENV !== "production" && searchParams.has("variant"))
+    return (
+      <DesignDirections
+        variant={searchParams.get("variant") ?? "A"}
+        ticket={detail}
+      />
+    );
   return (
     <div className="shell">
       <aside className="rail">
