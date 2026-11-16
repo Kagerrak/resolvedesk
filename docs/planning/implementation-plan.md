@@ -1,6 +1,8 @@
 # ResolveDesk implementation plan
 
-Status: agreed product brief and proposed engineering execution plan. Prepared 14 November 2026. This is a plan for a new application, not a claim that the product or its GitHub repository already exists.
+Status: agreed product brief and engineering execution plan, originally prepared 14 November 2026. Actual progress is recorded in delivery-status.md and session-handoff.md; planned requirements below are not completion claims.
+
+**16 November amendment:** Command Bright (D) is the approved visual direction, superseding the initial warm editorial appearance. Better Auth is approved; infrastructure allowance is up to USD 25/month, separate from the USD 20/month AI allowance. Public repository exists; S01 PR #16 is open with passing CI; production adoption of D and S02–S13 remain outstanding.
 
 Companions: design-system.md, GLOSSARY.md, skill-update-record.json. Job-market rationale: ../research/ai-automation-2026-11-14/recommendation.md.
 

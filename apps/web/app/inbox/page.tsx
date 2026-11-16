@@ -135,7 +135,7 @@ export default function InboxPage() {
   }
   return (
     <div className="shell">
-      <aside className="rail">
+      <header className="app-header">
         <Brand />
         <div className="workspace-picker">
           <label className="workspace-label" htmlFor="workspace">
@@ -157,6 +157,19 @@ export default function InboxPage() {
             ))}
           </select>
         </div>
+        <div className="header-actions">
+          <span className="badge">Fixture mode</span>
+          <ThemeToggle />
+          <button
+            className="icon-button"
+            onClick={leave}
+            aria-label="End demo session"
+          >
+            <LogOut size={18} />
+          </button>
+        </div>
+      </header>
+      <aside className="rail">
         <nav aria-label="Main navigation">
           <Link href="/inbox" className="nav-item active" aria-current="page">
             <Inbox size={18} />
@@ -181,27 +194,16 @@ export default function InboxPage() {
           <span className="small muted">
             <ShieldCheck size={14} /> Isolated synthetic workspace
           </span>
-          <span className="small muted">Early preview · S01</span>
+          <span className="small muted">Read-only preview</span>
         </div>
       </aside>
       <main id="main" className="workspace-main">
         <header className="workspace-header">
           <div>
             <span className="eyebrow">
-              {workspace?.name ?? "Support workspace"}
+              {workspace ? `${workspace.name} · Fixture` : "Support workspace"}
             </span>
-            <h1>Inbox</h1>
-          </div>
-          <div className="header-actions">
-            <span className="badge">Fixture mode</span>
-            <ThemeToggle />
-            <button
-              className="icon-button"
-              onClick={leave}
-              aria-label="End demo session"
-            >
-              <LogOut size={18} />
-            </button>
+            <h1>All conversations</h1>
           </div>
         </header>
         {error && (
@@ -230,6 +232,14 @@ export default function InboxPage() {
                 <h2>All tickets</h2>
                 <span className="badge">{tickets.length}</span>
               </div>
+              {!loading && tickets.length > 0 && (
+                <div className="queue-columns" aria-hidden="true">
+                  <span>Customer</span>
+                  <span>Conversation</span>
+                  <span>Status</span>
+                  <span>Priority</span>
+                </div>
+              )}
               {loading ? (
                 <p className="loading" role="status">
                   Loading your inbox…
@@ -255,90 +265,122 @@ export default function InboxPage() {
                       setDetailOpen(true);
                     }}
                   >
-                    <span className="row-top">
-                      <span>{t.customer_name}</span>
-                      <span>#{t.number}</span>
+                    <span className="row-customer">
+                      {t.customer_name}
+                      <span className="small muted">{t.customer_email}</span>
                     </span>
-                    <strong>{t.subject}</strong>
-                    <p>{t.customer_email}</p>
+                    <span className="row-subject">
+                      <strong>{t.subject}</strong>
+                      <span className="small muted">Ticket #{t.number}</span>
+                    </span>
                     <span className="badge open">{t.status}</span>
+                    <span className="row-priority">{t.priority}</span>
                   </button>
                 ))
               )}
-              <p className="queue-note">
-                A sample conversation.
-                <br />A workspace that belongs only to you.
-              </p>
             </section>
-            <section className="ticket-detail" aria-label="Ticket conversation">
-              <button
-                className="secondary mobile-back"
-                onClick={() => setDetailOpen(false)}
+            <div className="conversation-layout">
+              <section
+                className="ticket-detail"
+                aria-label="Ticket conversation"
               >
-                <ArrowLeft size={16} />
-                Back to inbox
-              </button>
-              {detail ? (
-                <>
-                  <span className="eyebrow">
-                    Ticket #{detail.number} · Email
-                  </span>
-                  <h2 tabIndex={-1}>{detail.subject}</h2>
-                  <div className="ticket-meta">
-                    <span className="badge open">{detail.status}</span>
-                    <span>{detail.priority} priority</span>
-                    <span>{workspace?.role} access</span>
-                    <span>Fixture · no email delivery</span>
-                  </div>
-                  {detail.messages.map((m) => (
-                    <article key={m.id} className="message">
-                      <header className="message-header">
-                        <span className="avatar" aria-hidden="true">
-                          {m.sender_name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </span>
-                        <div>
-                          <strong>{m.sender_name}</strong>
-                          <div className="small muted">{m.sender_email}</div>
-                        </div>
-                        <time dateTime={m.created_at}>
-                          {new Date(m.created_at).toLocaleString(undefined, {
-                            month: "short",
-                            day: "numeric",
-                            hour: "numeric",
-                            minute: "2-digit",
-                          })}
-                        </time>
-                      </header>
-                      <p className="message-body">{m.body}</p>
-                    </article>
-                  ))}
-                  <aside className="next-step">
-                    <h3>
-                      {workspace?.role === "viewer"
-                        ? "You have read-only access"
-                        : "The conversation comes first"}
-                    </h3>
-                    <p className="muted">
-                      {workspace?.role === "viewer"
-                        ? "You can inspect this conversation. An Agent or Admin handles changes and replies."
-                        : "This preview lets you inspect a saved ticket. Manual handling and cited reply assistance arrive in the next slices."}
-                    </p>
-                    <span className="small muted">
-                      No reply has been drafted, approved or sent.
+                <button
+                  className="secondary mobile-back"
+                  onClick={() => setDetailOpen(false)}
+                >
+                  <ArrowLeft size={16} />
+                  Back to inbox
+                </button>
+                {detail ? (
+                  <>
+                    <span className="eyebrow">
+                      Ticket #{detail.number} · Email
                     </span>
-                  </aside>
-                </>
-              ) : (
-                <p className="loading" role="status">
-                  {ticketId
-                    ? "Loading the conversation…"
-                    : "Choose a ticket to read its conversation."}
-                </p>
+                    <h2 tabIndex={-1}>{detail.subject}</h2>
+                    <div className="ticket-meta">
+                      <span className="badge open">{detail.status}</span>
+                      <span>{detail.priority} priority</span>
+                      <span>{workspace?.role} access</span>
+                      <span>Fixture · no email delivery</span>
+                    </div>
+                    {detail.messages.map((m) => (
+                      <article key={m.id} className="message">
+                        <header className="message-header">
+                          <span className="avatar" aria-hidden="true">
+                            {m.sender_name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </span>
+                          <div>
+                            <strong>{m.sender_name}</strong>
+                            <div className="small muted">{m.sender_email}</div>
+                          </div>
+                          <time dateTime={m.created_at}>
+                            {new Date(m.created_at).toLocaleString(undefined, {
+                              month: "short",
+                              day: "numeric",
+                              hour: "numeric",
+                              minute: "2-digit",
+                            })}
+                          </time>
+                        </header>
+                        <p className="message-body">{m.body}</p>
+                      </article>
+                    ))}
+                    <div className="next-step">
+                      <h3>
+                        {workspace?.role === "viewer"
+                          ? "You have read-only access"
+                          : "The conversation comes first"}
+                      </h3>
+                      <p className="muted">
+                        {workspace?.role === "viewer"
+                          ? "You can inspect this conversation. An Agent or Admin handles changes and replies."
+                          : "This preview lets you inspect a saved ticket. Manual handling and cited reply assistance arrive in the next slices."}
+                      </p>
+                      <span className="small muted">
+                        No reply has been drafted, approved or sent.
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <p className="loading" role="status">
+                    {ticketId
+                      ? "Loading the conversation…"
+                      : "Choose a ticket to read its conversation."}
+                  </p>
+                )}
+              </section>
+              {detail && (
+                <aside className="ticket-context" aria-label="Ticket details">
+                  <span className="eyebrow">Conversation context</span>
+                  <h3>Ticket details</h3>
+                  <dl>
+                    <dt>Customer</dt>
+                    <dd>{detail.customer_name}</dd>
+                    <dt>Email</dt>
+                    <dd>{detail.customer_email}</dd>
+                    <dt>Created</dt>
+                    <dd>
+                      <time dateTime={detail.created_at}>
+                        {new Date(detail.created_at).toLocaleDateString(
+                          undefined,
+                          { month: "short", day: "numeric", year: "numeric" },
+                        )}
+                      </time>
+                    </dd>
+                    <dt>Your access</dt>
+                    <dd>{workspace?.role}</dd>
+                  </dl>
+                  <p className="context-note">
+                    <ShieldCheck size={18} aria-hidden="true" /> Synthetic
+                    conversation, saved in your isolated workspace. No email
+                    delivery is connected.
+                  </p>
+                </aside>
               )}
-            </section>
+            </div>
           </div>
         )}
       </main>
