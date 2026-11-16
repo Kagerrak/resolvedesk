@@ -1375,3 +1375,225 @@
 .pd-C {
   color-scheme: dark;
 }
+
+/* D: Command Bright — user-selected Command structure, brighter surfaces and measured contrast. */
+.pd-D {
+  --pd-bg: #202832;
+  --pd-paper: #2a3440;
+  --pd-text: #f4f7fb;
+  --pd-muted: #c3ceda;
+  --pd-line: #687889;
+  --pd-accent: #c3ef87;
+  --pd-soft: #354b39;
+}
+.pd-D .pd-command-header {
+  background: #26313c;
+  border-bottom-color: #596a7b;
+}
+.pd-D .pd-command-nav {
+  background: #242e39;
+  border-right-color: #596a7b;
+}
+.pd-D .pd-command-header-right {
+  color: #d1dce7;
+  font-size: 12px;
+}
+.pd-D .pd-command-title h2 {
+  font-size: 25px;
+}
+.pd-D .pd-command-title h2 > span {
+  color: #d1dce7;
+  font-size: 14px;
+}
+.pd-D .pd-section-label,
+.pd-D .pd-command-label {
+  color: #c3ceda;
+  font-size: 11px;
+}
+.pd-D .pd-command-nav > span {
+  font-size: 13px;
+}
+.pd-D .pd-command-bottom {
+  color: #c3ceda;
+  font-size: 12px;
+}
+.pd-D .pd-command-bottom kbd {
+  color: #e4edf5;
+}
+.pd-D .pd-search {
+  background: #2a3440;
+  border-color: #8292a3;
+  height: 40px;
+}
+.pd-D .pd-search input {
+  font-size: 13px;
+}
+.pd-D .pd-search input::placeholder {
+  color: #c3ceda;
+  opacity: 1;
+}
+.pd-D .pd-search kbd {
+  color: #d4dee8;
+  font-size: 11px;
+}
+.pd-D .pd-table-head {
+  color: #d4dee8;
+  font-size: 12px;
+  background: #293440;
+}
+.pd-D .pd-table > button {
+  font-size: 13px;
+  padding-block: 12px;
+  border-bottom-color: #526171;
+}
+.pd-D .pd-table > button.chosen {
+  background: #354b39;
+  box-shadow: inset 3px 0 #c3ef87;
+}
+.pd-D .pd-table > button:hover {
+  background: #364452;
+}
+.pd-D .pd-table > button.chosen:hover {
+  background: #405a43;
+}
+.pd-D .pd-table strong {
+  font-weight: 550;
+}
+.pd-D .pd-table time {
+  font-size: 12px;
+  color: #d3deea;
+}
+.pd-D .pd-tag {
+  font-size: 11px;
+  border-color: #8190a0;
+  color: #edf3f9;
+  background: #303d49;
+}
+.pd-D .pd-status {
+  font-size: 12px;
+  color: #d9ffab;
+  border: 1px solid #8dab76;
+}
+.pd-D .pd-avatar {
+  background: #ffd7a9;
+  color: #593a19;
+}
+.pd-D .pd-avatar.blue {
+  background: #b9dcff;
+  color: #183e65;
+}
+.pd-D .pd-avatar.lavender {
+  background: #dfceff;
+  color: #4b2d76;
+}
+.pd-D .pd-avatar.mint {
+  background: #b6ecd0;
+  color: #234f38;
+}
+.pd-D .pd-avatar.neutral {
+  background: #d7e1ed;
+  color: #344659;
+}
+.pd-D .pd-top-avatar {
+  background: #c3ef87;
+  color: #263a1c;
+}
+.pd-D .pd-command-detail {
+  border-color: #718193;
+}
+.pd-D .pd-command-detail > aside {
+  background: #25303b;
+}
+.pd-D .pd-command-detail h1 {
+  font-size: 25px;
+}
+.pd-D .pd-breadcrumb,
+.pd-D .pd-conversation-meta {
+  font-size: 12px;
+  color: #cad6e2;
+}
+.pd-D .pd-message header > div {
+  font-size: 14px;
+}
+.pd-D .pd-message header > div > span,
+.pd-D .pd-message time {
+  font-size: 12px;
+  color: #c3ceda;
+}
+.pd-D .pd-command-detail .pd-message > p {
+  font-size: 15px;
+  line-height: 1.8;
+}
+.pd-D .pd-composer {
+  background: #303e4b;
+  border-color: #8292a3;
+}
+.pd-D .pd-composer > header {
+  font-size: 13px;
+}
+.pd-D .pd-compose-empty > p {
+  font-size: 15px;
+}
+.pd-D .pd-compose-empty > span,
+.pd-D .pd-muted {
+  font-size: 12px;
+  color: #c8d4e0;
+}
+.pd-D .pd-composer textarea {
+  background: #303e4b;
+  font-size: 14px;
+}
+.pd-D .pd-primary {
+  background: #c3ef87;
+  color: #203215 !important;
+  font-size: 13px !important;
+  min-height: 40px;
+}
+.pd-D .pd-primary:hover {
+  background: #d4ffa0;
+  filter: none;
+}
+.pd-D .pd-command-detail .pd-evidence h3 {
+  font-size: 19px;
+}
+.pd-D .pd-evidence > p,
+.pd-D .pd-command-detail .pd-evidence blockquote {
+  font-size: 14px;
+}
+.pd-D .pd-source {
+  background: #303e4b;
+  border-color: #8292a3;
+  padding: 15px 12px;
+}
+.pd-D .pd-source strong {
+  font-size: 13px;
+}
+.pd-D .pd-source small {
+  font-size: 11px;
+  color: #cbd7e3;
+}
+.pd-D .pd-evidence-note {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #cbd7e3;
+}
+.pd-D .pd-document-icon {
+  background: #40563b;
+  color: #d9ffab;
+}
+.pd-D .pd-prototype-notice {
+  background: #14202b;
+  color: #e3edf5;
+}
+@media (max-width: 760px) {
+  .pd-switcher > div button {
+    padding-inline: 5px;
+    gap: 4px;
+  }
+  .pd-switcher {
+    gap: 3px;
+  }
+  .pd-D .pd-command-detail h1 {
+    font-size: 23px;
+  }
+}

@@ -1,0 +1,65 @@
+[
+  {
+    "selector": ".pd-message > p",
+    "foreground": "rgb(244, 247, 251)",
+    "background": "rgb(42, 52, 64)",
+    "ratio": 11.75,
+    "pass": true
+  },
+  {
+    "selector": ".pd-message time",
+    "foreground": "rgb(195, 206, 218)",
+    "background": "rgb(42, 52, 64)",
+    "ratio": 7.91,
+    "pass": true
+  },
+  {
+    "selector": ".pd-evidence > p",
+    "foreground": "rgb(195, 206, 218)",
+    "background": "rgb(37, 48, 59)",
+    "ratio": 8.41,
+    "pass": true
+  },
+  {
+    "selector": ".pd-source small",
+    "foreground": "rgb(203, 215, 227)",
+    "background": "rgb(48, 62, 75)",
+    "ratio": 7.5,
+    "pass": true
+  },
+  {
+    "selector": ".pd-evidence-note",
+    "foreground": "rgb(203, 215, 227)",
+    "background": "rgb(37, 48, 59)",
+    "ratio": 9.18,
+    "pass": true
+  },
+  {
+    "selector": ".pd-primary",
+    "foreground": "rgb(32, 50, 21)",
+    "background": "rgb(195, 239, 135)",
+    "ratio": 10.48,
+    "pass": true
+  },
+  {
+    "selector": ".pd-table time",
+    "foreground": "rgb(211, 222, 234)",
+    "background": "rgb(53, 75, 57)",
+    "ratio": 6.95,
+    "pass": true
+  },
+  {
+    "selector": ".pd-conversation-meta",
+    "foreground": "rgb(202, 214, 226)",
+    "background": "rgb(42, 52, 64)",
+    "ratio": 8.55,
+    "pass": true
+  },
+  {
+    "selector": ".pd-search input",
+    "foreground": "rgb(244, 247, 251)",
+    "background": "rgb(42, 52, 64)",
+    "ratio": 11.75,
+    "pass": true
+  }
+]

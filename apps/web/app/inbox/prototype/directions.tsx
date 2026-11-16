@@ -1,5 +1,5 @@
 "use client";
-// Throwaway: three structurally distinct inbox directions on /inbox?variant=A|B|C.
+// Throwaway: three original directions plus a brighter Command refinement: /inbox?variant=D.
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -26,7 +26,7 @@ import {
 import type { TicketDetail } from "@/lib/api";
 import "./directions.css";
 
-const names = { A: "Studio", B: "Editorial", C: "Command" };
+const names = { A: "Studio", B: "Editorial", C: "Command", D: "Bright" };
 type Variant = keyof typeof names;
 const samples = [
   {
@@ -114,8 +114,10 @@ export function DesignDirections({
         return;
       if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
       e.preventDefault();
-      const keys: Variant[] = ["A", "B", "C"];
-      const n = (keys.indexOf(key) + (e.key === "ArrowRight" ? 1 : 2)) % 3;
+      const keys: Variant[] = ["A", "B", "C", "D"];
+      const n =
+        (keys.indexOf(key) + (e.key === "ArrowRight" ? 1 : keys.length - 1)) %
+        keys.length;
       router.replace(`/inbox?variant=${keys[n]}`, { scroll: false });
     }
     window.addEventListener("keydown", keyboard);
@@ -319,7 +321,7 @@ export function DesignDirections({
     </nav>
   );
   return (
-    <div className={`pd-root pd-${key}`}>
+    <div className={`pd-root ${key === "D" ? "pd-C pd-D" : `pd-${key}`}`}>
       <meta name="darkreader-lock" />
       <div className="pd-prototype-notice">
         <span>DESIGN EXPLORATION</span> Synthetic content & simulated
@@ -450,7 +452,7 @@ export function DesignDirections({
           </div>
         </div>
       )}
-      {key === "C" && (
+      {(key === "C" || key === "D") && (
         <div className="pd-command">
           <header className="pd-command-header">
             {logo}
@@ -561,14 +563,18 @@ export function DesignDirections({
       <div className="pd-switcher" aria-label="Design direction switcher">
         <button
           aria-label="Previous direction"
-          onClick={() => switchTo(key === "A" ? "C" : key === "B" ? "A" : "B")}
+          onClick={() =>
+            switchTo(
+              key === "A" ? "D" : key === "B" ? "A" : key === "C" ? "B" : "C",
+            )
+          }
         >
           <ArrowLeft size={17} />
         </button>
         <div>
           <span>EXPLORE A DIRECTION</span>
           <div>
-            {(["A", "B", "C"] as Variant[]).map((v) => (
+            {(["A", "B", "C", "D"] as Variant[]).map((v) => (
               <button
                 aria-pressed={key === v}
                 key={v}
@@ -582,7 +588,11 @@ export function DesignDirections({
         </div>
         <button
           aria-label="Next direction"
-          onClick={() => switchTo(key === "A" ? "B" : key === "B" ? "C" : "A")}
+          onClick={() =>
+            switchTo(
+              key === "A" ? "B" : key === "B" ? "C" : key === "C" ? "D" : "A",
+            )
+          }
         >
           <ArrowRight size={17} />
         </button>

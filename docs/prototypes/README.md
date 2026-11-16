@@ -13,3 +13,11 @@ Use the bottom switcher or left/right arrows. Search and select sample tickets, 
 Prototype lives on feat/ui-direction-prototypes, outside main, on the existing /inbox route behind development-only variant selection. This explores layout and style, not a shipped product or complete accessibility audit. The prior production inbox and S01 work are retained. No winning direction is assumed until user feedback.
 
 Verified with ego-browser: all three variants rendered and screenshots inspected; search reduces sample rows, sample draft can be edited and reviewed, source opens/closes, direction buttons work, no page overflow at 390px. ESLint and TypeScript checks pass. No automated tests added for this throwaway prototype. A page-level Dark Reader opt-out preserves the intended comparison palettes without altering browser extension settings.
+
+## D — Command Bright refinement
+
+The user's latest choice supersedes the earlier Editorial selection: keep C's Command layout and create a brighter prototype with stronger contrast. D preserves C for comparison at `/inbox?variant=C`; the new version is `/inbox?variant=D`.
+
+Changes: brighter slate surfaces, near-white primary text, lighter secondary text, clearer borders, vivid lime actions, brighter customer avatars and larger supporting labels. This remains a simulated prototype, not the production redesign.
+
+Verified 16 November 2026: ego-browser screenshot inspected at 1440px; no page overflow at 390px. Nine measured rendered text/background pairs all exceed 4.5:1 (lowest 6.95:1); see command-bright-contrast.json. This is a targeted contrast check, not a full accessibility audit. Lint and TypeScript checks pass.
