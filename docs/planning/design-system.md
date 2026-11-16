@@ -1,6 +1,8 @@
 # ResolveDesk brand and experience specification
 
-Status: agreed visual direction; concrete values below are proposed implementation defaults. Validate them in rendered screens and accessibility checks. This document accompanies implementation-plan.md.
+Status: original brief retained with the following approved visual amendment. This document accompanies implementation-plan.md.
+
+> **Current visual authority — 16 November 2026:** The user approved **Command Bright (D)**. It supersedes the original warm editorial/deep-teal appearance described below and the earlier B selection. See `.impeccable.md`, `docs/prototypes/command-bright.png` and `docs/planning/session-handoff.md`. Use C's operations layout with D's brighter slate surfaces, near-white text, light secondary labels, clearer borders and lime actions. The older visual values/constructions below are historical seeds; retain the accessibility, brand deliverables, truthful state handling and component completeness requirements. Light-theme adaptation and original logo assets still need implementation/validation.
 
 ## Design context
 
