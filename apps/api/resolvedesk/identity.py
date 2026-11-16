@@ -23,6 +23,10 @@ async def identity(request: Request) -> Identity:
                 headers={"cookie": cookie},
                 params={"disableCookieCache": "true"},
             )
+        if response.status_code == 429:
+            raise HTTPException(
+                503, "Sign-in is busy. Wait a minute and try again. Your saved work is safe."
+            )
         if response.status_code >= 500:
             raise HTTPException(503, "Sign-in is temporarily unavailable. Try again.")
         data = response.json() if response.status_code == 200 else None

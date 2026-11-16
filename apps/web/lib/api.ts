@@ -10,12 +10,16 @@ export async function api<T>(
   path: string,
   method = "GET",
   signal?: AbortSignal,
+  data?: unknown,
 ): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`/api/backend/${path}`, {
       method,
       signal,
+      headers:
+        data === undefined ? undefined : { "content-type": "application/json" },
+      body: data === undefined ? undefined : JSON.stringify(data),
       cache: "no-store",
     });
   } catch (error) {
@@ -58,10 +62,32 @@ export type Ticket = {
   customer_email: string;
   status: string;
   priority: string;
+  assigned_to: string | null;
   revision: number;
   created_at: string;
 };
+export type Member = {
+  user_id: string;
+  name: string;
+  role: "admin" | "agent" | "viewer";
+};
 export type TicketDetail = Ticket & {
+  draft: {
+    id: string;
+    body: string;
+    ticket_revision: number;
+    created_at: string;
+  } | null;
+  events: {
+    id: string;
+    actor: string;
+    action: string;
+    changes: Record<
+      string,
+      { before: string | null; after: string | null } | string
+    >;
+    created_at: string;
+  }[];
   messages: {
     id: string;
     sender_name: string;

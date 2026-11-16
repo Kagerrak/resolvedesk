@@ -49,6 +49,9 @@ jobs:
           done
           cd apps/api
           uv run python -m scenarios.s01
+          # Preserve Better Auth's real per-IP anonymous-session rate limit.
+          sleep 61
+          uv run python -m scenarios.s02
       - name: Stop disposable services
         if: always()
         run: docker compose down --volumes

@@ -1,19 +1,23 @@
 from datetime import UTC, datetime
-from typing import Annotated
+from typing import Annotated, Literal
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, HTTPException, Request
-from pydantic import BaseModel, ConfigDict
-from sqlalchemy import select, text
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
+from pydantic import BaseModel
+from sqlalchemy import or_, select, text
 from sqlalchemy.orm import Session
 
 from .config import settings
 from .database import database
+from .handling import read_detail
+from .handling import router as handling_router
 from .identity import Identity, identity
 from .inbox import create_demo, membership, ticket_in_workspace
-from .models import Membership, Message, Ticket, Workspace
+from .models import Membership, Ticket, Workspace
+from .ticket_views import TicketDetail, TicketView
 
 app = FastAPI(title="ResolveDesk", version="0.1.0")
+app.include_router(handling_router)
 DB = Annotated[Session, Depends(database)]
 Visitor = Annotated[Identity, Depends(identity)]
 
@@ -24,32 +28,6 @@ class WorkspaceView(BaseModel):
     role: str
     mode: str = "fixture"
     expires_at: datetime | None
-
-
-class MessageView(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    id: UUID
-    sender_name: str
-    sender_email: str
-    body: str
-    created_at: datetime
-
-
-class TicketView(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    id: UUID
-    number: int
-    subject: str
-    customer_name: str
-    customer_email: str
-    status: str
-    priority: str
-    revision: int
-    created_at: datetime
-
-
-class TicketDetail(TicketView):
-    messages: list[MessageView]
 
 
 @app.middleware("http")
@@ -103,26 +81,37 @@ def workspaces(db: DB, visitor: Visitor):
 
 
 @app.get("/workspaces/{workspace_id}/tickets", response_model=list[TicketView])
-def tickets(workspace_id: UUID, db: DB, visitor: Visitor):
+def tickets(
+    workspace_id: UUID,
+    db: DB,
+    visitor: Visitor,
+    q: str = Query(default="", max_length=200),
+    status: Literal["all", "open", "pending", "resolved"] = "all",
+    assignment: Literal["all", "mine", "unassigned"] = "all",
+):
+
     membership(db, workspace_id, visitor)
-    return db.scalars(
-        select(Ticket).where(Ticket.workspace_id == workspace_id).order_by(Ticket.created_at.desc())
-    ).all()
+    query = select(Ticket).where(Ticket.workspace_id == workspace_id)
+    if q.strip():
+        query = query.where(
+            or_(
+                *(
+                    column.icontains(q.strip(), autoescape=True)
+                    for column in [Ticket.subject, Ticket.customer_name, Ticket.customer_email]
+                )
+            )
+        )
+    if status != "all":
+        query = query.where(Ticket.status == status)
+    if assignment == "mine":
+        query = query.where(Ticket.assigned_to == visitor.user_id)
+    elif assignment == "unassigned":
+        query = query.where(Ticket.assigned_to.is_(None))
+    return db.scalars(query.order_by(Ticket.created_at.desc(), Ticket.id)).all()
 
 
 @app.get("/workspaces/{workspace_id}/tickets/{ticket_id}", response_model=TicketDetail)
 def ticket(workspace_id: UUID, ticket_id: UUID, db: DB, visitor: Visitor):
     membership(db, workspace_id, visitor)
     item = ticket_in_workspace(db, workspace_id, ticket_id)
-    messages = db.scalars(
-        select(Message)
-        .where(
-            Message.workspace_id == workspace_id,
-            Message.ticket_id == ticket_id,
-        )
-        .order_by(Message.created_at, Message.id)
-    ).all()
-    return TicketDetail(
-        **TicketView.model_validate(item).model_dump(),
-        messages=[MessageView.model_validate(m) for m in messages],
-    )
+    return read_detail(db, item, visitor)

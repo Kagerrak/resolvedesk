@@ -112,10 +112,10 @@ export default function Home() {
             </li>
             <li>
               <div>
-                <strong>A deliberate next step</strong>
+                <strong>Handle with intention</strong>
                 <p className="muted">
-                  Evidence, drafting and human-approved replies are planned.
-                  This first slice is a read-only inbox.
+                  Save a manual draft, assign a ticket and review its handling
+                  history. Evidence and human-approved delivery are planned.
                 </p>
               </div>
             </li>

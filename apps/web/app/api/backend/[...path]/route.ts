@@ -7,7 +7,7 @@ async function proxy(
   const { path } = await context.params;
   const route = path.join("/");
   if (
-    !/^(demo|workspaces|workspaces\/[0-9a-f-]+\/tickets(?:\/[0-9a-f-]+)?)$/.test(
+    !/^(demo|workspaces|workspaces\/[0-9a-f-]+\/(?:members|tickets(?:\/[0-9a-f-]+(?:\/draft)?)?))$/.test(
       route,
     )
   ) {
@@ -25,13 +25,15 @@ async function proxy(
   }
   try {
     const response = await fetch(
-      `${process.env.API_URL ?? "http://127.0.0.1:8000"}/${route}`,
+      `${process.env.API_URL ?? "http://127.0.0.1:8000"}/${route}${request.nextUrl.search}`,
       {
         method: request.method,
         headers: {
           cookie: request.headers.get("cookie") ?? "",
           origin: request.headers.get("origin") ?? "",
+          "content-type": "application/json",
         },
+        body: request.method === "GET" ? undefined : await request.text(),
         cache: "no-store",
         signal: AbortSignal.timeout(10000),
         redirect: "error",
@@ -56,3 +58,5 @@ async function proxy(
 }
 export const GET = proxy;
 export const POST = proxy;
+
+export const PATCH = proxy;
