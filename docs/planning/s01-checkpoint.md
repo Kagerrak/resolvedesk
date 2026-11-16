@@ -1,9 +1,7 @@
 # S01 checkpoint
 
-Implemented: Better Auth anonymous sessions, transactional isolated demo creation, persisted membership/ticket/message, scoped API reads, real workspace selector, light/dark responsive inbox and session-end recovery. Working branch feat/s01-workspace, PR #16, issue #2.
+16 November 2026: Command Bright adopted in the functional S01 inbox on `feat/s01-workspace`, PR #16. Actual ticket table, conversation and context use persisted scoped API data; complementary light theme retained. Prototype route/actions were not imported.
 
-Confirmed: Better Auth, up to USD 25/month infrastructure separately from USD 20/month AI allowance. No paid resources provisioned.
+Better Auth, isolated demo creation, PostgreSQL membership/ticket/message persistence, scoped API and expiry recovery remain verified. 23 genuine HTTP/PostgreSQL assertions passed; web lint/types/build passed. Ego-browser responsive/keyboard/theme/Viewer/retry checks and independent reviews complete. See `docs/verification/s01-command-bright.md` for evidence and native zoom limitation.
 
-Verified locally so far: production build, web lint/typecheck, Python static checks, 23 real HTTP/PostgreSQL assertions; desktop ego-browser entry/read/reload/both themes. Mobile, keyboard, session-expiration recovery and final review passed. GitHub CI completion is pending. No hosted deployment, live providers, AI evaluations or unattended browser CI claimed.
-
-Remaining project scope: S02–S13. This slice must not imply drafting, knowledge, Gmail, automated cleanup or public abuse protection exist. Local-only until S12.
+PR #16 awaits updated CI and merge. S02–S13, hosted demo, AI and Gmail remain unfinished. No paid resources provisioned.

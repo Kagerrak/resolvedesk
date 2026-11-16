@@ -244,6 +244,11 @@ export default function InboxPage() {
                 <p className="loading" role="status">
                   Loading your inbox…
                 </p>
+              ) : error && !tickets.length ? (
+                <p className="queue-note">
+                  The ticket queue could not be loaded. Use Try again above to
+                  reconnect.
+                </p>
               ) : !tickets.length ? (
                 <p className="queue-note">
                   {workspaces.length
@@ -346,9 +351,11 @@ export default function InboxPage() {
                   </>
                 ) : (
                   <p className="loading" role="status">
-                    {ticketId
-                      ? "Loading the conversation…"
-                      : "Choose a ticket to read its conversation."}
+                    {error
+                      ? "The conversation could not be loaded. Use Try again above to reconnect."
+                      : ticketId
+                        ? "Loading the conversation…"
+                        : "Choose a ticket to read its conversation."}
                   </p>
                 )}
               </section>
