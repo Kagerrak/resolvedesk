@@ -130,6 +130,20 @@ export default function KnowledgePage() {
       const rows = await api<Document[]>(
         `workspaces/${current.workspace}/knowledge`,
       );
+      if (selection.current.workspace !== current.workspace) return;
+      setDocuments(rows);
+      if (
+        current.document &&
+        !rows.some((doc) => doc.id === current.document)
+      ) {
+        selection.current.document = "";
+        setSelected("");
+        setDetail(null);
+        setNotice(
+          "The selected source is no longer available in this workspace.",
+        );
+        return;
+      }
       const row = current.document
         ? await api<Detail>(
             `workspaces/${current.workspace}/knowledge/${current.document}`,
@@ -138,16 +152,10 @@ export default function KnowledgePage() {
       if (
         selection.current.workspace === current.workspace &&
         selection.current.document === current.document
-      ) {
-        setDocuments(rows);
+      )
         setDetail(row);
-      }
     } catch (reason) {
-      setError(
-        reason instanceof Error
-          ? reason.message
-          : "Could not refresh knowledge.",
-      );
+      report(reason);
     } finally {
       setBusy(false);
     }
@@ -373,6 +381,7 @@ export default function KnowledgePage() {
                   aria-pressed={selected === doc.id}
                   disabled={busy}
                   onClick={() => {
+                    if (selection.current.document === doc.id) return;
                     selection.current.document = doc.id;
                     setSelected(doc.id);
                     setDetail(null);
