@@ -2,7 +2,7 @@
 
 Support, grounded in knowledge.
 
-An AI-assisted B2B support product under construction. The first slice provides an isolated synthetic workspace and persisted ticket inbox. AI drafting, knowledge, Gmail and the hosted recruiter demo remain unfinished; no live-provider or quality results are claimed.
+An AI-assisted B2B support product under construction. The local preview provides an isolated synthetic workspace, persisted ticket inbox, manual drafts, explicit ticket handling and audit history. AI drafting, knowledge, Gmail and the hosted recruiter demo remain unfinished; no live-provider or quality results are claimed.
 
 ## Run the local fixture preview
 
@@ -32,7 +32,7 @@ cd apps/web
 npm run start
 ```
 
-Open [localhost:3000](http://localhost:3000). Use this exact hostname for the session origin. Explore the sample inbox to create a Better Auth anonymous session and a unique persisted workspace. Reload preserves the ticket. End demo session signs out. Sessions and workspace access expire after one hour.
+Open [localhost:3000](http://localhost:3000). Use this exact hostname for the session origin. Explore the sample inbox to create a Better Auth anonymous session and a unique persisted workspace. Search/filter the actual queue, save a manual draft, assign a ticket, change priority/status and inspect history. Saved drafts are not messages and cannot be sent yet. Conflicting edits require comparison before saving again. Reload preserves saved work and query filters. End demo session signs out. Sessions and workspace access expire after one hour.
 
 The scripts generate local environment files without overwriting existing configuration. Never commit them. `.env.example` files show placeholders only. Docker data remains in a local volume when stopped; `docker compose down` stops the database without deleting it.
 
@@ -45,6 +45,9 @@ With both processes running against a disposable local database:
 ```sh
 cd apps/api
 uv run python -m scenarios.s01
+# Allow the real anonymous-session rate limit to reset between scenario suites.
+sleep 61
+uv run python -m scenarios.s02
 uv run ruff check resolvedesk migrations scenarios
 uv run pyright
 cd ../web
@@ -54,7 +57,7 @@ npm run build
 npm audit
 ```
 
-The scenario creates actual Better Auth sessions and persists PostgreSQL records, then checks isolation, concurrent creation, revocation, expiry and ownership constraints. It deletes its own synthetic records afterward. No unit tests or mock database. Interactive browser QA uses ego-browser; unattended CI browser execution is not configured or claimed.
+The scenarios create actual Better Auth sessions and persists PostgreSQL records, then check isolation, concurrent creation, revocation, expiry, draft revisions, concurrent writes, explicit reopen, Viewer enforcement and audit persistence. They delete their own synthetic records afterward. No unit tests or mock database. Interactive browser QA uses ego-browser; unattended CI browser execution is not configured or claimed.
 
 ## Product and delivery
 
