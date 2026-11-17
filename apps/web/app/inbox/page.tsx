@@ -45,6 +45,8 @@ export default function InboxPage() {
     status: "all",
     assignment: "all",
   });
+  const selectedWorkspace = useRef("");
+  const selectedTicket = useRef("");
   function canNavigate() {
     return (
       !hasUnsaved ||
@@ -52,11 +54,15 @@ export default function InboxPage() {
     );
   }
   function changed(next: TicketDetail) {
+    if (
+      selectedWorkspace.current !== workspaceId ||
+      selectedTicket.current !== next.id
+    )
+      return;
     setDetail(next);
     setTickets((rows) => rows.map((t) => (t.id === next.id ? next : t)));
     setQueueVersion((v) => v + 1);
   }
-  const selectedWorkspace = useRef("");
   const hadDetailOpen = useRef(false);
   const workspace = workspaces.find((w) => w.id === workspaceId);
   function fail(error: unknown) {
@@ -66,6 +72,7 @@ export default function InboxPage() {
       [401, 403, 404, 410].includes(error.status)
     ) {
       setTickets([]);
+      selectedTicket.current = "";
       setTicketId("");
       setDetail(null);
     }
@@ -96,6 +103,7 @@ export default function InboxPage() {
           : (rows[0]?.id ?? "");
         if (nextId !== selectedWorkspace.current) {
           setTickets([]);
+          selectedTicket.current = "";
           setTicketId("");
           setDetail(null);
           setDetailOpen(false);
@@ -124,9 +132,11 @@ export default function InboxPage() {
       ),
     ])
       .then(([rows, people]) => {
+        if (selectedWorkspace.current !== workspaceId) return;
         setMembers(people);
         setTickets(rows);
-        setTicketId((current) => current || rows[0]?.id || "");
+        if (!selectedTicket.current) selectedTicket.current = rows[0]?.id ?? "";
+        setTicketId(selectedTicket.current);
         setLoading(false);
       })
       .catch(fail);
@@ -140,7 +150,13 @@ export default function InboxPage() {
       "GET",
       controller.signal,
     )
-      .then(setDetail)
+      .then((next) => {
+        if (
+          selectedWorkspace.current === workspaceId &&
+          selectedTicket.current === ticketId
+        )
+          setDetail(next);
+      })
       .catch(fail);
     return () => controller.abort();
   }, [ticketId, workspaceId, retry]);
@@ -170,6 +186,7 @@ export default function InboxPage() {
     selectedWorkspace.current = id;
     setWorkspaceId(id);
     setTickets([]);
+    selectedTicket.current = "";
     setTicketId("");
     setDetail(null);
     setError("");
@@ -379,6 +396,7 @@ export default function InboxPage() {
                     onClick={() => {
                       if (ticketId !== t.id && !canNavigate()) return;
                       if (ticketId !== t.id) setDetail(null);
+                      selectedTicket.current = t.id;
                       setTicketId(t.id);
                       setDetailOpen(true);
                     }}

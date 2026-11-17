@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api, ApiError, type Member, type TicketDetail } from "@/lib/api";
 
@@ -24,10 +25,12 @@ export function TicketHandling({
   const [priority, setPriority] = useState(detail.priority);
   const [assignee, setAssignee] = useState(detail.assigned_to ?? "");
   const [busy, setBusy] = useState(false);
+  const [baselineRevision, setBaselineRevision] = useState(detail.revision);
   const [error, setError] = useState("");
   const [conflict, setConflict] = useState(false);
   const [accessEnded, setAccessEnded] = useState(false);
   const [notice, setNotice] = useState("");
+  const needsReview = conflict || detail.revision !== baselineRevision;
   const draftDirty = body !== (detail.draft?.body ?? "");
   const fieldsDirty =
     status !== detail.status ||
@@ -57,17 +60,20 @@ export function TicketHandling({
         kind === "draft" ? "POST" : "PATCH",
         undefined,
         kind === "draft"
-          ? { expected_revision: detail.revision, body }
+          ? { expected_revision: baselineRevision, body }
           : {
-              expected_revision: detail.revision,
+              expected_revision: baselineRevision,
               status: kind === "reopen" ? "open" : status,
-              priority,
-              assigned_to: assignee || null,
+              priority: kind === "reopen" ? detail.priority : priority,
+              assigned_to:
+                kind === "reopen" ? detail.assigned_to : assignee || null,
               reopen: kind === "reopen",
             },
       );
       onChanged(next);
-      if (kind !== "draft") {
+      setBaselineRevision(next.revision);
+      if (kind === "reopen") setStatus(next.status);
+      if (kind === "fields") {
         setStatus(next.status);
         setPriority(next.priority);
         setAssignee(next.assigned_to ?? "");
@@ -99,6 +105,7 @@ export function TicketHandling({
     try {
       const latest = await api<TicketDetail>(path);
       onChanged(latest);
+      setBaselineRevision(latest.revision);
       setConflict(false);
       setNotice(
         "Latest version loaded. Your local edits are retained. Compare the saved values below before saving again.",
@@ -142,7 +149,10 @@ export function TicketHandling({
               void save("fields");
             }}
           >
-            <fieldset disabled={busy || conflict} className="handling-fields">
+            <fieldset
+              disabled={busy || needsReview}
+              className="handling-fields"
+            >
               <legend className="sr-only">Choose ticket changes</legend>
               <label>
                 Status
@@ -195,7 +205,7 @@ export function TicketHandling({
             <div className="form-actions">
               <button
                 className="secondary"
-                disabled={busy || conflict || !fieldsDirty}
+                disabled={busy || needsReview || !fieldsDirty}
               >
                 Apply ticket changes
               </button>
@@ -203,7 +213,7 @@ export function TicketHandling({
                 <button
                   type="button"
                   className="secondary"
-                  disabled={busy || conflict}
+                  disabled={busy || needsReview}
                   onClick={() => void save("reopen")}
                 >
                   Reopen ticket
@@ -249,7 +259,7 @@ export function TicketHandling({
             <div className="form-actions">
               <button
                 className="primary"
-                disabled={busy || conflict || !draftDirty}
+                disabled={busy || needsReview || !draftDirty}
               >
                 Save draft
               </button>
@@ -285,15 +295,29 @@ export function TicketHandling({
           </form>
         )}
       </section>
-      {error && (
+      {(error || detail.revision !== baselineRevision) && (
         <div className="alert error" role="alert">
-          {error}
+          {error ||
+            "This ticket changed while you were editing. Load the latest version to compare before saving."}
           <p className="small">
             Your local edits are still here. A failed response may have saved;
             load the latest version before retrying.
           </p>
           {accessEnded ? (
-            <a href="/">Return to demo entry</a>
+            <Link
+              href="/"
+              onClick={(e) => {
+                if (
+                  dirty &&
+                  !window.confirm(
+                    "Discard your unsaved edits and return to demo entry?",
+                  )
+                )
+                  e.preventDefault();
+              }}
+            >
+              Return to demo entry
+            </Link>
           ) : (
             <button
               className="secondary"
