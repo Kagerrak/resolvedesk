@@ -624,3 +624,135 @@ a.nav-item {
     animation: none !important;
   }
 }
+
+/* Manual handling uses the same semantic surfaces and native form controls. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.queue-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.queue-filters label,
+.handling-fields label {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--secondary);
+}
+.queue-filters label:first-child {
+  flex: 1;
+  min-width: min(100%, 230px);
+}
+.queue-filters input,
+.queue-filters select,
+.handling select,
+.handling textarea {
+  width: 100%;
+  min-height: 44px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--control);
+  border-radius: var(--radius-control);
+  padding: 9px 12px;
+}
+.handling > section {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+.handling h3 {
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+.handling-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.form-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+.draft-panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.draft-panel header h3 {
+  margin: 0;
+}
+.handling textarea {
+  resize: vertical;
+  line-height: 1.7;
+}
+.handling details {
+  margin-top: 20px;
+}
+.handling summary {
+  cursor: pointer;
+  padding-block: 12px;
+}
+.handling .alert,
+.save-notice {
+  margin-top: 20px;
+}
+.save-notice {
+  color: var(--accent);
+}
+.ticket-history ol {
+  list-style: none;
+  padding: 0;
+}
+.ticket-history ol > li {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+.ticket-history li > strong,
+.ticket-history li > span {
+  display: block;
+}
+.ticket-history ul {
+  padding-left: 20px;
+  margin-top: 8px;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+@media (max-width: 640px) {
+  .queue-filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .queue-filters label:first-child,
+  .queue-filters button {
+    grid-column: 1/-1;
+  }
+  .queue-filters label {
+    min-width: 0;
+  }
+  .handling-fields {
+    grid-template-columns: 1fr;
+  }
+  .form-actions button {
+    width: 100%;
+  }
+}

@@ -12,12 +12,14 @@ import {
   LogOut,
   ShieldCheck,
 } from "lucide-react";
+import { TicketHandling } from "@/components/ticket-handling";
 import { Brand } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
   api,
   ApiError,
   type Workspace,
+  type Member,
   type Ticket,
   type TicketDetail,
 } from "@/lib/api";
@@ -35,7 +37,32 @@ export default function InboxPage() {
   const [loading, setLoading] = useState(true);
   const [detailOpen, setDetailOpen] = useState(false);
   const [retry, setRetry] = useState(0);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [hasUnsaved, setHasUnsaved] = useState(false);
+  const [queueVersion, setQueueVersion] = useState(0);
+  const [search, setSearch] = useState({
+    q: "",
+    status: "all",
+    assignment: "all",
+  });
   const selectedWorkspace = useRef("");
+  const selectedTicket = useRef("");
+  function canNavigate() {
+    return (
+      !hasUnsaved ||
+      window.confirm("Discard your unsaved edits and leave this ticket?")
+    );
+  }
+  function changed(next: TicketDetail) {
+    if (
+      selectedWorkspace.current !== workspaceId ||
+      selectedTicket.current !== next.id
+    )
+      return;
+    setDetail(next);
+    setTickets((rows) => rows.map((t) => (t.id === next.id ? next : t)));
+    setQueueVersion((v) => v + 1);
+  }
   const hadDetailOpen = useRef(false);
   const workspace = workspaces.find((w) => w.id === workspaceId);
   function fail(error: unknown) {
@@ -45,6 +72,7 @@ export default function InboxPage() {
       [401, 403, 404, 410].includes(error.status)
     ) {
       setTickets([]);
+      selectedTicket.current = "";
       setTicketId("");
       setDetail(null);
     }
@@ -64,11 +92,18 @@ export default function InboxPage() {
     api<Workspace[]>("workspaces", "GET", controller.signal)
       .then((rows) => {
         setWorkspaces(rows);
+        const params = new URLSearchParams(window.location.search);
+        setSearch({
+          q: params.get("q") ?? "",
+          status: params.get("status") ?? "all",
+          assignment: params.get("assignment") ?? "all",
+        });
         const nextId = rows.some((w) => w.id === selectedWorkspace.current)
           ? selectedWorkspace.current
           : (rows[0]?.id ?? "");
         if (nextId !== selectedWorkspace.current) {
           setTickets([]);
+          selectedTicket.current = "";
           setTicketId("");
           setDetail(null);
           setDetailOpen(false);
@@ -83,15 +118,30 @@ export default function InboxPage() {
   useEffect(() => {
     if (!workspaceId) return;
     const controller = new AbortController();
-    api<Ticket[]>(`workspaces/${workspaceId}/tickets`, "GET", controller.signal)
-      .then((rows) => {
+    const params = new URLSearchParams(window.location.search);
+    Promise.all([
+      api<Ticket[]>(
+        `workspaces/${workspaceId}/tickets?${params}`,
+        "GET",
+        controller.signal,
+      ),
+      api<Member[]>(
+        `workspaces/${workspaceId}/members`,
+        "GET",
+        controller.signal,
+      ),
+    ])
+      .then(([rows, people]) => {
+        if (selectedWorkspace.current !== workspaceId) return;
+        setMembers(people);
         setTickets(rows);
-        setTicketId(rows[0]?.id ?? "");
+        if (!selectedTicket.current) selectedTicket.current = rows[0]?.id ?? "";
+        setTicketId(selectedTicket.current);
         setLoading(false);
       })
       .catch(fail);
     return () => controller.abort();
-  }, [workspaceId, retry]);
+  }, [workspaceId, retry, queueVersion]);
   useEffect(() => {
     if (!ticketId || !workspaceId) return;
     const controller = new AbortController();
@@ -100,12 +150,18 @@ export default function InboxPage() {
       "GET",
       controller.signal,
     )
-      .then(setDetail)
+      .then((next) => {
+        if (
+          selectedWorkspace.current === workspaceId &&
+          selectedTicket.current === ticketId
+        )
+          setDetail(next);
+      })
       .catch(fail);
     return () => controller.abort();
   }, [ticketId, workspaceId, retry]);
   useEffect(() => {
-    if (detailOpen && detail) {
+    if (detailOpen && detail?.id) {
       document.querySelector<HTMLElement>(".ticket-detail h2")?.focus();
       hadDetailOpen.current = true;
     } else if (!detailOpen && hadDetailOpen.current) {
@@ -114,8 +170,9 @@ export default function InboxPage() {
         ?.focus();
       hadDetailOpen.current = false;
     }
-  }, [detailOpen, detail]);
+  }, [detailOpen, detail?.id]);
   async function leave() {
+    if (!canNavigate()) return;
     const result = await authClient.signOut();
     if (result.error) {
       setError("Couldn't end this session. Try again.");
@@ -124,9 +181,12 @@ export default function InboxPage() {
     router.push("/");
   }
   function changeWorkspace(id: string) {
+    if (!canNavigate()) return;
+    setMembers([]);
     selectedWorkspace.current = id;
     setWorkspaceId(id);
     setTickets([]);
+    selectedTicket.current = "";
     setTicketId("");
     setDetail(null);
     setError("");
@@ -171,7 +231,14 @@ export default function InboxPage() {
       </header>
       <aside className="rail">
         <nav aria-label="Main navigation">
-          <Link href="/inbox" className="nav-item active" aria-current="page">
+          <Link
+            href="/inbox"
+            onClick={(e) => {
+              if (!canNavigate()) e.preventDefault();
+            }}
+            className="nav-item active"
+            aria-current="page"
+          >
             <Inbox size={18} />
             Inbox
           </Link>
@@ -194,7 +261,7 @@ export default function InboxPage() {
           <span className="small muted">
             <ShieldCheck size={14} /> Isolated synthetic workspace
           </span>
-          <span className="small muted">Read-only preview</span>
+          <span className="small muted">Manual handling</span>
         </div>
       </aside>
       <main id="main" className="workspace-main">
@@ -228,6 +295,68 @@ export default function InboxPage() {
         {!expired && (
           <div className={`inbox ${detailOpen ? "detail-open" : ""}`}>
             <section className="queue" aria-label="Ticket queue">
+              <form
+                className="queue-filters"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const params = new URLSearchParams();
+                  if (search.q) params.set("q", search.q);
+                  if (search.status !== "all")
+                    params.set("status", search.status);
+                  if (search.assignment !== "all")
+                    params.set("assignment", search.assignment);
+                  window.history.replaceState(
+                    null,
+                    "",
+                    `/inbox${params.size ? `?${params}` : ""}`,
+                  );
+                  setError("");
+                  setLoading(true);
+                  setQueueVersion((v) => v + 1);
+                }}
+              >
+                <label>
+                  Search conversations
+                  <input
+                    type="search"
+                    maxLength={200}
+                    value={search.q}
+                    onChange={(e) =>
+                      setSearch({ ...search, q: e.target.value })
+                    }
+                    placeholder="Subject, customer or email"
+                  />
+                </label>
+                <label>
+                  Status
+                  <select
+                    value={search.status}
+                    onChange={(e) =>
+                      setSearch({ ...search, status: e.target.value })
+                    }
+                  >
+                    {["all", "open", "pending", "resolved"].map((v) => (
+                      <option key={v} value={v}>
+                        {v === "all" ? "All statuses" : v}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Assignment
+                  <select
+                    value={search.assignment}
+                    onChange={(e) =>
+                      setSearch({ ...search, assignment: e.target.value })
+                    }
+                  >
+                    <option value="all">Anyone</option>
+                    <option value="mine">Assigned to me</option>
+                    <option value="unassigned">Unassigned</option>
+                  </select>
+                </label>
+                <button className="secondary">Filter inbox</button>
+              </form>
               <div className="queue-heading">
                 <h2>All tickets</h2>
                 <span className="badge">{tickets.length}</span>
@@ -252,7 +381,7 @@ export default function InboxPage() {
               ) : !tickets.length ? (
                 <p className="queue-note">
                   {workspaces.length
-                    ? "Your queue is clear."
+                    ? "No tickets match these filters."
                     : "No active workspace is available."}{" "}
                   {!workspaces.length && (
                     <Link href="/">Return to demo entry</Link>
@@ -265,7 +394,9 @@ export default function InboxPage() {
                     className="ticket-row"
                     aria-pressed={ticketId === t.id}
                     onClick={() => {
+                      if (ticketId !== t.id && !canNavigate()) return;
                       if (ticketId !== t.id) setDetail(null);
+                      selectedTicket.current = t.id;
                       setTicketId(t.id);
                       setDetailOpen(true);
                     }}
@@ -302,6 +433,12 @@ export default function InboxPage() {
                       Ticket #{detail.number} · Email
                     </span>
                     <h2 tabIndex={-1}>{detail.subject}</h2>
+                    {!loading && !tickets.some((t) => t.id === detail.id) && (
+                      <p className="small muted">
+                        This selected ticket is outside the current filter
+                        results.
+                      </p>
+                    )}
                     <div className="ticket-meta">
                       <span className="badge open">{detail.status}</span>
                       <span>{detail.priority} priority</span>
@@ -333,21 +470,15 @@ export default function InboxPage() {
                         <p className="message-body">{m.body}</p>
                       </article>
                     ))}
-                    <div className="next-step">
-                      <h3>
-                        {workspace?.role === "viewer"
-                          ? "You have read-only access"
-                          : "The conversation comes first"}
-                      </h3>
-                      <p className="muted">
-                        {workspace?.role === "viewer"
-                          ? "You can inspect this conversation. An Agent or Admin handles changes and replies."
-                          : "This preview lets you inspect a saved ticket. Manual handling and cited reply assistance arrive in the next slices."}
-                      </p>
-                      <span className="small muted">
-                        No reply has been drafted, approved or sent.
-                      </span>
-                    </div>
+                    <TicketHandling
+                      key={`${workspaceId}/${detail.id}`}
+                      detail={detail}
+                      workspaceId={workspaceId}
+                      members={members}
+                      readOnly={workspace?.role === "viewer"}
+                      onChanged={changed}
+                      onDirty={setHasUnsaved}
+                    />
                   </>
                 ) : (
                   <p className="loading" role="status">

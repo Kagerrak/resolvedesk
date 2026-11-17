@@ -6,9 +6,9 @@ Specification: https://github.com/Kagerrak/resolvedesk/issues/1
 
 | Slice | Issue | Status |
 |---|---|---|
-| S01 | [S01 — Enter an isolated workspace and inspect a sample ticket](https://github.com/Kagerrak/resolvedesk/issues/2) | Command Bright implemented and verified on PR #16; updated CI/merge pending |
-| S02 | [S02 — Handle a ticket through the owned inbox](https://github.com/Kagerrak/resolvedesk/issues/3) | Not implemented; blocked by planned prerequisites |
-| S03 | [S03 — Publish usable knowledge](https://github.com/Kagerrak/resolvedesk/issues/4) | Not implemented; blocked by planned prerequisites |
+| S01 | [S01 — Enter an isolated workspace and inspect a sample ticket](https://github.com/Kagerrak/resolvedesk/issues/2) | Delivered: PR #16 merged; issue #2 closed. Command Bright and 23 API assertions verified |
+| S02 | [S02 — Handle a ticket through the owned inbox](https://github.com/Kagerrak/resolvedesk/issues/3) | Implemented on feat/s02-inbox; 29 API assertions pass; browser and review passed; PR/CI delivery underway |
+| S03 | [S03 — Publish usable knowledge](https://github.com/Kagerrak/resolvedesk/issues/4) | Unblocked by S01; ready for implementation |
 | S04 | [S04 — Publish text-PDF knowledge with traceable pages](https://github.com/Kagerrak/resolvedesk/issues/5) | Not implemented; blocked by planned prerequisites |
 | S05 | [S05 — Retrieve supporting evidence from a ticket](https://github.com/Kagerrak/resolvedesk/issues/6) | Not implemented; blocked by planned prerequisites |
 | S06 | [S06 — Generate and revise a grounded draft](https://github.com/Kagerrak/resolvedesk/issues/7) | Not implemented; blocked by planned prerequisites |
@@ -22,8 +22,8 @@ Specification: https://github.com/Kagerrak/resolvedesk/issues/1
 
 ## Current delivery frontier
 
-- PR #16: https://github.com/Kagerrak/resolvedesk/pull/16 — open, ready for review; S01 is not closed.
-- Successful CI for S01 commit `6227e7518b748caa60cb5647da10bb05e0def340`: https://github.com/Kagerrak/resolvedesk/actions/runs/43590731743. Earlier superseded cache-upload runs were cancelled, not failed product checks.
-- Design prototype branch: `feat/ui-direction-prototypes`; D reference commit `7899634`. It includes S01 ancestry but is not a branch to merge wholesale into main.
-- Command Bright adoption and review completed; see docs/verification/s01-command-bright.md. Next: pass updated CI and deliver PR #16. Then unblock S02 #3 and S03 #4 appropriately; prioritize S02 manual inbox handling.
-- Do not mark downstream blocked issues ready-for-agent until their actual prerequisites are delivered.
+- PR #16 merged as `9427fec425c34cd65230c88863ac027ebea0502f`; issue #2 closed. Updated CI passed: https://github.com/Kagerrak/resolvedesk/actions/runs/43829740801.
+- Command Bright verification: docs/verification/s01-command-bright.md. Native 200% zoom still unverified; CSS 200% reflow passed.
+- S02 implementation on `feat/s02-inbox`: real draft revisions, explicit handling changes, audit history and server search/filters. 29 real API assertions passed; browser and independent review passed. S01's 23 assertions also passed after the change.
+- S03 is unblocked. Other dependency gates remain; no hosted demo, live AI or Gmail delivery exists.
+- Prototype checkout remains untouched on `feat/ui-direction-prototypes`, with its original pending screenshots. Active functional checkout: `/Users/rommelclarino/projects/resolvedesk-s01`.

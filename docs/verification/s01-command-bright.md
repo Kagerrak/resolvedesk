@@ -8,6 +8,7 @@ Production adoption on `feat/s01-workspace`, based on `6227e75`; prototype prove
 - Viewer role verified using the real database membership; UI remains read-only. Session end followed by direct inbox navigation removes content and offers a new session.
 - Actual API process outage rendered recovery and retry restored persisted content. Independently blocked list/detail network requests exposed a review finding: false empty/loading copy. Fixed and repeated both failures; truthful failure text and successful retry confirmed.
 - CSS 200% zoom reflow passed. Native browser zoom shortcut did not change viewport/device metrics; native 200% zoom remains unverified. No full accessibility certification or unattended browser CI is claimed.
+- Sampled text contrast in light/dark: 5.65:1–13.85:1; control boundaries 3.96:1–4.22:1. This is a sampled token check, not full WCAG certification.
 - Independent Spec review: no actionable findings. Standards review: one recovery-copy finding, fixed and browser-verified. No unit tests, TDD or mocks introduced.
 - Skills: ego-browser installed guide 2.2.1; frontend-design available locally. Matt Pocock upstream HEAD rechecked at `5863806dd4e15c63174bee4e7515a4256792ecfa`, unchanged from recorded installation. Local code-review and pr SHA-256 match skill-update-record.json. No refresh needed; customizations preserved; TDD excluded.
 

@@ -71,7 +71,9 @@ def membership(db: Session, workspace_id: UUID, visitor: Identity) -> Membership
 
 def ticket_in_workspace(db: Session, workspace_id: UUID, ticket_id: UUID) -> Ticket:
     ticket = db.scalar(
-        select(Ticket).where(Ticket.id == ticket_id, Ticket.workspace_id == workspace_id)
+        select(Ticket)
+        .where(Ticket.id == ticket_id, Ticket.workspace_id == workspace_id)
+        .with_for_update(read=True)
     )
     if not ticket:
         raise HTTPException(404, "Ticket not found.")
