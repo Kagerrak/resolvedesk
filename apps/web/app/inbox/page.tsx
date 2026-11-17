@@ -242,8 +242,17 @@ export default function InboxPage() {
             <Inbox size={18} />
             Inbox
           </Link>
+          <Link
+            href={`/knowledge?workspace=${workspaceId}`}
+            onClick={(e) => {
+              if (!canNavigate()) e.preventDefault();
+            }}
+            className="nav-item"
+          >
+            <BookOpen size={18} />
+            Knowledge
+          </Link>
           {[
-            { icon: BookOpen, label: "Knowledge" },
             { icon: Activity, label: "Activity" },
             { icon: ChartNoAxesColumn, label: "Quality" },
             { icon: Settings, label: "Settings" },
@@ -271,6 +280,15 @@ export default function InboxPage() {
               {workspace ? `${workspace.name} · Fixture` : "Support workspace"}
             </span>
             <h1>All conversations</h1>
+            <Link
+              className="mobile-knowledge"
+              href={`/knowledge?workspace=${workspaceId}`}
+              onClick={(e) => {
+                if (!canNavigate()) e.preventDefault();
+              }}
+            >
+              Knowledge
+            </Link>
           </div>
         </header>
         {error && (
