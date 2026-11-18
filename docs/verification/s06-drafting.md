@@ -8,7 +8,7 @@
 - Human edits create another revision retaining generation/citation provenance. Composer citation controls open authenticated exact source passages. Provider responses are validated for envelope, schema, authorized citation IDs and required evidence.
 - Local-only DeepSeek path requires explicit LIVE_AI_ENABLED, DEEPSEEK_API_KEY, loopback endpoints and an active synthetic Admin workspace. Conservative PostgreSQL reservations serialize monthly/session spending before provider calls; token usage releases unused reservations. Unknown acceptance retains full allocation. Pricing details and official sources: [provider notes](../planning/s06-provider.md).
 
-Post-implementation `uv run python -m scenarios.s06`: **24 real HTTP/PostgreSQL/worker assertions passed**, covering fixture/escalation drafts, concurrent worker claims, idempotent queued requests, cancellation, editing/provenance, stale ticket/source rejection, foreign workspace and Viewer rules, request/month/session accounting and concurrent monthly reservations. Uses actual sessions and PostgreSQL; scenario-owned data is deleted.
+Post-implementation `uv run python -m scenarios.s06`: **25 real HTTP/PostgreSQL/worker assertions passed**, covering fixture/escalation drafts, concurrent worker claims, idempotent queued requests, cancellation, editing/provenance, stale ticket/source rejection, foreign workspace and Viewer rules, request/month/session accounting and concurrent monthly reservations. Uses actual sessions and PostgreSQL; scenario-owned data is deleted.
 
 `uv run python -m scenarios.s06_provider`: **13 local HTTP provider-contract assertions passed**. Canned transport responses explicitly verify bounded structured requests, citation/schema checks, refusal/incomplete/unknown-usage handling, malformed envelopes and protection against sending real credentials to the local fixture. These are not live DeepSeek results or AI quality measurements.
 
@@ -36,3 +36,5 @@ Separate Standards and Spec agents reviewed `ea41f16...100237f`. Findings: termi
 Configure the DeepSeek key locally, run bounded genuine provider examples through the normal reservation/worker path, inspect measured usage and manually assess claim support/abstention. Record actual outcomes and finish GitHub review/CI before merging or closing issue #7. S07–S13, Gmail, hosted demo and project completion remain outstanding.
 
 Draft PR: https://github.com/Kagerrak/resolvedesk/pull/21. Final static/build/dependency audit passed locally after the review fixes. Expanded head CI covers S01–S06 and the labeled local provider contract; live DeepSeek evaluation is excluded without credentials.
+
+Fixture-only worker selection also verified: a synthetic locally queued DeepSeek record stays queued with zero reservation while live mode is disabled. The local live CLI selects its exact run ID when enabled, so unrelated fixture work cannot consume its one-shot execution.

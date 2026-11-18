@@ -341,6 +341,23 @@ try:
                 )
             else:
                 db.execute(text("DELETE FROM usage_month WHERE month=:m"), {"m": month})
+    with engine.begin() as db:
+        db.execute(
+            text(
+                "UPDATE generation_run SET mode='deepseek',charge_micros=0,usage='{}' WHERE id=:r"
+            ),
+            {"r": budget_run["id"]},
+        )
+    picked = run_once(target_run_id=UUID(budget_run["id"]))
+    with engine.connect() as db:
+        state = db.execute(
+            text("SELECT status,charge_micros FROM generation_run WHERE id=:r"),
+            {"r": budget_run["id"]},
+        ).one()
+    check(
+        not picked and state.status == "queued" and state.charge_micros == 0,
+        "Fixture-only worker leaves locally queued DeepSeek work untouched without reservation or provider call",
+    )
     print(
         f"\n{len(checks)} assertions passed. Real HTTP/PostgreSQL/workers; explicit fixture generation, no provider requests or AI quality claims."
     )

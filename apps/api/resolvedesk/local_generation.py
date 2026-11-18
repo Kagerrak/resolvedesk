@@ -62,7 +62,7 @@ def execute(workspace_id: UUID, ticket_id: UUID):
         run_id = run.id
         db.commit()
     # The normal worker performs atomic spending reservation before contacting DeepSeek.
-    run_once()
+    run_once(target_run_id=run_id)
     print("Live run queued/processed:", run_id, "Inspect the ticket before relying on the draft.")
 
 

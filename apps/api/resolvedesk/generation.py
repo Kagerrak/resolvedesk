@@ -14,6 +14,7 @@ from sqlalchemy import func, select, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from .config import settings
 from .database import SessionLocal
 from .generation_provider import (
     MODEL,
@@ -259,7 +260,7 @@ def reconcile(db, run, usage):
     run.usage = {**run.usage, **usage, "accounted_micros": actual}
 
 
-def run_once():
+def run_once(target_run_id: UUID | None = None):
     now = datetime.now(UTC)
     with SessionLocal() as db:
         # Expired running jobs are never automatically retried: provider acceptance may be unknown.
@@ -272,12 +273,15 @@ def run_once():
             run.status = "failed"
             run.error = "Generation was interrupted. Previous drafts are safe. Any uncertain AI allowance remains reserved."
         db.commit()
-        candidate = db.scalar(
-            select(GenerationRun.id)
-            .where(GenerationRun.status == "queued")
-            .order_by(GenerationRun.created_at)
-            .limit(1)
+        allowed_modes = ["fixture"]
+        if settings.live_ai_enabled and settings.has_deepseek_key:
+            allowed_modes.append("deepseek")
+        pending = select(GenerationRun.id).where(
+            GenerationRun.status == "queued", GenerationRun.mode.in_(allowed_modes)
         )
+        if target_run_id is not None:
+            pending = pending.where(GenerationRun.id == target_run_id)
+        candidate = db.scalar(pending.order_by(GenerationRun.created_at, GenerationRun.id).limit(1))
         if not candidate:
             return False
         # Match handling lock order: membership/workspace → ticket → run.
@@ -292,8 +296,6 @@ def run_once():
             if run.mode not in ("fixture", "deepseek"):
                 raise ValueError("This provider is not enabled.")
             if run.mode == "deepseek":
-                from .config import settings
-
                 if not settings.live_ai_enabled or not settings.has_deepseek_key:
                     raise ValueError("Live AI remains disabled.")
                 reserve(db, run, context)
@@ -319,8 +321,6 @@ def run_once():
         if mode == "fixture":
             reply = fixture_reply(context)
         else:
-            from .config import settings
-
             if not settings.deepseek_api_key or not settings.has_deepseek_key:
                 raise ValueError("Provider credentials unavailable.")
             reply, usage = deepseek_reply(context, settings.deepseek_api_key.get_secret_value())
