@@ -58,8 +58,8 @@ try:
             {"w": wa, "u": ub},
         )
     check(
-        upload(a, route, b"binary", "document.pdf").status_code == 415,
-        "Unsupported PDF rejected with format guidance",
+        upload(a, route, b"binary", "document.docx").status_code == 415,
+        "Unsupported format rejected with format guidance",
     )
     check(
         upload(a, route, b"x" * (256 * 1024 + 1), "large.txt").status_code == 413,

@@ -14,12 +14,19 @@ type Document = {
   version_id: string;
   version_number: number;
   filename: string;
+  page_count: number | null;
   embedding_model: string;
   published_at: string | null;
   created_at: string;
 };
 type Detail = Document & {
-  sections: { id: string; ordinal: number; heading: string; content: string }[];
+  sections: {
+    id: string;
+    ordinal: number;
+    heading: string;
+    content: string;
+    page_number: number | null;
+  }[];
   job: { status: string; attempts: number; error: string | null } | null;
 };
 
@@ -122,7 +129,8 @@ export default function KnowledgePage() {
       });
     return () => controller.abort();
   }, [workspaceId, selected]);
-  async function refresh() {
+  async function refresh(clearNotice = true) {
+    if (clearNotice) setNotice("");
     const current = { ...selection.current };
     setBusy(true);
     setError("");
@@ -165,12 +173,18 @@ export default function KnowledgePage() {
     if (!file) return;
     setError("");
     setNotice("");
-    if (file.size > 256 * 1024) {
-      setError("This file is too large. Keep text uploads under 256 KB.");
+    if (
+      file.size > (/\.pdf$/i.test(file.name) ? 2 * 1024 * 1024 : 256 * 1024)
+    ) {
+      setError(
+        "This file is too large. Keep PDFs under 2 MB and text files under 256 KB.",
+      );
       return;
     }
-    if (!/\.(md|txt)$/i.test(file.name)) {
-      setError("Choose a Markdown (.md) or plain text (.txt) file.");
+    if (!/\.(md|txt|pdf)$/i.test(file.name)) {
+      setError(
+        "Choose a Markdown (.md), plain text (.txt) or text-based PDF (.pdf) file.",
+      );
       return;
     }
     setBusy(true);
@@ -224,7 +238,7 @@ export default function KnowledgePage() {
             ? "Document archived. It is no longer available as published knowledge."
             : "Indexing queued again. Refresh to check progress.",
       );
-      await refresh();
+      await refresh(false);
     } catch (reason) {
       setError(
         reason instanceof Error
@@ -318,8 +332,10 @@ export default function KnowledgePage() {
           <form className="knowledge-upload" onSubmit={upload}>
             <h2>Add a source</h2>
             <p className="small muted">
-              Markdown or plain text, UTF-8, up to 256 KB. Use synthetic English
-              content in this local preview. Only an Admin can publish.
+              Markdown or plain text: UTF-8, up to 256 KB. Text-based PDFs: up
+              to 2 MB and 20 pages. Scanned or encrypted PDFs are not supported.
+              Use synthetic English content in this local preview. Only an Admin
+              can publish.
             </p>
             <label>
               Document title
@@ -336,7 +352,7 @@ export default function KnowledgePage() {
               <input
                 id="knowledge-file"
                 type="file"
-                accept=".md,.txt,text/plain,text/markdown"
+                accept=".md,.txt,.pdf,text/plain,text/markdown,application/pdf"
                 disabled={busy}
                 required
                 onChange={(e) => setFile(e.target.files?.[0] ?? null)}
@@ -417,6 +433,15 @@ export default function KnowledgePage() {
                 </button>
                 <h2 tabIndex={-1}>{detail.title}</h2>
                 <span className="badge">{detail.status}</span>
+                <p>
+                  <a
+                    href={`/api/backend/workspaces/${workspaceId}/knowledge/${detail.id}/download`}
+                    download
+                  >
+                    Download original source
+                  </a>
+                  {detail.page_count && ` · ${detail.page_count} pages`}
+                </p>
                 <p className="small muted">
                   Fixture embeddings · deterministic local indexing · no AI
                   provider calls
@@ -473,7 +498,10 @@ export default function KnowledgePage() {
                 {detail.sections.map((section) => (
                   <article className="source-section" key={section.id}>
                     <h3>
-                      {section.ordinal}. {section.heading}
+                      {section.ordinal}.{" "}
+                      {section.page_number
+                        ? `Page ${section.page_number}`
+                        : section.heading}
                     </h3>
                     <p>{section.content}</p>
                   </article>

@@ -7,7 +7,7 @@ async function proxy(
   const { path } = await context.params;
   const route = path.join("/");
   if (
-    !/^(demo|workspaces|workspaces\/[0-9a-f-]+\/(?:knowledge(?:\/[0-9a-f-]+(?:\/(?:publish|archive|retry))?)?|members|tickets(?:\/[0-9a-f-]+(?:\/draft)?)?))$/.test(
+    !/^(demo|workspaces|workspaces\/[0-9a-f-]+\/(?:knowledge(?:\/[0-9a-f-]+(?:\/(?:publish|archive|retry|download))?)?|members|tickets(?:\/[0-9a-f-]+(?:\/draft)?)?))$/.test(
       route,
     )
   ) {
@@ -33,11 +33,12 @@ async function proxy(
         const { done, value } = await reader.read();
         if (done) break;
         size += value.byteLength;
-        if (size > 400000) {
+        if (size > 2900000) {
           await reader.cancel();
           return Response.json(
             {
-              detail: "This upload is too large. Keep text files under 256 KB.",
+              detail:
+                "This upload is too large. Keep PDFs under 2 MB and text files under 256 KB.",
             },
             { status: 413 },
           );
@@ -66,10 +67,22 @@ async function proxy(
         redirect: "error",
       },
     );
-    return new Response(await response.text(), {
+    return new Response(await response.arrayBuffer(), {
       status: response.status,
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type":
+          response.headers.get("content-type") ?? "application/json",
+        ...(response.headers.get("content-disposition")
+          ? {
+              "Content-Disposition": response.headers.get(
+                "content-disposition",
+              )!,
+            }
+          : {}),
+        "X-Content-Type-Options": "nosniff",
+        ...(route.endsWith("/download")
+          ? { "Content-Security-Policy": "sandbox" }
+          : {}),
         "Cache-Control": "no-store",
       },
     });
