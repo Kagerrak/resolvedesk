@@ -1,14 +1,14 @@
 # Delivery status
 
-Updated 16 November 2026. Repository setup/MIT/specification and native issue dependencies are published; setup PR #15 merged. Command Bright (D) accepted. No hosted demo, live AI or Gmail exists.
+Updated 18 November 2026. Repository setup/MIT/specification and native issue dependencies are published; setup PR #15 merged. Command Bright (D) accepted. No hosted demo, live AI or Gmail exists.
 
 Specification: https://github.com/Kagerrak/resolvedesk/issues/1
 
 | Slice | Issue | Status |
 |---|---|---|
 | S01 | [S01 — Enter an isolated workspace and inspect a sample ticket](https://github.com/Kagerrak/resolvedesk/issues/2) | Delivered: PR #16 merged; issue #2 closed. Command Bright and 23 API assertions verified |
-| S02 | [S02 — Handle a ticket through the owned inbox](https://github.com/Kagerrak/resolvedesk/issues/3) | Implemented on feat/s02-inbox; 29 API assertions pass; browser and review passed; PR/CI delivery underway |
-| S03 | [S03 — Publish usable knowledge](https://github.com/Kagerrak/resolvedesk/issues/4) | Unblocked by S01; ready for implementation |
+| S02 | [S02 — Handle a ticket through the owned inbox](https://github.com/Kagerrak/resolvedesk/issues/3) | Delivered: PR #17 merged; issue #3 closed; 29 API assertions and browser/review passed |
+| S03 | [S03 — Publish usable knowledge](https://github.com/Kagerrak/resolvedesk/issues/4) | Implemented on feat/s03-knowledge; 25 API/worker assertions and browser/review passed; GitHub delivery underway |
 | S04 | [S04 — Publish text-PDF knowledge with traceable pages](https://github.com/Kagerrak/resolvedesk/issues/5) | Not implemented; blocked by planned prerequisites |
 | S05 | [S05 — Retrieve supporting evidence from a ticket](https://github.com/Kagerrak/resolvedesk/issues/6) | Not implemented; blocked by planned prerequisites |
 | S06 | [S06 — Generate and revise a grounded draft](https://github.com/Kagerrak/resolvedesk/issues/7) | Not implemented; blocked by planned prerequisites |
@@ -22,8 +22,8 @@ Specification: https://github.com/Kagerrak/resolvedesk/issues/1
 
 ## Current delivery frontier
 
-- PR #16 merged as `9427fec425c34cd65230c88863ac027ebea0502f`; issue #2 closed. Updated CI passed: https://github.com/Kagerrak/resolvedesk/actions/runs/43829740801.
-- Command Bright verification: docs/verification/s01-command-bright.md. Native 200% zoom still unverified; CSS 200% reflow passed.
-- S02 implementation on `feat/s02-inbox`: real draft revisions, explicit handling changes, audit history and server search/filters. 29 real API assertions passed; browser and independent review passed. S01's 23 assertions also passed after the change.
-- S03 is unblocked. Other dependency gates remain; no hosted demo, live AI or Gmail delivery exists.
-- Prototype checkout remains untouched on `feat/ui-direction-prototypes`, with its original pending screenshots. Active functional checkout: `/Users/rommelclarino/projects/resolvedesk-s01`.
+- S01 PR #16 merged `9427fec`; S02 PR #17 merged `7023c1a`. Issues #2 and #3 closed. S02 CI passed: https://github.com/Kagerrak/resolvedesk/actions/runs/43998758871.
+- S03 implemented and verified locally; see `docs/verification/s03-knowledge.md`. Publish PR and pass CI before closing #4.
+- Next S04 text-PDF sources; S05 also becomes startable after S03 delivery. S08 remains dependent on OAuth/account setup. Promote only actually unblocked issues.
+- Native 200% browser zoom is still unverified. No hosted demo, live AI or real Gmail exists.
+- Active functional checkout `/Users/rommelclarino/projects/resolvedesk-s01`; original prototype checkout and its pending files remain untouched.
