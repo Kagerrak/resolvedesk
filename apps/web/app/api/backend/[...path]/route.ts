@@ -7,7 +7,7 @@ async function proxy(
   const { path } = await context.params;
   const route = path.join("/");
   if (
-    !/^(demo|workspaces|workspaces\/[0-9a-f-]+\/(?:members|tickets(?:\/[0-9a-f-]+(?:\/draft)?)?))$/.test(
+    !/^(demo|workspaces|workspaces\/[0-9a-f-]+\/(?:knowledge(?:\/[0-9a-f-]+(?:\/(?:publish|archive|retry))?)?|members|tickets(?:\/[0-9a-f-]+(?:\/draft)?)?))$/.test(
       route,
     )
   ) {
@@ -24,6 +24,33 @@ async function proxy(
     );
   }
   try {
+    let body: Uint8Array | undefined;
+    if (request.method !== "GET" && request.body) {
+      const reader = request.body.getReader();
+      const parts: Uint8Array[] = [];
+      let size = 0;
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        size += value.byteLength;
+        if (size > 400000) {
+          await reader.cancel();
+          return Response.json(
+            {
+              detail: "This upload is too large. Keep text files under 256 KB.",
+            },
+            { status: 413 },
+          );
+        }
+        parts.push(value);
+      }
+      body = new Uint8Array(size);
+      let offset = 0;
+      for (const part of parts) {
+        body.set(part, offset);
+        offset += part.length;
+      }
+    }
     const response = await fetch(
       `${process.env.API_URL ?? "http://127.0.0.1:8000"}/${route}${request.nextUrl.search}`,
       {
@@ -33,7 +60,7 @@ async function proxy(
           origin: request.headers.get("origin") ?? "",
           "content-type": "application/json",
         },
-        body: request.method === "GET" ? undefined : await request.text(),
+        body: body as BodyInit | undefined,
         cache: "no-store",
         signal: AbortSignal.timeout(10000),
         redirect: "error",

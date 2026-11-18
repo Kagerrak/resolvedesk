@@ -67,3 +67,19 @@ The scenarios create actual Better Auth sessions and persists PostgreSQL records
 - [Confirmed execution decisions](docs/planning/execution-decisions.md): infrastructure ≤ USD 25/month; AI allowance USD 20/month, separately enforced before live usage
 
 Licensed under [MIT](LICENSE). Fonts retain their own SIL Open Font Licenses.
+
+## Local knowledge authoring (S03)
+
+Create a synthetic demo first. Open Knowledge from the inbox; its URL includes the workspace UUID. For local Admin verification only:
+
+```sh
+cd apps/api
+uv run python -m resolvedesk.local_admin <workspace-uuid>
+uv run python -m resolvedesk.knowledge_worker
+```
+
+Reload Knowledge after granting access. Upload a UTF-8 `.md` or `.txt` file under 256 KB, refresh until indexing is ready, inspect sections and explicitly publish the version. The worker uses deterministic 64-dimensional fixture hash vectors stored with chunks; these are not provider embeddings or measured AI quality. Original text stays in private PostgreSQL storage. Agents/Viewers can read only published, unarchived versions. Archive removes a source from published reads. A failed job can be retried up to three attempts; interrupted leases recover after two minutes.
+
+The Admin command refuses non-local databases/origins, live workspaces and expired sessions. Public visitors remain Agents and cannot upload or publish. Use only synthetic English documents in this local preview. Staff sign-in, PDF parsing, provider embeddings and public deployment remain later slices.
+
+After implementation, run `uv run python -m scenarios.s03` against the local disposable database (space suites by 61 seconds for maintained authentication limits). The scenario runs the real parser/indexer directly; avoid running another worker simultaneously during that deterministic verification.

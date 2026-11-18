@@ -38,7 +38,7 @@ jobs:
           npm run lint
           npm run typecheck
           npm run build
-          npm audit --audit-level=moderate
+          node ../../scripts/audit-dependencies.mjs
       - name: Start application and verify public seams
         run: |
           (cd apps/api && uv run uvicorn resolvedesk.main:app --host 127.0.0.1 --port 8000) > /tmp/resolvedesk-api.log 2>&1 &
@@ -52,6 +52,8 @@ jobs:
           # Preserve Better Auth's real per-IP anonymous-session rate limit.
           sleep 61
           uv run python -m scenarios.s02
+          sleep 61
+          uv run python -m scenarios.s03
       - name: Stop disposable services
         if: always()
         run: docker compose down --volumes
