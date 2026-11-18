@@ -13,6 +13,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from .database import SessionLocal
 from .models import DocumentVersion, KnowledgeChunk, KnowledgeDocument, KnowledgeJob, Workspace
+from .pdf_source import extract_pages
 
 
 def sections(content: str, markdown: bool):
@@ -116,13 +117,27 @@ def run_once() -> bool:
             doc.id,
             doc.workspace_id,
         )
+        source_bytes = version.source_bytes
         content, markdown = version.content, version.filename.lower().endswith(".md")
         db.commit()
+    page_count = None
     try:
-        parsed = [
-            (heading, body, fixture_embedding(heading + " " + body))
-            for heading, body in sections(content, markdown)
-        ]
+        if source_bytes is not None:
+            pages = extract_pages(source_bytes)
+            parsed = [
+                ("PDF passage", body, number, fixture_embedding(body))
+                for number, page in enumerate(pages, 1)
+                for _, body in sections(page, False)
+            ]
+            page_count = len(pages)
+        else:
+            parsed = [
+                (heading, body, None, fixture_embedding(heading + " " + body))
+                for heading, body in sections(content, markdown)
+            ]
+            page_count = None
+        if len(parsed) > 500:
+            raise ValueError("Too many extracted sections. Split the document into smaller files.")
         error = None
     except ValueError as reason:
         parsed, error = [], str(reason)
@@ -144,17 +159,19 @@ def run_once() -> bool:
             return True  # Deleted or reclaimed lease: this worker must not publish stale results.
         db.execute(delete(KnowledgeChunk).where(KnowledgeChunk.version_id == version_id))
         if not error and not doc.archived:
-            for index, (heading, body, vector) in enumerate(parsed):
+            for index, (heading, body, page_number, vector) in enumerate(parsed):
                 db.add(
                     KnowledgeChunk(
                         workspace_id=workspace_id,
                         version_id=version_id,
                         ordinal=index + 1,
+                        page_number=page_number,
                         heading=heading,
                         content=body,
                         embedding=vector,
                     )
                 )
+            version.page_count = page_count
             version.status = "ready"
             job.status = "succeeded"
         else:

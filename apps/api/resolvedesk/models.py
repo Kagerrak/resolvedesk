@@ -131,6 +131,8 @@ class DocumentVersion(Base):
     number: Mapped[int] = mapped_column(default=1)
     filename: Mapped[str]
     content: Mapped[str]  # Private PostgreSQL storage; never exposed as a static asset.
+    source_bytes: Mapped[bytes | None]
+    page_count: Mapped[int | None]
     content_hash: Mapped[str]
     status: Mapped[str] = mapped_column(default="queued")
     embedding_model: Mapped[str] = mapped_column(default="fixture-hash-v1")
@@ -153,6 +155,7 @@ class KnowledgeChunk(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     workspace_id: Mapped[UUID]
     version_id: Mapped[UUID] = mapped_column(index=True)
+    page_number: Mapped[int | None]
     ordinal: Mapped[int]
     heading: Mapped[str]
     content: Mapped[str]
@@ -164,6 +167,7 @@ class KnowledgeChunk(Base):
             ondelete="CASCADE",
         ),
         UniqueConstraint("version_id", "ordinal"),
+        CheckConstraint("page_number IS NULL OR page_number > 0", name="positive_source_page"),
     )
 
 

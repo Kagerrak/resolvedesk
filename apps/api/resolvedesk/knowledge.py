@@ -6,9 +6,10 @@ import hashlib
 from datetime import UTC, datetime
 from pathlib import PurePath
 from typing import Annotated
+from urllib.parse import quote
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -35,7 +36,7 @@ class Upload(BaseModel):
     model_config = ConfigDict(extra="forbid")
     title: str = Field(min_length=1, max_length=120)
     filename: str = Field(min_length=1, max_length=180)
-    content_base64: str = Field(max_length=350000)
+    content_base64: str = Field(max_length=2800000)
 
 
 class Command(BaseModel):
@@ -92,6 +93,7 @@ def document_view(doc: KnowledgeDocument, version: DocumentVersion):
         "filename": version.filename,
         "embedding_model": version.embedding_model,
         "published_at": version.published_at,
+        "page_count": version.page_count,
         "created_at": doc.created_at,
     }
 
@@ -122,19 +124,33 @@ def list_documents(workspace_id: UUID, db: DB, visitor: Visitor):
 def upload(workspace_id: UUID, payload: Upload, db: DB, visitor: Visitor):
     require_admin(db, workspace_id, visitor)
     filename = PurePath(payload.filename).name
-    if PurePath(filename).suffix.lower() not in (".md", ".txt"):
+    extension = PurePath(filename).suffix.lower()
+    if extension not in (".md", ".txt", ".pdf"):
         raise HTTPException(
-            415, "Upload a Markdown (.md) or plain text (.txt) file. PDF support is planned next."
+            415, "Upload Markdown (.md), plain text (.txt), or a text-based PDF (.pdf)."
         )
     try:
         raw = base64.b64decode(payload.content_base64, validate=True)
-        content = raw.decode("utf-8-sig")
-    except (ValueError, UnicodeError, binascii.Error):
-        raise HTTPException(422, "Save the file as UTF-8 text and upload it again.") from None
-    if len(raw) > MAX_BYTES:
-        raise HTTPException(413, "This file is too large. Keep text uploads under 256 KB.")
-    if not payload.title.strip() or not content.strip() or "\x00" in content:
-        raise HTTPException(422, "Provide a title and a non-empty UTF-8 text document.")
+    except (ValueError, binascii.Error):
+        raise HTTPException(
+            422, "The file could not be decoded. Select it again and retry."
+        ) from None
+    limit = 2 * 1024 * 1024 if extension == ".pdf" else MAX_BYTES
+    if len(raw) > limit:
+        raise HTTPException(413, "Keep PDF uploads under 2 MB and text uploads under 256 KB.")
+    if extension == ".pdf":
+        if not raw.startswith(b"%PDF-"):
+            raise HTTPException(422, "This file is not a valid PDF. Export a new text-based PDF.")
+        content = ""
+    else:
+        try:
+            content = raw.decode("utf-8-sig")
+        except UnicodeError:
+            raise HTTPException(422, "Save the file as UTF-8 text and upload it again.") from None
+        if not content.strip() or "\x00" in content:
+            raise HTTPException(422, "Provide a non-empty UTF-8 text document.")
+    if not payload.title.strip():
+        raise HTTPException(422, "Provide a document title.")
     doc = KnowledgeDocument(
         workspace_id=workspace_id,
         title=payload.title.strip(),
@@ -147,6 +163,7 @@ def upload(workspace_id: UUID, payload: Upload, db: DB, visitor: Visitor):
         workspace_id=workspace_id,
         document_id=doc.id,
         filename=filename,
+        source_bytes=raw if extension == ".pdf" else None,
         content=content,
         content_hash=hashlib.sha256(raw).hexdigest(),
     )
@@ -178,7 +195,13 @@ def inspect_document(workspace_id: UUID, document_id: UUID, db: DB, visitor: Vis
     return {
         **document_view(doc, version),
         "sections": [
-            {"id": c.id, "ordinal": c.ordinal, "heading": c.heading, "content": c.content}
+            {
+                "id": c.id,
+                "ordinal": c.ordinal,
+                "heading": c.heading,
+                "content": c.content,
+                "page_number": c.page_number,
+            }
             for c in chunks
         ],
         "job": {"status": job.status, "attempts": job.attempts, "error": job.error}
@@ -233,3 +256,23 @@ def command(
     doc.revision += 1
     db.commit()
     return document_view(doc, version)
+
+
+@router.get("/workspaces/{workspace_id}/knowledge/{document_id}/download")
+def download(workspace_id: UUID, document_id: UUID, db: DB, visitor: Visitor):
+    member = membership(db, workspace_id, visitor)
+    doc, version = document_pair(db, workspace_id, document_id, lock=True)
+    if member.role != "admin" and (doc.archived or version.status != "published"):
+        raise HTTPException(404, "Knowledge document not found.")
+    return Response(
+        content=version.source_bytes
+        if version.source_bytes is not None
+        else version.content.encode("utf-8"),
+        media_type="application/octet-stream",
+        headers={
+            "Content-Disposition": "attachment; filename*=UTF-8''"
+            + quote(version.filename, safe=""),
+            "Content-Security-Policy": "sandbox",
+            "X-Content-Type-Options": "nosniff",
+        },
+    )

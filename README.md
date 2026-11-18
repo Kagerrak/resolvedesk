@@ -83,3 +83,11 @@ Reload Knowledge after granting access. Upload a UTF-8 `.md` or `.txt` file unde
 The Admin command refuses non-local databases/origins, live workspaces and expired sessions. Public visitors remain Agents and cannot upload or publish. Use only synthetic English documents in this local preview. Staff sign-in, PDF parsing, provider embeddings and public deployment remain later slices.
 
 After implementation, run `uv run python -m scenarios.s03` against the local disposable database (space suites by 61 seconds for maintained authentication limits). The scenario runs the real parser/indexer directly; avoid running another worker simultaneously during that deterministic verification.
+
+### PDF knowledge (S04)
+
+Admins can upload synthetic text-based PDFs up to 2 MB and 20 pages through Knowledge. The existing worker extracts each page in a subprocess, persists page numbers and fixture vectors, and makes publication available only after successful indexing. Scanned/empty pages, encrypted files and malformed PDFs fail with recovery guidance; OCR is not provided. Download original source returns an authenticated attachment, with the same workspace/publication access rules as inspection.
+
+Processing bounds: 15-second wall timeout, 10-second CPU limit, bounded decompression/parsing, 100,000 extracted characters and 500 sections. Linux also applies a 512 MiB address-space limit; macOS does not support that OS memory cap reliably. No rendering engines or external PDF executables run.
+
+After migration, build and startup, run `cd apps/api && uv run python -m scenarios.s04`. Stop background workers during deterministic scenarios and leave 61 seconds between scenario suites to respect authentication limits. The committed PDF fixtures contain only synthetic verification content.
