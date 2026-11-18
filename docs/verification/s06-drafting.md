@@ -34,3 +34,5 @@ Separate Standards and Spec agents reviewed `ea41f16...100237f`. Findings: termi
 ## Remaining delivery requirements
 
 Configure the DeepSeek key locally, run bounded genuine provider examples through the normal reservation/worker path, inspect measured usage and manually assess claim support/abstention. Record actual outcomes and finish GitHub review/CI before merging or closing issue #7. S07–S13, Gmail, hosted demo and project completion remain outstanding.
+
+Draft PR: https://github.com/Kagerrak/resolvedesk/pull/21. Final static/build/dependency audit passed locally after the review fixes. Expanded head CI covers S01–S06 and the labeled local provider contract; live DeepSeek evaluation is excluded without credentials.

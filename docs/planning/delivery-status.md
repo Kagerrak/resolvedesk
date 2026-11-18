@@ -11,7 +11,7 @@ Specification: https://github.com/Kagerrak/resolvedesk/issues/1
 | S03 | [S03 — Publish usable knowledge](https://github.com/Kagerrak/resolvedesk/issues/4) | Delivered: PR #18 merged; issue #4 closed; CI 44242453555 passed |
 | S04 | [S04 — Publish text-PDF knowledge with traceable pages](https://github.com/Kagerrak/resolvedesk/issues/5) | Delivered: PR #19 merged; issue #5 closed; 22 API/PDF assertions, browser/review and CI passed |
 | S05 | [S05 — Retrieve supporting evidence from a ticket](https://github.com/Kagerrak/resolvedesk/issues/6) | Delivered: PR #20 merged ea41f16; issue #6 closed; CI 44307545659 passed all 129 S01–S05 assertions |
-| S06 | [S06 — Generate and revise a grounded draft](https://github.com/Kagerrak/resolvedesk/issues/7) | In progress on feat/s06-drafting; fixture/API/UI/review checks passed; DeepSeek live credentials/evaluation and GitHub delivery pending |
+| S06 | [S06 — Generate and revise a grounded draft](https://github.com/Kagerrak/resolvedesk/issues/7) | In progress on feat/s06-drafting; fixture/API/UI/review checks passed; draft PR #21 open; DeepSeek live credentials/evaluation and final delivery pending |
 | S07 | [S07 — Approve a precise reply and record simulated delivery](https://github.com/Kagerrak/resolvedesk/issues/8) | Not implemented; blocked by planned prerequisites |
 | S08 | [S08 — Connect Gmail and import a real support conversation](https://github.com/Kagerrak/resolvedesk/issues/9) | Not implemented; blocked by planned prerequisites |
 | S09 | [S09 — Deliver an approved reply through Gmail safely](https://github.com/Kagerrak/resolvedesk/issues/10) | Not implemented; blocked by planned prerequisites |
