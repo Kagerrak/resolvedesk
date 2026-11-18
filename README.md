@@ -2,7 +2,7 @@
 
 Support, grounded in knowledge.
 
-An AI-assisted B2B support product under construction. The local preview provides an isolated synthetic workspace, persisted ticket inbox, manual drafts, explicit ticket handling and audit history. AI drafting, knowledge, Gmail and the hosted recruiter demo remain unfinished; no live-provider or quality results are claimed.
+An AI-assisted B2B support product under construction. The local preview provides an isolated synthetic workspace, persisted ticket inbox, manual drafts, explicit ticket handling and audit history. AI drafting, Gmail and the hosted recruiter demo remain unfinished; no live-provider or quality results are claimed.
 
 ## Run the local fixture preview
 
@@ -80,7 +80,7 @@ uv run python -m resolvedesk.knowledge_worker
 
 Reload Knowledge after granting access. Upload a UTF-8 `.md` or `.txt` file under 256 KB, refresh until indexing is ready, inspect sections and explicitly publish the version. The worker uses deterministic 64-dimensional fixture hash vectors stored with chunks; these are not provider embeddings or measured AI quality. Original text stays in private PostgreSQL storage. Agents/Viewers can read only published, unarchived versions. Archive removes a source from published reads. A failed job can be retried up to three attempts; interrupted leases recover after two minutes.
 
-The Admin command refuses non-local databases/origins, live workspaces and expired sessions. Public visitors remain Agents and cannot upload or publish. Use only synthetic English documents in this local preview. Staff sign-in, PDF parsing, provider embeddings and public deployment remain later slices.
+The Admin command refuses non-local databases/origins, live workspaces and expired sessions. Public visitors remain Agents and cannot upload or publish. Use only synthetic English documents in this local preview. Staff sign-in, provider embeddings and public deployment remain later slices.
 
 After implementation, run `uv run python -m scenarios.s03` against the local disposable database (space suites by 61 seconds for maintained authentication limits). The scenario runs the real parser/indexer directly; avoid running another worker simultaneously during that deterministic verification.
 
@@ -91,3 +91,11 @@ Admins can upload synthetic text-based PDFs up to 2 MB and 20 pages through Know
 Processing bounds: 15-second wall timeout, 10-second CPU limit, bounded decompression/parsing, 100,000 extracted characters and 500 sections. Linux also applies a 512 MiB address-space limit; macOS does not support that OS memory cap reliably. No rendering engines or external PDF executables run.
 
 After migration, build and startup, run `cd apps/api && uv run python -m scenarios.s04`. Stop background workers during deterministic scenarios and leave 61 seconds between scenario suites to respect authentication limits. The committed PDF fixtures contain only synthetic verification content.
+
+### Supporting evidence (S05)
+
+From a ticket, use **Find supporting evidence**. ResolveDesk stores the ticket query/revision, fixture model, ranked source-version/chunk references and distances. Exact PostgreSQL pgvector cosine ranking considers only published, unarchived knowledge in that workspace; at most five passages within fixture distance 0.65 are returned. This threshold is a deterministic fixture rule, not confidence or measured relevance. No hybrid ranking or paid provider calls are enabled.
+
+Saved evidence reloads with the ticket. Open a citation to inspect its authorized passage, version and PDF page or text section. Retired sources lose their excerpts and citation access; retrieve again after ticket/source changes. Viewers inspect existing runs but cannot create runs. Empty evidence explicitly recommends review or escalation.
+
+After implementation, `cd apps/api && uv run python -m scenarios.s05` verifies real HTTP/PostgreSQL/pgvector behavior, including a similar private source in another workspace. Space scenario suites by 61 seconds for auth rate limits. Stop the production web process before any build and restart afterward.

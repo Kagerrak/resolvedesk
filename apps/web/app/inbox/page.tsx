@@ -12,6 +12,7 @@ import {
   LogOut,
   ShieldCheck,
 } from "lucide-react";
+import { TicketEvidence } from "@/components/ticket-evidence";
 import { TicketHandling } from "@/components/ticket-handling";
 import { Brand } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -36,6 +37,7 @@ export default function InboxPage() {
   const [expired, setExpired] = useState(false);
   const [loading, setLoading] = useState(true);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [evidenceOpen, setEvidenceOpen] = useState(false);
   const [retry, setRetry] = useState(0);
   const [members, setMembers] = useState<Member[]>([]);
   const [hasUnsaved, setHasUnsaved] = useState(false);
@@ -416,6 +418,7 @@ export default function InboxPage() {
                       if (ticketId !== t.id) setDetail(null);
                       selectedTicket.current = t.id;
                       setTicketId(t.id);
+                      setEvidenceOpen(false);
                       setDetailOpen(true);
                     }}
                   >
@@ -433,7 +436,33 @@ export default function InboxPage() {
                 ))
               )}
             </section>
-            <div className="conversation-layout">
+            <div
+              className={`conversation-layout ${evidenceOpen ? "evidence-open" : "conversation-open"}`}
+            >
+              {detail && (
+                <nav className="evidence-navigation" aria-label="Ticket panels">
+                  <button
+                    className="secondary"
+                    onClick={() => setDetailOpen(false)}
+                  >
+                    Back to inbox
+                  </button>
+                  <button
+                    className="secondary"
+                    aria-pressed={!evidenceOpen}
+                    onClick={() => setEvidenceOpen(false)}
+                  >
+                    Conversation
+                  </button>
+                  <button
+                    className="secondary"
+                    aria-pressed={evidenceOpen}
+                    onClick={() => setEvidenceOpen(true)}
+                  >
+                    Evidence
+                  </button>
+                </nav>
+              )}
               <section
                 className="ticket-detail"
                 aria-label="Ticket conversation"
@@ -510,6 +539,13 @@ export default function InboxPage() {
               </section>
               {detail && (
                 <aside className="ticket-context" aria-label="Ticket details">
+                  <TicketEvidence
+                    key={`${workspaceId}/${detail.id}`}
+                    workspaceId={workspaceId}
+                    ticketId={detail.id}
+                    revision={detail.revision}
+                    readOnly={workspace?.role === "viewer"}
+                  />
                   <span className="eyebrow">Conversation context</span>
                   <h3>Ticket details</h3>
                   <dl>
