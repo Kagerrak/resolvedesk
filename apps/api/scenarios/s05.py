@@ -6,6 +6,7 @@ from uuid import UUID, uuid4
 
 import httpx
 from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
 
 from resolvedesk.database import engine
 from resolvedesk.knowledge_worker import run_once
@@ -149,6 +150,38 @@ try:
         "PostgreSQL vector column and ascending cosine distances verified",
     )
     check("quarterly planning" in query, "Run persists actual ticket query provenance")
+    for invalid_workspace, invalid_version, invalid_chunk, label in [
+        (
+            wb,
+            published["version_id"],
+            run["results"][0]["id"],
+            "Database rejects cross-workspace retrieval references",
+        ),
+        (
+            wa,
+            private["version_id"],
+            str(uuid4()),
+            "Database rejects foreign source version references",
+        ),
+    ]:
+        rejected = False
+        try:
+            with engine.begin() as db:
+                db.execute(
+                    text(
+                        "INSERT INTO retrieval_result(id,workspace_id,run_id,version_id,chunk_id,rank,distance) VALUES(:id,:w,:r,:v,:c,99,0.1)"
+                    ),
+                    {
+                        "id": str(uuid4()),
+                        "w": invalid_workspace,
+                        "r": run["id"],
+                        "v": invalid_version,
+                        "c": invalid_chunk,
+                    },
+                )
+        except IntegrityError:
+            rejected = True
+        check(rejected, label)
     with engine.begin() as db:
         db.execute(
             text("UPDATE membership SET role='viewer' WHERE workspace_id=:w AND user_id=:u"),
