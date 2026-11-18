@@ -85,6 +85,21 @@ try:
         generate(evidence, request=request).json()["id"] == queued["id"],
         "Retry request reuses persisted queued generation",
     )
+    injected = a.post(
+        path + "/generations",
+        json={
+            "expected_revision": 1,
+            "retrieval_id": evidence["id"],
+            "request_id": str(uuid4()),
+            "mode": "deepseek",
+            "provider_url": "https://example.com",
+            "api_key": "synthetic-fixture-only",
+        },
+    )
+    check(
+        injected.status_code == 422,
+        "Public API rejects client-selected paid mode, provider endpoint and credentials",
+    )
     with ThreadPoolExecutor(2) as pool:
         list(pool.map(lambda _: run_once(), range(2)))
     saved = detail()
