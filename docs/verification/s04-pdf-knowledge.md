@@ -1,6 +1,6 @@
 # S04 text-PDF knowledge verification
 
-18 November 2026. Implementation 630a4cf, branch feat/s04-pdf-knowledge; based on S03. GitHub delivery pending until recorded below.
+18 November 2026. Implementation 630a4cf, branch feat/s04-pdf-knowledge; based on S03. Delivered in PR #19, merged as fec794bd on 18 November 2026; issue #5 closed.
 
 - Real private PDF upload, PostgreSQL binary originals, durable existing job lifecycle, isolated pypdf extraction, page-aware chunks and explicit Admin publication. Original downloads enforce the same workspace/publication access and return attachment, nosniff, sandbox and no-store headers.
 - Limits: 2 MB, 20 pages, 100,000 extracted characters, 500 sections, 15-second wall timeout, 10-second CPU cap and parser/decompression work bounds. Linux additionally caps address space at 512 MiB. macOS cannot reliably apply that OS memory limit; its other bounds remain active. A first macOS run exposed this portability issue; corrected before successful scenarios.
@@ -14,3 +14,5 @@
 Sources consulted: [pypdf text extraction](https://pypdf.readthedocs.io/en/stable/user/extract-text.html), [security](https://pypdf.readthedocs.io/en/stable/user/security.html), [configuration](https://pypdf.readthedocs.io/en/stable/modules/configuration.html). pypdf 7.1.0 is locked.
 
 Limitations: no OCR, rendered in-app PDF viewer, provider embeddings or new document-version authoring. Sources remain inert extracted text plus authenticated original attachment. Native 200% browser zoom and full accessibility certification are not claimed. S05–S13, hosted demo and real Gmail/AI verification remain unfinished.
+
+CI delivery evidence: https://github.com/Kagerrak/resolvedesk/actions/runs/44243139958 passed on Linux: 23 S01 + 29 S02 + 25 S03 + 22 S04 assertions, migrations, static checks, production build and the approved scoped security check.
