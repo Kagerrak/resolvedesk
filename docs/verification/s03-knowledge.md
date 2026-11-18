@@ -15,3 +15,5 @@ Local verification completed 17 November 2026; delivery resumed 18 November. Bra
 Limitations: first uploaded version per document; replacement is a new document. PDF support, provider embeddings, staff sign-in, retention cleanup and hosted demo are later slices. Native browser 200% zoom remains unverified. No live Gmail/AI or full accessibility certification claimed. No paid resources provisioned.
 
 18 November delivery check: CI run 44212181481 passed static/build checks but stopped at a newly disclosed development-only picomatch advisory, GHSA-fc5q-39xc-vjpf. The GitHub advisory lists affected versions through 4.0.7 and no patched version. Production `npm audit --omit=dev` reports zero findings. User approved the advisory-specific exception in `scripts/audit-dependencies.mjs`, expiring 2 December 2026; audit transport/schema failures and other moderate-or-higher advisories still fail. Source: https://github.com/advisories/GHSA-fc5q-39xc-vjpf.
+
+Delivery: PR #18 merged as 6b3ad719 on 18 November 2026; issue #4 closed. CI https://github.com/Kagerrak/resolvedesk/actions/runs/44242453555 passed all static/build/security and S01–S03 real integration checks.
