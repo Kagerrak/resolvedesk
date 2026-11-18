@@ -12,6 +12,7 @@ import {
   LogOut,
   ShieldCheck,
 } from "lucide-react";
+import { TicketEvidence } from "@/components/ticket-evidence";
 import { TicketHandling } from "@/components/ticket-handling";
 import { Brand } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -510,6 +511,13 @@ export default function InboxPage() {
               </section>
               {detail && (
                 <aside className="ticket-context" aria-label="Ticket details">
+                  <TicketEvidence
+                    key={`${workspaceId}/${detail.id}`}
+                    workspaceId={workspaceId}
+                    ticketId={detail.id}
+                    revision={detail.revision}
+                    readOnly={workspace?.role === "viewer"}
+                  />
                   <span className="eyebrow">Conversation context</span>
                   <h3>Ticket details</h3>
                   <dl>

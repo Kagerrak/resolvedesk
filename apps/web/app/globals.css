@@ -899,3 +899,27 @@ textarea::placeholder {
     margin-block: 16px;
   }
 }
+
+.ticket-evidence {
+  border-bottom: 1px solid var(--border-control);
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+  overflow-wrap: anywhere;
+}
+.evidence-results {
+  padding-left: 20px;
+}
+.evidence-results li {
+  margin-block: 20px;
+}
+.evidence-excerpt {
+  white-space: pre-wrap;
+  max-height: 12rem;
+  overflow: auto;
+}
+.citation-passage {
+  border: 1px solid var(--border-control);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+}

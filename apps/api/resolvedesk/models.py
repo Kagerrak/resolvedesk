@@ -1,6 +1,7 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
+from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     JSON,
     CheckConstraint,
@@ -159,7 +160,7 @@ class KnowledgeChunk(Base):
     ordinal: Mapped[int]
     heading: Mapped[str]
     content: Mapped[str]
-    embedding: Mapped[list] = mapped_column(JSON)
+    embedding: Mapped[list] = mapped_column(Vector(64))
     __table_args__ = (
         ForeignKeyConstraint(
             ["workspace_id", "version_id"],
@@ -167,6 +168,7 @@ class KnowledgeChunk(Base):
             ondelete="CASCADE",
         ),
         UniqueConstraint("version_id", "ordinal"),
+        UniqueConstraint("workspace_id", "version_id", "id"),
         CheckConstraint("page_number IS NULL OR page_number > 0", name="positive_source_page"),
     )
 
@@ -189,4 +191,52 @@ class KnowledgeJob(Base):
             ondelete="CASCADE",
         ),
         CheckConstraint("status IN ('queued','processing','succeeded','failed')"),
+    )
+
+
+class RetrievalRun(Base):
+    __tablename__ = "retrieval_run"
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID]
+    ticket_id: Mapped[UUID]
+    ticket_revision: Mapped[int]
+    query: Mapped[str]
+    embedding_model: Mapped[str]
+    source_versions: Mapped[list] = mapped_column(JSON)
+    created_by: Mapped[str]
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["workspace_id", "ticket_id"], ["ticket.workspace_id", "ticket.id"], ondelete="CASCADE"
+        ),
+        UniqueConstraint("workspace_id", "id"),
+    )
+
+
+class RetrievalResult(Base):
+    __tablename__ = "retrieval_result"
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID]
+    run_id: Mapped[UUID]
+    version_id: Mapped[UUID]
+    chunk_id: Mapped[UUID]
+    rank: Mapped[int]
+    distance: Mapped[float]
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["workspace_id", "run_id"],
+            ["retrieval_run.workspace_id", "retrieval_run.id"],
+            ondelete="CASCADE",
+        ),
+        ForeignKeyConstraint(
+            ["workspace_id", "version_id"],
+            ["document_version.workspace_id", "document_version.id"],
+            ondelete="CASCADE",
+        ),
+        ForeignKeyConstraint(
+            ["workspace_id", "version_id", "chunk_id"],
+            ["knowledge_chunk.workspace_id", "knowledge_chunk.version_id", "knowledge_chunk.id"],
+            ondelete="CASCADE",
+        ),
+        UniqueConstraint("run_id", "rank"),
     )

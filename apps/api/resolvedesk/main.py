@@ -15,11 +15,13 @@ from .identity import Identity, identity
 from .inbox import create_demo, membership, ticket_in_workspace
 from .knowledge import router as knowledge_router
 from .models import Membership, Ticket, Workspace
+from .retrieval import router as retrieval_router
 from .ticket_views import TicketDetail, TicketView
 
 app = FastAPI(title="ResolveDesk", version="0.1.0")
 app.include_router(handling_router)
 app.include_router(knowledge_router)
+app.include_router(retrieval_router)
 DB = Annotated[Session, Depends(database)]
 Visitor = Annotated[Identity, Depends(identity)]
 

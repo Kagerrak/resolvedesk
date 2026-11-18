@@ -47,6 +47,8 @@ _Avoid_: Knowledge overwrite
 
 **Citation**: A reference to a specific passage of a Document version offered in support of a statement. The reference alone does not establish that the statement is supported.
 
+**Retrieval run**: A saved search of a Ticket conversation against published Workspace knowledge, recording the query, ranking method and source-version passage references. Fixture runs do not establish AI quality.
+
 ## Operations
 
 **Connector**: A Workspace's authorized connection to an external communication service.
