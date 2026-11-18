@@ -94,22 +94,29 @@ def openai_reply(context: dict, key: str, *, endpoint="https://api.openai.com/v1
         )
     response.raise_for_status()
     payload = response.json()
-    if payload.get("status") != "completed":
+    if not isinstance(payload, dict) or payload.get("status") != "completed":
         raise ValueError("Provider did not complete a structured reply.")
-    content = [
-        part
-        for item in payload.get("output", [])
-        if item.get("type") == "message"
-        for part in item.get("content", [])
-    ]
+    output = payload.get("output")
+    if not isinstance(output, list):
+        raise TypeError("Provider returned an invalid output envelope.")
+    content = []
+    for item in output:
+        if not isinstance(item, dict):
+            raise TypeError("Provider returned an invalid output item.")
+        if item.get("type") != "message":
+            continue
+        parts = item.get("content")
+        if not isinstance(parts, list) or any(not isinstance(part, dict) for part in parts):
+            raise ValueError("Provider returned invalid message content.")
+        content.extend(parts)
     if any(p.get("type") == "refusal" for p in content):
         raise ValueError("Provider declined to draft this reply.")
     outputs = [p["text"] for p in content if p.get("type") == "output_text"]
-    if len(outputs) != 1:
+    if len(outputs) != 1 or not isinstance(outputs[0], str):
         raise ValueError("Provider returned an unexpected response.")
     reply = validate_reply(GeneratedReply.model_validate_json(outputs[0]), context)
     usage = payload.get("usage", {})
-    if not all(
+    if not isinstance(usage, dict) or not all(
         type(usage.get(k)) is int and usage[k] >= 0 for k in ["input_tokens", "output_tokens"]
     ):
         raise ValueError("Provider usage is unknown; reserved allowance retained.")

@@ -37,6 +37,7 @@ class ProviderFixture(BaseHTTPRequestHandler):
             "output": [{"type": "message", "content": content}],
             "usage": case["usage"],
         }
+        result = case.get("envelope", result)
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.end_headers()
@@ -91,6 +92,12 @@ try:
         ("Incomplete provider response rejected", {"status": "incomplete"}),
         ("Provider refusal rejected", {"refusal": True}),
         ("Unknown provider usage rejected", {"usage": {}}),
+        ("Non-object response envelope rejected", {"envelope": []}),
+        ("Null output item rejected", {"envelope": {"status": "completed", "output": [None]}}),
+        (
+            "Null message content rejected",
+            {"envelope": {"status": "completed", "output": [{"type": "message", "content": None}]}},
+        ),
     ]:
         case.clear()
         case.update(original)
@@ -98,7 +105,7 @@ try:
         rejected = False
         try:
             openai_reply(context, "resolvedesk-provider-fixture", endpoint=endpoint)
-        except ValueError:
+        except (ValueError, TypeError):
             rejected = True
         check(rejected, label)
     rejected = False

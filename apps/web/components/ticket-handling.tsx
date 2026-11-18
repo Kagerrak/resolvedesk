@@ -1,4 +1,5 @@
 "use client";
+import { DraftCitations } from "@/components/draft-citations";
 import { DraftGeneration } from "@/components/draft-generation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -232,6 +233,7 @@ export function TicketHandling({
         </header>
         <DraftGeneration
           route={path}
+          draftId={detail.draft?.id}
           revision={baselineRevision}
           disabled={dirty || busy || needsReview}
           readOnly={readOnly}
@@ -243,12 +245,12 @@ export function TicketHandling({
             setNotice("Generated draft saved for review. No email was sent.");
           }}
         />
-        {detail.draft?.generation_id && (
-          <p className="small muted">
-            Generated evidence references retained:{" "}
-            {detail.draft.citation_ids.length}. Review support again after
-            editing the wording.
-          </p>
+        {detail.draft && (
+          <DraftCitations
+            key={detail.draft.id}
+            root={`workspaces/${workspaceId}`}
+            ids={detail.draft.citation_ids}
+          />
         )}
         {readOnly ? (
           <p className="message-body">

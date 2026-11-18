@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { api, type TicketDetail } from "@/lib/api";
 type Run = {
   id: string;
@@ -12,6 +12,7 @@ type Run = {
 export function DraftGeneration({
   route,
   revision,
+  draftId,
   disabled,
   readOnly,
   onGenerated,
@@ -19,6 +20,7 @@ export function DraftGeneration({
 }: {
   route: string;
   revision: number;
+  draftId: string | undefined;
   disabled: boolean;
   readOnly: boolean;
   onGenerated: (detail: TicketDetail) => void;
@@ -26,62 +28,64 @@ export function DraftGeneration({
 }) {
   const [run, setRun] = useState<Run | null>(null),
     [error, setError] = useState(""),
-    [busy, setBusy] = useState(false);
-  const applied = useRef("");
+    [busy, setBusy] = useState(false),
+    [loading, setLoading] = useState(true),
+    [retry, setRetry] = useState(0);
+  const applied = useRef(""),
+    requestId = useRef<string | null>(null);
   const active = run?.status === "queued" || run?.status === "running";
+  const applyRun = useEffectEvent(
+    async (next: Run | null, signal: AbortSignal) => {
+      if (
+        next &&
+        ["succeeded", "escalated"].includes(next.status) &&
+        applied.current !== next.id
+      ) {
+        if (next.draft_id !== draftId) {
+          if (disabled)
+            throw new Error(
+              "A generated draft is saved. Preserve or compare your local edits before refreshing it.",
+            );
+          const detail = await api<TicketDetail>(route, "GET", signal);
+          onGenerated(detail);
+        }
+        applied.current = next.id;
+      }
+      setRun(next);
+    },
+  );
   useEffect(() => {
-    const controller = new AbortController();
-    api<Run | null>(`${route}/generations/latest`, "GET", controller.signal)
-      .then((next) => {
-        applied.current = next?.id ?? "";
-        setRun(next);
-      })
-      .catch((e) => {
-        if (e.name !== "AbortError") setError(e.message);
-      });
-    return () => controller.abort();
-  }, [route]);
-  useEffect(() => {
-    onActive(active);
-    return () => onActive(false);
-  }, [active, onActive]);
-  useEffect(() => {
-    if (!active) return;
     const controller = new AbortController();
     let timer: ReturnType<typeof setTimeout>;
-    async function poll() {
+    let stopped = false;
+    async function load() {
       try {
         const next = await api<Run | null>(
           `${route}/generations/latest`,
           "GET",
           controller.signal,
         );
-        setRun(next);
-        if (
-          next &&
-          ["succeeded", "escalated"].includes(next.status) &&
-          applied.current !== next.id
-        ) {
-          applied.current = next.id;
-          const detail = await api<TicketDetail>(
-            route,
-            "GET",
-            controller.signal,
-          );
-          onGenerated(detail);
-        }
+        await applyRun(next, controller.signal);
+        setError("");
         if (next && ["queued", "running"].includes(next.status))
-          timer = setTimeout(poll, 2500);
+          timer = setTimeout(load, 2500);
       } catch (e) {
         if (e instanceof Error && e.name !== "AbortError") setError(e.message);
+      } finally {
+        if (!stopped) setLoading(false);
       }
     }
-    timer = setTimeout(poll, 1000);
+    void load();
     return () => {
+      stopped = true;
       controller.abort();
       clearTimeout(timer);
     };
-  }, [active, route, onGenerated]);
+  }, [route, retry]);
+  useEffect(() => {
+    onActive(active || loading);
+    return () => onActive(false);
+  }, [active, loading, onActive]);
   async function generate() {
     setBusy(true);
     setError("");
@@ -91,13 +95,16 @@ export function DraftGeneration({
       );
       if (!retrieval)
         throw new Error("Find supporting evidence before generating a draft.");
+      requestId.current ??= crypto.randomUUID();
       setRun(
         await api<Run>(`${route}/generations`, "POST", undefined, {
           expected_revision: revision,
           retrieval_id: retrieval.id,
-          request_id: crypto.randomUUID(),
+          request_id: requestId.current,
         }),
       );
+      requestId.current = null;
+      setRetry((v) => v + 1);
     } catch (e) {
       setError(
         e instanceof Error
@@ -113,6 +120,7 @@ export function DraftGeneration({
     setBusy(true);
     try {
       setRun(await api<Run>(`${route}/generations/${run.id}/cancel`, "POST"));
+      setRetry((v) => v + 1);
     } catch (e) {
       setError(
         e instanceof Error
@@ -135,7 +143,7 @@ export function DraftGeneration({
           <button
             type="button"
             className="secondary"
-            disabled={disabled || active || busy}
+            disabled={disabled || active || busy || loading}
             onClick={generate}
           >
             Generate draft
@@ -158,13 +166,30 @@ export function DraftGeneration({
         </p>
       )}
       <p role="status">
-        {active
-          ? "Preparing a draft. Your previous saved draft is safe."
-          : run
-            ? `${run.status === "succeeded" ? "Generated draft saved for human review" : run.status === "escalated" ? "Escalation draft saved for human review" : run.status}. ${run.error ?? ""}`
-            : "No generation run yet."}
+        {loading
+          ? "Checking saved generation…"
+          : active
+            ? "Preparing a draft. Your previous saved draft is safe."
+            : run
+              ? `${run.status === "succeeded" ? "Generated draft saved for human review" : run.status === "escalated" ? "Escalation draft saved for human review" : run.status}. ${run.error ?? ""}`
+              : "No generation run yet."}
       </p>
-      {error && <p role="alert">{error}</p>}
+      {error && (
+        <div role="alert">
+          <p>{error}</p>
+          <button
+            type="button"
+            className="secondary"
+            onClick={() => {
+              setLoading(true);
+              setError("");
+              setRetry((v) => v + 1);
+            }}
+          >
+            Refresh generation status
+          </button>
+        </div>
+      )}
     </div>
   );
 }
