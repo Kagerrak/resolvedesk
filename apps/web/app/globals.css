@@ -901,7 +901,7 @@ textarea::placeholder {
 }
 
 .ticket-evidence {
-  border-bottom: 1px solid var(--border-control);
+  border-bottom: 1px solid var(--control);
   padding-bottom: 24px;
   margin-bottom: 24px;
   overflow-wrap: anywhere;
@@ -918,8 +918,35 @@ textarea::placeholder {
   overflow: auto;
 }
 .citation-passage {
-  border: 1px solid var(--border-control);
+  border: 1px solid var(--control);
   border-radius: 8px;
   padding: 16px;
   margin-top: 16px;
+}
+
+.evidence-navigation {
+  display: none;
+}
+@media (max-width: 960px) {
+  .evidence-navigation {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 20px;
+  }
+  .evidence-navigation button {
+    min-height: 44px;
+  }
+  .evidence-navigation [aria-pressed="true"] {
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .conversation-open .ticket-context,
+  .evidence-open .ticket-detail {
+    display: none;
+  }
+  .conversation-layout .mobile-back {
+    display: none;
+  }
 }

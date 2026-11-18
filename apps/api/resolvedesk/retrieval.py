@@ -77,6 +77,7 @@ def run_view(db, run):
         "created_at": run.created_at,
         "embedding_model": run.embedding_model,
         "source_versions": run.source_versions,
+        "ranking": run.ranking,
         "results": results,
     }
 
@@ -112,6 +113,7 @@ def retrieve(workspace_id: UUID, ticket_id: UUID, db: DB, visitor: Visitor):
         query=query,
         embedding_model=MODEL,
         source_versions=sorted({str(row[1].id) for row in rows}),
+        ranking={"method": "exact-cosine-v1", "limit": LIMIT, "max_distance": MAX_DISTANCE},
         created_by=visitor.user_id,
         created_at=datetime.now(UTC),
     )

@@ -203,6 +203,7 @@ class RetrievalRun(Base):
     query: Mapped[str]
     embedding_model: Mapped[str]
     source_versions: Mapped[list] = mapped_column(JSON)
+    ranking: Mapped[dict] = mapped_column(JSON)
     created_by: Mapped[str]
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     __table_args__ = (

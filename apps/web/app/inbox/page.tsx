@@ -37,6 +37,7 @@ export default function InboxPage() {
   const [expired, setExpired] = useState(false);
   const [loading, setLoading] = useState(true);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [evidenceOpen, setEvidenceOpen] = useState(false);
   const [retry, setRetry] = useState(0);
   const [members, setMembers] = useState<Member[]>([]);
   const [hasUnsaved, setHasUnsaved] = useState(false);
@@ -417,6 +418,7 @@ export default function InboxPage() {
                       if (ticketId !== t.id) setDetail(null);
                       selectedTicket.current = t.id;
                       setTicketId(t.id);
+                      setEvidenceOpen(false);
                       setDetailOpen(true);
                     }}
                   >
@@ -434,7 +436,33 @@ export default function InboxPage() {
                 ))
               )}
             </section>
-            <div className="conversation-layout">
+            <div
+              className={`conversation-layout ${evidenceOpen ? "evidence-open" : "conversation-open"}`}
+            >
+              {detail && (
+                <nav className="evidence-navigation" aria-label="Ticket panels">
+                  <button
+                    className="secondary"
+                    onClick={() => setDetailOpen(false)}
+                  >
+                    Back to inbox
+                  </button>
+                  <button
+                    className="secondary"
+                    aria-pressed={!evidenceOpen}
+                    onClick={() => setEvidenceOpen(false)}
+                  >
+                    Conversation
+                  </button>
+                  <button
+                    className="secondary"
+                    aria-pressed={evidenceOpen}
+                    onClick={() => setEvidenceOpen(true)}
+                  >
+                    Evidence
+                  </button>
+                </nav>
+              )}
               <section
                 className="ticket-detail"
                 aria-label="Ticket conversation"

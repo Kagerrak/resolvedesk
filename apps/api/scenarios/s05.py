@@ -94,6 +94,10 @@ try:
     response = a.post(route)
     response.raise_for_status()
     run = response.json()
+    check(
+        run["ranking"] == {"method": "exact-cosine-v1", "limit": 5, "max_distance": 0.65},
+        "Ranking method and selection parameters persist",
+    )
     check(0 < len(run["results"]) <= 5, "Native pgvector returns bounded ranked excerpts")
     check(
         [r["rank"] for r in run["results"]] == list(range(1, len(run["results"]) + 1)),

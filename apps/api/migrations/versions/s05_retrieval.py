@@ -1,7 +1,7 @@
 """Native pgvector passages and persisted workspace-scoped retrieval references."""
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 revision = "s05_retrieval"
 down_revision = "s04_pdf_sources"
