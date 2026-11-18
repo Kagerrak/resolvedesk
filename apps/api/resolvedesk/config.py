@@ -11,5 +11,9 @@ class Settings(BaseSettings):
     deepseek_api_key: SecretStr | None = None
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
+    @property
+    def has_deepseek_key(self) -> bool:
+        return bool(self.deepseek_api_key and self.deepseek_api_key.get_secret_value().strip())
+
 
 settings = Settings()  # pyright: ignore[reportCallIssue] # BaseSettings reads required values from env.

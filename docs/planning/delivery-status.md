@@ -11,7 +11,7 @@ Specification: https://github.com/Kagerrak/resolvedesk/issues/1
 | S03 | [S03 — Publish usable knowledge](https://github.com/Kagerrak/resolvedesk/issues/4) | Delivered: PR #18 merged; issue #4 closed; CI 44242453555 passed |
 | S04 | [S04 — Publish text-PDF knowledge with traceable pages](https://github.com/Kagerrak/resolvedesk/issues/5) | Delivered: PR #19 merged; issue #5 closed; 22 API/PDF assertions, browser/review and CI passed |
 | S05 | [S05 — Retrieve supporting evidence from a ticket](https://github.com/Kagerrak/resolvedesk/issues/6) | Delivered: PR #20 merged ea41f16; issue #6 closed; CI 44307545659 passed all 129 S01–S05 assertions |
-| S06 | [S06 — Generate and revise a grounded draft](https://github.com/Kagerrak/resolvedesk/issues/7) | Active next slice on feat/s06-drafting; live credentials not yet configured |
+| S06 | [S06 — Generate and revise a grounded draft](https://github.com/Kagerrak/resolvedesk/issues/7) | In progress on feat/s06-drafting; fixture/API/UI/review checks passed; DeepSeek live credentials/evaluation and GitHub delivery pending |
 | S07 | [S07 — Approve a precise reply and record simulated delivery](https://github.com/Kagerrak/resolvedesk/issues/8) | Not implemented; blocked by planned prerequisites |
 | S08 | [S08 — Connect Gmail and import a real support conversation](https://github.com/Kagerrak/resolvedesk/issues/9) | Not implemented; blocked by planned prerequisites |
 | S09 | [S09 — Deliver an approved reply through Gmail safely](https://github.com/Kagerrak/resolvedesk/issues/10) | Not implemented; blocked by planned prerequisites |
@@ -24,6 +24,6 @@ Specification: https://github.com/Kagerrak/resolvedesk/issues/1
 
 - S01 PR #16 merged `9427fec`; S02 PR #17 merged `7023c1a`. Issues #2 and #3 closed. S02 CI passed: https://github.com/Kagerrak/resolvedesk/actions/runs/43998758871.
 - S03 PR #18 merged `6b3ad719`, issue #4 closed; CI https://github.com/Kagerrak/resolvedesk/actions/runs/44242453555 passed. See `docs/verification/s03-knowledge.md`.
-- S04 PR #19 merged `fec794bd`; issue #5 closed. CI https://github.com/Kagerrak/resolvedesk/actions/runs/44243139958 passed all 99 S01–S04 assertions. S05 retrieval is next. S08 remains dependent on OAuth/account setup. Promote only actually unblocked issues.
+- S04 PR #19 merged `fec794bd`; issue #5 closed. CI https://github.com/Kagerrak/resolvedesk/actions/runs/44243139958 passed all 99 S01–S04 assertions. S05 PR #20 merged ea41f16, issue #6 closed; CI 44307545659 passed all 129 S01–S05 assertions. S06 drafting is active; live DeepSeek verification is pending. S08 remains dependent on OAuth/account setup. Promote only actually unblocked issues.
 - Native 200% browser zoom is still unverified. No hosted demo, live AI or real Gmail exists.
 - Active functional checkout `/Users/rommelclarino/projects/resolvedesk-s01`; original prototype checkout and its pending files remain untouched.

@@ -136,7 +136,9 @@ export function DraftGeneration({
       <p className="small muted">
         {run?.mode === "deepseek"
           ? "DeepSeek generation"
-          : "Fixture generation · extracts published evidence; no AI provider call"}
+          : run?.mode === "openai"
+            ? "Historical OpenAI generation"
+            : "Fixture generation · extracts published evidence; no AI provider call"}
       </p>
       {!readOnly && (
         <div className="form-actions">

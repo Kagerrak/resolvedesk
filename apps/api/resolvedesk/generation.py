@@ -294,7 +294,7 @@ def run_once():
             if run.mode == "deepseek":
                 from .config import settings
 
-                if not settings.live_ai_enabled or not settings.deepseek_api_key:
+                if not settings.live_ai_enabled or not settings.has_deepseek_key:
                     raise ValueError("Live AI remains disabled.")
                 reserve(db, run, context)
             run.prompt_hash = hashlib.sha256(
@@ -304,12 +304,14 @@ def run_once():
             run.lease_until = now + timedelta(minutes=2)
             mode = run.mode
             db.commit()
-        except (ValueError, HTTPException):
+        except (ValueError, HTTPException) as reason:
             db.rollback()
             run = db.get(GenerationRun, candidate)
             if run and run.status == "queued":
                 run.status = "failed"
-                run.error = "Ticket, access, source or allowance changed. Refresh evidence and try again. Your previous draft is safe."
+                run.error = (
+                    str(reason.detail) if isinstance(reason, HTTPException) else str(reason)
+                ) + " Your previous saved draft is safe."
                 db.commit()
             return True
     usage = None
@@ -319,7 +321,7 @@ def run_once():
         else:
             from .config import settings
 
-            if not settings.deepseek_api_key:
+            if not settings.deepseek_api_key or not settings.has_deepseek_key:
                 raise ValueError("Provider credentials unavailable.")
             reply, usage = deepseek_reply(context, settings.deepseek_api_key.get_secret_value())
         validate_reply(reply, context)

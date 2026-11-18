@@ -22,7 +22,7 @@ def execute(workspace_id: UUID, ticket_id: UUID):
         raise SystemExit(
             "Live evaluation command requires local database and application endpoints."
         )
-    if not settings.live_ai_enabled or not settings.deepseek_api_key:
+    if not settings.live_ai_enabled or not settings.has_deepseek_key:
         raise SystemExit(
             "Configure local DEEPSEEK_API_KEY and LIVE_AI_ENABLED only after usage-control verification."
         )

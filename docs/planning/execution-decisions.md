@@ -21,3 +21,8 @@
 18 November 2026, temporary dependency exception:
 
 - User approved a narrow exception for GHSA-fc5q-39xc-vjpf (picomatch ReDoS) in development-only lint tooling. No patched release exists as of verification. Production audit has zero findings. CI continues auditing all dependencies and fails other moderate-or-higher advisories, audit failures, or this exception after 2 December 2026. No framework downgrade or blanket audit bypass. Remove the exception when a fixed dependency is available.
+
+18 November 2026, provider update:
+
+- User selected their DeepSeek API for generation for now, superseding the original OpenAI generation choice. Use a server-side DEEPSEEK_API_KEY, never credentials in chat or Git. Existing fixture embeddings remain explicit and unchanged.
+- The USD20/month AI allowance and all request/session reservations, human approval, citation, isolation and public-demo restrictions still apply. No paid generation before spending controls pass; public API stays fixture-only until S12 controls are delivered.

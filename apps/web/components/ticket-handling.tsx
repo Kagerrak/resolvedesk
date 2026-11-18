@@ -369,9 +369,11 @@ export function TicketHandling({
                 <strong>
                   {event.action === "draft_saved"
                     ? "Draft saved · not sent"
-                    : event.action === "ticket_reopened"
-                      ? "Ticket reopened"
-                      : "Ticket updated"}
+                    : event.action === "draft_generated"
+                      ? "Draft generated · not sent"
+                      : event.action === "ticket_reopened"
+                        ? "Ticket reopened"
+                        : "Ticket updated"}
                 </strong>
                 <span className="small muted">
                   {event.actor} ·{" "}
@@ -379,7 +381,7 @@ export function TicketHandling({
                     {new Date(event.created_at).toLocaleString()}
                   </time>
                 </span>
-                {event.action !== "draft_saved" && (
+                {!["draft_saved", "draft_generated"].includes(event.action) && (
                   <ul>
                     {Object.entries(event.changes).map(([field, change]) =>
                       typeof change === "string" ? null : (
