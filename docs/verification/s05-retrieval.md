@@ -14,7 +14,7 @@
 
 `uv run python -m scenarios.s05`: **30 real HTTP/PostgreSQL/pgvector/worker assertions passed**, after implementation. Includes deliberately similar private workspace-B source, unpublished/archive exclusions, empty runs, persisted reload, actual vector type and distance order, source-version/ranking provenance, PDF pages, invented/foreign citation denial, foreign ticket denial, Viewer rules, archive and membership revocation. Real invalid SQL inserts verify ownership constraints. Scenario-owned data is deleted afterward.
 
-Python Ruff and Pyright, web ESLint and TypeScript, production build, and dependency audit passed. Next production process was stopped before each build and restarted after. Migration upgrades applied locally; fresh migration and S01–S05 regression are CI gates.
+Python Ruff and Pyright, web ESLint and TypeScript, production build, and dependency audit passed. Next production process was stopped before each build and restarted after. Migration upgrades applied locally; fresh migration and S01–S05 regression are CI gates. First CI run 44306756353 passed migrations/static/build and S01/S02, then exposed an S03 scenario assumption that raw embeddings remain JSON. Updated that genuine database check to PostgreSQL vector_dims(embedding); no product behavior or checks were bypassed.
 
 `npm view picomatch version` returned 4.0.7; the registry audit still reports that release affected by GHSA-fc5q-39xc-vjpf. Production audit passed. The existing narrowly approved development-only exception still expires 2 December 2026; no new exceptions.
 

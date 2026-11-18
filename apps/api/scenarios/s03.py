@@ -106,14 +106,16 @@ try:
     with engine.connect() as db:
         vectors = (
             db.execute(
-                text("SELECT embedding FROM knowledge_chunk WHERE version_id=:v ORDER BY ordinal"),
+                text(
+                    "SELECT vector_dims(embedding) FROM knowledge_chunk WHERE version_id=:v ORDER BY ordinal"
+                ),
                 {"v": doc["version_id"]},
             )
             .scalars()
             .all()
         )
     check(
-        len(vectors) == 2 and all(len(v) == 64 for v in vectors),
+        len(vectors) == 2 and all(dimensions == 64 for dimensions in vectors),
         "Fixture embedding ingestion persists 64-dimensional vectors",
     )
     check(
