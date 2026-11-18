@@ -7,7 +7,7 @@ async function proxy(
   const { path } = await context.params;
   const route = path.join("/");
   if (
-    !/^(demo|workspaces|workspaces\/[0-9a-f-]+\/(?:knowledge(?:\/[0-9a-f-]+(?:\/(?:publish|archive|retry|download))?)?|citations\/[0-9a-f-]+|members|tickets(?:\/[0-9a-f-]+(?:\/(?:draft|retrievals(?:\/latest)?))?)?))$/.test(
+    !/^(demo|workspaces|workspaces\/[0-9a-f-]+\/(?:knowledge(?:\/[0-9a-f-]+(?:\/(?:publish|archive|retry|download))?)?|citations\/[0-9a-f-]+|members|tickets(?:\/[0-9a-f-]+(?:\/(?:draft|generations(?:\/(?:latest|[0-9a-f-]+\/cancel))?|retrievals(?:\/latest)?))?)?))$/.test(
       route,
     )
   ) {

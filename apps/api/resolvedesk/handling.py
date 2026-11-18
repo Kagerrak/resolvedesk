@@ -184,6 +184,8 @@ def save_draft(workspace_id: UUID, ticket_id: UUID, change: SaveDraft, db: DB, v
             ticket_id=ticket_id,
             ticket_revision=item.revision,
             body=change.body,
+            generation_id=previous.generation_id if previous else None,
+            citation_ids=previous.citation_ids if previous else [],
             created_by=visitor.user_id,
             created_at=datetime.now(UTC),
         )

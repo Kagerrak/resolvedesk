@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from .config import settings
 from .database import database
+from .generation import router as generation_router
 from .handling import read_detail
 from .handling import router as handling_router
 from .identity import Identity, identity
@@ -22,6 +23,7 @@ app = FastAPI(title="ResolveDesk", version="0.1.0")
 app.include_router(handling_router)
 app.include_router(knowledge_router)
 app.include_router(retrieval_router)
+app.include_router(generation_router)
 DB = Annotated[Session, Depends(database)]
 Visitor = Annotated[Identity, Depends(identity)]
 

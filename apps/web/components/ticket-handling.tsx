@@ -1,4 +1,5 @@
 "use client";
+import { DraftGeneration } from "@/components/draft-generation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api, ApiError, type Member, type TicketDetail } from "@/lib/api";
@@ -25,6 +26,7 @@ export function TicketHandling({
   const [priority, setPriority] = useState(detail.priority);
   const [assignee, setAssignee] = useState(detail.assigned_to ?? "");
   const [busy, setBusy] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [baselineRevision, setBaselineRevision] = useState(detail.revision);
   const [error, setError] = useState("");
   const [conflict, setConflict] = useState(false);
@@ -150,7 +152,7 @@ export function TicketHandling({
             }}
           >
             <fieldset
-              disabled={busy || needsReview}
+              disabled={busy || needsReview || generating}
               className="handling-fields"
             >
               <legend className="sr-only">Choose ticket changes</legend>
@@ -205,7 +207,7 @@ export function TicketHandling({
             <div className="form-actions">
               <button
                 className="secondary"
-                disabled={busy || needsReview || !fieldsDirty}
+                disabled={busy || needsReview || generating || !fieldsDirty}
               >
                 Apply ticket changes
               </button>
@@ -213,7 +215,7 @@ export function TicketHandling({
                 <button
                   type="button"
                   className="secondary"
-                  disabled={busy || needsReview}
+                  disabled={busy || needsReview || generating}
                   onClick={() => void save("reopen")}
                 >
                   Reopen ticket
@@ -225,9 +227,29 @@ export function TicketHandling({
       </section>
       <section aria-labelledby="draft-title" className="draft-panel">
         <header>
-          <h3 id="draft-title">Manual draft</h3>
+          <h3 id="draft-title">Draft reply</h3>
           <span className="badge">Not sent</span>
         </header>
+        <DraftGeneration
+          route={path}
+          revision={baselineRevision}
+          disabled={dirty || busy || needsReview}
+          readOnly={readOnly}
+          onActive={setGenerating}
+          onGenerated={(next) => {
+            onChanged(next);
+            setBaselineRevision(next.revision);
+            setBody(next.draft?.body ?? "");
+            setNotice("Generated draft saved for review. No email was sent.");
+          }}
+        />
+        {detail.draft?.generation_id && (
+          <p className="small muted">
+            Generated evidence references retained:{" "}
+            {detail.draft.citation_ids.length}. Review support again after
+            editing the wording.
+          </p>
+        )}
         {readOnly ? (
           <p className="message-body">
             {detail.draft?.body || "No saved draft yet."}
@@ -248,7 +270,7 @@ export function TicketHandling({
               onChange={(e) => setBody(e.target.value)}
               maxLength={20000}
               rows={7}
-              disabled={busy}
+              disabled={busy || generating}
               aria-describedby="draft-help"
               placeholder="Write a reply for review…"
             />
@@ -259,7 +281,7 @@ export function TicketHandling({
             <div className="form-actions">
               <button
                 className="primary"
-                disabled={busy || needsReview || !draftDirty}
+                disabled={busy || needsReview || generating || !draftDirty}
               >
                 Save draft
               </button>
