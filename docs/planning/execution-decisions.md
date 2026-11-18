@@ -17,3 +17,7 @@
 
 - User approved a documented local Admin setup command for an existing synthetic demo session. It must reject live/remote workspaces; public visitors remain unable to upload. Staff sign-in is not pulled ahead of S03.
 - S03 uses explicitly labeled deterministic fixture vectors, private PostgreSQL source storage and durable worker jobs; no provider spend or hosted resources.
+
+18 November 2026, temporary dependency exception:
+
+- User approved a narrow exception for GHSA-fc5q-39xc-vjpf (picomatch ReDoS) in development-only lint tooling. No patched release exists as of verification. Production audit has zero findings. CI continues auditing all dependencies and fails other moderate-or-higher advisories, audit failures, or this exception after 2 December 2026. No framework downgrade or blanket audit bypass. Remove the exception when a fixed dependency is available.
