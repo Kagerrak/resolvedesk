@@ -35,3 +35,7 @@ Implementation 630a4cf, long-text/browser evidence fd28e0d. 22 actual HTTP/Postg
 User approved the temporary development-only picomatch advisory exception; scripts/audit-dependencies.mjs expires it on 2 December 2026, and still blocks production and other moderate-or-higher advisories. Production audit clean. S03 remediation worktree exists at /Users/rommelclarino/projects/resolvedesk-s03; original prototype checkout remains untouched.
 
 S04 delivery: https://github.com/Kagerrak/resolvedesk/pull/19; CI https://github.com/Kagerrak/resolvedesk/actions/runs/44243139958. S05 issue #6 is ready-for-agent. Current branch contains only the delivery handoff update so far, not an S05 implementation. Next implement workspace-scoped pgvector retrieval, persisted source-version runs and authorized citation navigation; retain explicit fixture mode and no paid provider calls before usage controls.
+
+## S05 implementation update
+
+S05 behavior implemented in `608f68f`, review fixes `428fa1c`, extended integration checks `8db7cf2`. Native pgvector exact cosine retrieval with persisted ranking/source-version provenance, authorized citation passages/PDF pages and mobile panel navigation. 30 real HTTP/PostgreSQL assertions passed; browser, static/build and independent Spec/Standards review evidence in `docs/verification/s05-retrieval.md`. GitHub delivery pending. No provider calls. Local API/web restarted from functional checkout after safe builds; no background worker running.
