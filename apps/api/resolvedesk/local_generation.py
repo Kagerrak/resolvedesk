@@ -22,9 +22,9 @@ def execute(workspace_id: UUID, ticket_id: UUID):
         raise SystemExit(
             "Live evaluation command requires local database and application endpoints."
         )
-    if not settings.live_ai_enabled or not settings.openai_api_key:
+    if not settings.live_ai_enabled or not settings.deepseek_api_key:
         raise SystemExit(
-            "Configure local OPENAI_API_KEY and LIVE_AI_ENABLED only after usage-control verification."
+            "Configure local DEEPSEEK_API_KEY and LIVE_AI_ENABLED only after usage-control verification."
         )
     with SessionLocal() as db:
         workspace = db.get(Workspace, workspace_id)
@@ -57,11 +57,11 @@ def execute(workspace_id: UUID, ticket_id: UUID):
                 expected_revision=ticket.revision, retrieval_id=retrieval.id, request_id=uuid4()
             ),
             Identity(workspace.demo_owner, True),
-            mode="openai",
+            mode="deepseek",
         )
         run_id = run.id
         db.commit()
-    # The normal worker performs atomic spending reservation before contacting OpenAI.
+    # The normal worker performs atomic spending reservation before contacting DeepSeek.
     run_once()
     print("Live run queued/processed:", run_id, "Inspect the ticket before relying on the draft.")
 

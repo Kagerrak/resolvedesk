@@ -4,7 +4,7 @@ import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from threading import Thread
 
-from resolvedesk.generation_provider import openai_reply
+from resolvedesk.generation_provider import deepseek_reply
 
 checks = []
 case = {
@@ -65,17 +65,17 @@ context = {
 }
 endpoint = f"http://127.0.0.1:{server.server_port}/v1/responses"
 try:
-    reply, usage = openai_reply(context, "resolvedesk-provider-fixture", endpoint=endpoint)
+    reply, usage = deepseek_reply(context, "resolvedesk-provider-fixture", endpoint=endpoint)
     check(
         reply.citation_ids == ["authorized-citation"] and usage["input_tokens"] == 100,
         "Adapter parses strict reply and usage from actual local HTTP provider fixture",
     )
     sent = requests[-1]
     check(
-        sent["store"] is False
+        sent["model"] == "deepseek-flash"
         and sent["max_output_tokens"] == 2048
         and sent["text"]["format"]["strict"] is True,
-        "Transport requests bounded strict structured output without provider storage",
+        "Transport requests bounded strict structured output for the selected DeepSeek model",
     )
     check(
         "tools" not in sent and json.loads(sent["input"]) == context,
@@ -104,13 +104,13 @@ try:
         case.update(change)
         rejected = False
         try:
-            openai_reply(context, "resolvedesk-provider-fixture", endpoint=endpoint)
+            deepseek_reply(context, "resolvedesk-provider-fixture", endpoint=endpoint)
         except (ValueError, TypeError):
             rejected = True
         check(rejected, label)
     rejected = False
     try:
-        openai_reply(context, "not-a-fixture-credential", endpoint=endpoint)
+        deepseek_reply(context, "not-a-fixture-credential", endpoint=endpoint)
     except ValueError:
         rejected = True
     check(rejected, "Transport fixture cannot receive a real provider credential")

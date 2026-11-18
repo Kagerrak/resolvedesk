@@ -18,8 +18,8 @@ from .database import SessionLocal
 from .generation_provider import (
     MODEL,
     PROMPT_VERSION,
+    deepseek_reply,
     fixture_reply,
-    openai_reply,
     request_body,
     validate_reply,
 )
@@ -36,7 +36,7 @@ from .models import (
 from .retrieval import published_chunks, run_view
 
 router = APIRouter()
-PRICE_VERSION = "2026-11-18-terra-conservative-v1"
+PRICE_VERSION = "2026-11-18-deepseek-flash-peak-v1"
 PRICE_EXPIRES = datetime(2026, 12, 18, tzinfo=UTC)
 MONTH_CAP = 20_000_000
 SESSION_CAP = 250_000
@@ -213,8 +213,8 @@ def reserve(db, run, context):
     if len(encoded) > 20000:
         raise ValueError("This conversation and evidence exceed the generation size limit.")
     # UTF-8 bytes plus schema/framing allowance conservatively upper-bound input tokens.
-    # Conservative $4/M input and $6/M output cover documented standard/cache-write rates and regional uplift.
-    amount = (len(encoded) + 4096) * 4 + 2048 * 6
+    # Conservative $1/M input and $2/M output exceed verified DeepSeek Flash peak rates.
+    amount = (len(encoded) + 4096) + 2048 * 2
     if amount > REQUEST_CAP:
         raise ValueError("This request exceeds the per-request AI allowance.")
     month = now.strftime("%Y-%m")
@@ -244,7 +244,7 @@ def reserve(db, run, context):
 def reconcile(db, run, usage):
     if not usage or not run.charge_micros:
         return
-    actual = usage["input_tokens"] * 4 + usage["output_tokens"] * 6
+    actual = usage["input_tokens"] + usage["output_tokens"] * 2
     db.execute(text("SELECT pg_advisory_xact_lock(hashtextextended('resolvedesk-ai-budget',0))"))
     ledger = db.get(UsageMonth, run.usage["month"])
     if not ledger:
@@ -289,10 +289,12 @@ def run_once():
             run = scoped_run(db, item.workspace_id, item.id, candidate)
             if run.status != "queued":
                 return True
-            if run.mode == "openai":
+            if run.mode not in ("fixture", "deepseek"):
+                raise ValueError("This provider is not enabled.")
+            if run.mode == "deepseek":
                 from .config import settings
 
-                if not settings.live_ai_enabled or not settings.openai_api_key:
+                if not settings.live_ai_enabled or not settings.deepseek_api_key:
                     raise ValueError("Live AI remains disabled.")
                 reserve(db, run, context)
             run.prompt_hash = hashlib.sha256(
@@ -317,9 +319,9 @@ def run_once():
         else:
             from .config import settings
 
-            if not settings.openai_api_key:
+            if not settings.deepseek_api_key:
                 raise ValueError("Provider credentials unavailable.")
-            reply, usage = openai_reply(context, settings.openai_api_key.get_secret_value())
+            reply, usage = deepseek_reply(context, settings.deepseek_api_key.get_secret_value())
         validate_reply(reply, context)
         error = None
     except (ValueError, httpx.HTTPError, KeyError, TypeError):

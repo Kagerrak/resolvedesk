@@ -4,7 +4,7 @@ import { api, type TicketDetail } from "@/lib/api";
 type Run = {
   id: string;
   status: string;
-  mode: "fixture" | "openai";
+  mode: "fixture" | "openai" | "deepseek";
   error: string | null;
   draft_id: string | null;
   citations: string[];
@@ -134,8 +134,8 @@ export function DraftGeneration({
   return (
     <div className="draft-generation">
       <p className="small muted">
-        {run?.mode === "openai"
-          ? "Real provider generation"
+        {run?.mode === "deepseek"
+          ? "DeepSeek generation"
           : "Fixture generation · extracts published evidence; no AI provider call"}
       </p>
       {!readOnly && (

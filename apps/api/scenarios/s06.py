@@ -256,7 +256,7 @@ try:
         reconcile(db, gen, {"input_tokens": 100, "output_tokens": 20})
         db.flush()
         check(
-            gen.charge_micros == 520 and gen.usage["accounted_micros"] == 520,
+            gen.charge_micros == 140 and gen.usage["accounted_micros"] == 140,
             "Measured usage releases unused conservative reservation",
         )
         ledger.allocated_micros = 20_000_000

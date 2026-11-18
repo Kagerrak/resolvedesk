@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     app_origin: str = "http://localhost:3000"
     demo_enabled: bool = True
     live_ai_enabled: bool = False
-    openai_api_key: SecretStr | None = None
+    deepseek_api_key: SecretStr | None = None
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 

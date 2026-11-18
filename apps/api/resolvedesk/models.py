@@ -290,7 +290,7 @@ class GenerationRun(Base):
             name="generation_draft_source",
             use_alter=True,
         ),
-        CheckConstraint("mode IN ('fixture','openai')"),
+        CheckConstraint("mode IN ('fixture','openai','deepseek')"),
         CheckConstraint(
             "status IN ('queued','running','succeeded','escalated','failed','cancelled')"
         ),
