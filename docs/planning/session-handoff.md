@@ -4,7 +4,7 @@ Updated 18 November 2026.
 
 ## Active work and branch safety
 
-Functional checkout: `/Users/rommelclarino/projects/resolvedesk-s01`, branch `feat/s05-retrieval`. Original `/Users/rommelclarino/projects/resolvedesk` remains on `feat/ui-direction-prototypes` with its pre-existing screenshot changes and generated `apps/web/AGENTS.md`; do not overwrite or merge that prototype branch wholesale.
+Functional checkout: `/Users/rommelclarino/projects/resolvedesk-s01`, branch `feat/s06-drafting`. Original `/Users/rommelclarino/projects/resolvedesk` remains on `feat/ui-direction-prototypes` with its pre-existing screenshot changes and generated `apps/web/AGENTS.md`; do not overwrite or merge that prototype branch wholesale.
 
 S01 PR #16 merged as `9427fec425c34cd65230c88863ac027ebea0502f`; issue #2 closed. Command Bright D adopted with real API data, light theme, mobile/keyboard flows. CI run 43829740801 passed.
 
@@ -26,7 +26,7 @@ README startup and scenario instructions apply. Existing ignored environment fil
 
 Only synthetic data is used. Temporary second QA workspace was removed. Browser sessions may expire; create fresh sessions through entry. Viewer QA membership may remain on the last synthetic session; a new session has Agent role.
 
-S05–S13 remain unfinished. No public hosted demo, AI quality evaluation or real Gmail verification exists. Native 200% browser zoom remains unverified. Public cleanup/abuse limits, live staff auth, OAuth/provider account setup, safe delivery and budget enforcement must still be delivered. Do not call the project complete.
+S06–S13 remain unfinished. No public hosted demo, AI quality evaluation or real Gmail verification exists. Native 200% browser zoom remains unverified. Public cleanup/abuse limits, live staff auth, OAuth/provider account setup, safe delivery and budget enforcement must still be delivered. Do not call the project complete.
 
 ## S04 delivered / S05 next
 
@@ -34,8 +34,13 @@ Implementation 630a4cf, long-text/browser evidence fd28e0d. 22 actual HTTP/Postg
 
 User approved the temporary development-only picomatch advisory exception; scripts/audit-dependencies.mjs expires it on 2 December 2026, and still blocks production and other moderate-or-higher advisories. Production audit clean. S03 remediation worktree exists at /Users/rommelclarino/projects/resolvedesk-s03; original prototype checkout remains untouched.
 
-S04 delivery: https://github.com/Kagerrak/resolvedesk/pull/19; CI https://github.com/Kagerrak/resolvedesk/actions/runs/44243139958. S05 issue #6 is ready-for-agent. Current branch contains only the delivery handoff update so far, not an S05 implementation. Next implement workspace-scoped pgvector retrieval, persisted source-version runs and authorized citation navigation; retain explicit fixture mode and no paid provider calls before usage controls.
+S04 delivery: https://github.com/Kagerrak/resolvedesk/pull/19; CI https://github.com/Kagerrak/resolvedesk/actions/runs/44243139958. S05 issue #6 is ready-for-agent. S05 delivered via PR #20 merged ea41f16; issue #6 closed. CI 44307545659 passed all 129 S01–S05 assertions, fresh migrations/static/build. Next S06 generation and revision; retain explicit fixture mode and no paid provider calls before usage controls.
 
 ## S05 implementation update
 
-S05 behavior implemented in `608f68f`, review fixes `428fa1c`, extended integration checks `8db7cf2`. Native pgvector exact cosine retrieval with persisted ranking/source-version provenance, authorized citation passages/PDF pages and mobile panel navigation. 30 real HTTP/PostgreSQL assertions passed; browser, static/build and independent Spec/Standards review evidence in `docs/verification/s05-retrieval.md`. GitHub delivery pending. No provider calls. Local API/web restarted from functional checkout after safe builds; no background worker running.
+S05 behavior implemented in `608f68f`, review fixes `428fa1c`, extended integration checks `8db7cf2`. Native pgvector exact cosine retrieval with persisted ranking/source-version provenance, authorized citation passages/PDF pages and mobile panel navigation. 30 real HTTP/PostgreSQL assertions passed; browser, static/build and independent Spec/Standards review evidence in `docs/verification/s05-retrieval.md`. Delivered: PR #20 merged `ea41f167f935d25fc6de787d284b732c4ba30d03`, issue #6 closed, CI https://github.com/Kagerrak/resolvedesk/actions/runs/44307545659 passed all 129 assertions. No provider calls. Local API/web restarted from functional checkout after safe builds; no background worker running.
+
+
+## S06 next
+
+Active branch `feat/s06-drafting` starts from merged S05. No S06 behavior implemented yet. OpenAI configuration is absent; user was asked interactively to configure OPENAI_API_KEY locally, never in chat. Keep paid calls disabled until atomic spending controls pass. Fixture/local implementation can proceed independently; live verification must remain explicitly pending until credentials are available.

@@ -35,3 +35,7 @@ Real Better Auth rate limiting was encountered during repeated combined API/brow
 Separate Standards and Spec reviewers inspected `0bf32f2...608f68f`. Findings: persist ranking method/parameters; expose mobile Conversation/Evidence navigation. Both fixed in `428fa1c`; both reviewers rechecked the followup and reported no remaining actionable findings. The later scenario additions only extend genuine database/provenance checks.
 
 No real-provider relevance/recall evaluation, hosted demo or Gmail verification is claimed. S06–S13 remain unfinished. Public deployment remains blocked by planned usage, cleanup, abuse and safe-delivery controls.
+
+## GitHub delivery
+
+[PR #20](https://github.com/Kagerrak/resolvedesk/pull/20) merged as `ea41f167f935d25fc6de787d284b732c4ba30d03`; issue #6 closed. [CI 44307545659](https://github.com/Kagerrak/resolvedesk/actions/runs/44307545659) passed fresh migrations, static checks, build, dependency audit and all **129 S01–S05 real integration assertions** (23 + 29 + 25 + 22 + 30). Separate disposable PostgreSQL migration upgrade → downgrade to S04 → upgrade also passed.
