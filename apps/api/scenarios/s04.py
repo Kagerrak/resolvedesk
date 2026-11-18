@@ -97,6 +97,10 @@ try:
         ),
         "Passage boundaries never cross pages",
     )
+    check(
+        len(detail["sections"]) >= 4 and all(len(s["content"]) <= 1600 for s in detail["sections"]),
+        "Long PDF pages split into bounded passages without losing page identity",
+    )
     with engine.connect() as db:
         row = db.execute(
             text("SELECT source_bytes, content, page_count FROM document_version WHERE id=:v"),
