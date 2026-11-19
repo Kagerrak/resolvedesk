@@ -272,7 +272,7 @@
       }
     }
   ],
-  "manual_review": "agent rubric complete; independent review pending",
+  "manual_review": "Agent rubric and independent Spec/Standards agent review completed; no independent human labels.",
   "scope": "Five author-labelled synthetic workflow cases plus one separate live browser case. Not a representative benchmark or independently human-labelled quality dataset. Generation is live DeepSeek; retrieval remains fixture-hash-v1.",
   "review_method": "Agent inspection of saved application text against actual selected excerpts. Model reasons are not used as correctness scores. Escalation bodies are application-owned wording.",
   "browser_case": {

@@ -48,6 +48,6 @@ The current live journey verified saved DeepSeek provenance, authorized source p
 - [Earlier fixture desktop source](images/s06-source-light.png)
 - [Earlier fixture mobile composer](images/s06-mobile-dark.png)
 
-Separate Spec/Standards reviewers previously found and rechecked fixes for completion refresh, resumed-run application, polling recovery, malformed envelopes, provider labels and worker claim selection. The live review then found unconditional project-specific prompt instructions and an incomplete internal-ID body guard. Both are corrected; final followup review is pending. No independent-human quality claim is made.
+Separate Spec/Standards reviewers previously found and rechecked fixes for completion refresh, resumed-run application, polling recovery, malformed envelopes, provider labels and worker claim selection. The live review then found unconditional project-specific prompt instructions and an incomplete internal-ID body guard. Both are corrected; both independent agents rechecked d48e1dd and reported no remaining actionable findings, including inspection of all six saved examples. No independent-human quality claim is made.
 
 PR: https://github.com/Kagerrak/resolvedesk/pull/21. Merge/close issue #7 only after final review and head CI pass. S07–S13 remain unfinished.
