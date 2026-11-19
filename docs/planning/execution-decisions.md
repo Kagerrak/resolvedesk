@@ -26,3 +26,8 @@
 
 - User selected their DeepSeek API for generation for now, superseding the original OpenAI generation choice. Use a server-side DEEPSEEK_API_KEY, never credentials in chat or Git. Existing fixture embeddings remain explicit and unchanged.
 - The USD20/month AI allowance and all request/session reservations, human approval, citation, isolation and public-demo restrictions still apply. No paid generation before spending controls pass; public API stays fixture-only until S12 controls are delivered.
+
+
+19 November 2026, Gmail verification deferral:
+
+- User chose to defer real Gmail verification for now. Do not ask for OAuth credentials or mailbox setup again during this deferred phase. No mailbox has been connected. Keep S08/S09 and S10 Gmail recovery verification unfinished; continue independently unblocked work. This is not evidence of live Gmail delivery.

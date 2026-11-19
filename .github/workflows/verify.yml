@@ -63,6 +63,8 @@ jobs:
           uv run python -m scenarios.s06_provider
           sleep 61
           uv run python -m scenarios.s07
+          sleep 61
+          uv run python -m scenarios.s10
       - name: Stop disposable services
         if: always()
         run: docker compose down --volumes

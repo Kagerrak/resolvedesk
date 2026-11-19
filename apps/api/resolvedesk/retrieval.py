@@ -77,6 +77,10 @@ def run_view(db, run):
         "created_at": run.created_at,
         "embedding_model": run.embedding_model,
         "source_versions": run.source_versions,
+        "sources_changed": bool(
+            set(run.source_versions) - {str(r["version_id"]) for r in results if r["available"]}
+        )
+        or any(not r["available"] for r in results),
         "ranking": run.ranking,
         "results": results,
     }

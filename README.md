@@ -120,3 +120,10 @@ Escalation drafts use application-owned wording so they do not claim reviews or 
 Save your draft, choose any proposed ticket changes, then select **Review demo reply**. Inspect the exact reply, source citations and changes before **Approve and record demo reply**. Uncited drafts require explicit acknowledgement. A changed draft, conversation, ticket or published source invalidates the review. Retrying the same approval checks its existing receipt instead of creating another message. Simulated delivery is restricted to synthetic demo workspaces and has no email transport. Separate **Apply ticket changes** commands also require explicit confirmation and persist authorization.
 
 Run `uv run python -m scenarios.s07` from `apps/api` against the real running application/PostgreSQL after the implementation. It paces requests to respect the real sign-in limit. Allow one minute between suites and browser verification.
+
+
+### Activity and recovery (independent S10 scope)
+
+Open **Activity** to filter persisted operations and inspect recorded history. Admins can retry failed or interrupted indexing, within the three-attempt limit. Recovery never publishes a source automatically or retries paid AI/email. A source can be archived or permanently deleted from Knowledge; deletion removes the file and passages while retaining a content-free tombstone. Saved reply wording remains a business record, with unavailable evidence flagged for review. Gmail operational recovery remains gated by S08/S09. See [S10 verification](docs/verification/s10-recovery.md).
+
+After implementation, `uv run python -m scenarios.s10` verifies real HTTP/PostgreSQL/workers; leave a minute between suites to respect authentication limits.

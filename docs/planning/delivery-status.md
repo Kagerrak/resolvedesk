@@ -1,6 +1,6 @@
 # Delivery status
 
-Updated 18 November 2026. Repository setup/MIT/specification and native issue dependencies are published; setup PR #15 merged. Command Bright (D) accepted. No hosted demo or Gmail exists; limited live DeepSeek smoke verification is recorded.
+Updated 19 November 2026. Repository setup/MIT/specification and native issue dependencies are published; setup PR #15 merged. Command Bright (D) accepted. No hosted demo or Gmail exists; limited live DeepSeek smoke verification is recorded.
 
 Specification: https://github.com/Kagerrak/resolvedesk/issues/1
 
@@ -12,11 +12,11 @@ Specification: https://github.com/Kagerrak/resolvedesk/issues/1
 | S04 | [S04 — Publish text-PDF knowledge with traceable pages](https://github.com/Kagerrak/resolvedesk/issues/5) | Delivered: PR #19 merged; issue #5 closed; 22 API/PDF assertions, browser/review and CI passed |
 | S05 | [S05 — Retrieve supporting evidence from a ticket](https://github.com/Kagerrak/resolvedesk/issues/6) | Delivered: PR #20 merged ea41f16; issue #6 closed; CI 44307545659 passed all 129 S01–S05 assertions |
 | S06 | [S06 — Generate and revise a grounded draft](https://github.com/Kagerrak/resolvedesk/issues/7) | Delivered: PR #21 merged c50d3ad; issue #7 closed; final CI 44472186034 and independent review passed |
-| S07 | [S07 — Approve a precise reply and record simulated delivery](https://github.com/Kagerrak/resolvedesk/issues/8) | Implemented on feat/s07-approval; 21 real assertions, browser/static/build and initial review passed; final review/CI delivery pending |
-| S08 | [S08 — Connect Gmail and import a real support conversation](https://github.com/Kagerrak/resolvedesk/issues/9) | Not implemented; blocked by planned prerequisites |
+| S07 | [S07 — Approve a precise reply and record simulated delivery](https://github.com/Kagerrak/resolvedesk/issues/8) | Delivered: PR #22 merged f354d80; issue #8 closed; final CI 44475535950 and review passed |
+| S08 | [S08 — Connect Gmail and import a real support conversation](https://github.com/Kagerrak/resolvedesk/issues/9) | Real Gmail verification explicitly deferred by user; OAuth setup unavailable; implementation/live verification unfinished |
 | S09 | [S09 — Deliver an approved reply through Gmail safely](https://github.com/Kagerrak/resolvedesk/issues/10) | Not implemented; blocked by planned prerequisites |
-| S10 | [S10 — Diagnose and recover an operational failure](https://github.com/Kagerrak/resolvedesk/issues/11) | Not implemented; blocked by planned prerequisites |
-| S11 | [S11 — Measure retrieval and answer quality](https://github.com/Kagerrak/resolvedesk/issues/12) | Not implemented; blocked by planned prerequisites |
+| S10 | [S10 — Diagnose and recover an operational failure](https://github.com/Kagerrak/resolvedesk/issues/11) | Independent indexing/source recovery implemented in PR #23; 29 real assertions/browser/reviews passed; final CI pending; Gmail recovery remains gated |
+| S11 | [S11 — Measure retrieval and answer quality](https://github.com/Kagerrak/resolvedesk/issues/12) | Unblocked after S06/S07; not implemented |
 | S12 | [S12 — Let a recruiter explore a safe hosted demo](https://github.com/Kagerrak/resolvedesk/issues/13) | Not implemented; blocked by planned prerequisites |
 | S13 | [S13 — Finish the recruiter-ready product and handover](https://github.com/Kagerrak/resolvedesk/issues/14) | Not implemented; blocked by planned prerequisites |
 
@@ -32,3 +32,6 @@ Specification: https://github.com/Kagerrak/resolvedesk/issues/1
 ## S06 delivered / S07 active — 19 November 2026
 
 S06 PR #21 merged `c50d3ade794a8621879cea4facadc963d4b2afba`; issue #7 closed. Final CI [44472186034](https://github.com/Kagerrak/resolvedesk/actions/runs/44472186034) passed 154 real integration assertions and 16 explicitly canned local HTTP provider-contract checks, migrations/static/build/audit. Independent final Spec/Standards review clear. Live smoke limitations and USD0.024041 conservative measured allocation are preserved in docs/verification/s06-drafting.md. Public generation remains fixture-only. S07 issue #8 is unblocked; active branch `feat/s07-approval`. S07–S13, hosting and Gmail remain unfinished.
+
+
+19 November delivery: S07 PR #22 merged f354d80; issue #8 closed; final CI 44475535950 passed 175 genuine integration assertions +16 clearly labeled provider-contract assertions. Both independent final reviews clear. S08 is needs-info/blocked for unavailable OAuth setup. S10 independent indexing/simulated recovery and S11 are unblocked; S10 is active. No additional paid AI calls in S07.
