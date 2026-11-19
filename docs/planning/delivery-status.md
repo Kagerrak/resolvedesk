@@ -15,7 +15,7 @@ Specification: https://github.com/Kagerrak/resolvedesk/issues/1
 | S07 | [S07 — Approve a precise reply and record simulated delivery](https://github.com/Kagerrak/resolvedesk/issues/8) | Delivered: PR #22 merged f354d80; issue #8 closed; final CI 44475535950 and review passed |
 | S08 | [S08 — Connect Gmail and import a real support conversation](https://github.com/Kagerrak/resolvedesk/issues/9) | Real Gmail verification explicitly deferred by user; OAuth setup unavailable; implementation/live verification unfinished |
 | S09 | [S09 — Deliver an approved reply through Gmail safely](https://github.com/Kagerrak/resolvedesk/issues/10) | Not implemented; blocked by planned prerequisites |
-| S10 | [S10 — Diagnose and recover an operational failure](https://github.com/Kagerrak/resolvedesk/issues/11) | Active on feat/s10-recovery; independent indexing/simulated-delivery work unblocked; Gmail cases gated |
+| S10 | [S10 — Diagnose and recover an operational failure](https://github.com/Kagerrak/resolvedesk/issues/11) | Independent indexing/source recovery implemented in PR #23; 29 real assertions/browser/reviews passed; final CI pending; Gmail recovery remains gated |
 | S11 | [S11 — Measure retrieval and answer quality](https://github.com/Kagerrak/resolvedesk/issues/12) | Unblocked after S06/S07; not implemented |
 | S12 | [S12 — Let a recruiter explore a safe hosted demo](https://github.com/Kagerrak/resolvedesk/issues/13) | Not implemented; blocked by planned prerequisites |
 | S13 | [S13 — Finish the recruiter-ready product and handover](https://github.com/Kagerrak/resolvedesk/issues/14) | Not implemented; blocked by planned prerequisites |

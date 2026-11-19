@@ -79,3 +79,6 @@ Behavior a35192f plus pending review/copy/queue-history refinements. Scoped Acti
 
 
 19 November steering: user explicitly chose “Defer real Gmail verification for now.” Do not repeat OAuth/mailbox setup questions. No Gmail connection or live verification exists. Independent S10 final 27-scenario rerun passed after respecting sign-in spacing; both final reviews through bf51a6d clear. S10 partial PR/CI delivery next, then independently unblocked S11.
+
+
+S10 final deletion review found that cascading deleted passages could make old retrieval appear empty. Fixed in 5a25a4d: source-version comparison exposes sources_changed, generation rejects stale deleted evidence before any provider dispatch, and Evidence shows a changed/deleted warning. Final29 real assertions passed; both reviewer refreshes clear. Browser verified the new warning after an actual source lifecycle. PR #23 final-head CI pending (old-head run44522227577 cancelled after this material fix). S08/S09 live verification remains explicitly deferred.
