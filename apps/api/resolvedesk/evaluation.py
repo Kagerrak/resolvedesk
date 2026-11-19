@@ -236,7 +236,7 @@ def run_view(run):
         "created_at": run.created_at,
         "finished_at": run.finished_at,
         "error": run.error,
-        "limitations": "Authored synthetic labels; fixture retrieval. Agent rubric reviews are supplementary, not human ground truth. No numeric answer-quality release threshold is set.",
+        "limitations": "Authored synthetic labels and corpus; retriever method is recorded. Fixture extracts do not establish live AI quality. Agent rubric reviews are supplementary, not human ground truth. No numeric answer-quality release threshold is set.",
     }
 
 

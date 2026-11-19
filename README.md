@@ -127,3 +127,26 @@ Run `uv run python -m scenarios.s07` from `apps/api` against the real running ap
 Open **Activity** to filter persisted operations and inspect recorded history. Admins can retry failed or interrupted indexing, within the three-attempt limit. Recovery never publishes a source automatically or retries paid AI/email. A source can be archived or permanently deleted from Knowledge; deletion removes the file and passages while retaining a content-free tombstone. Saved reply wording remains a business record, with unavailable evidence flagged for review. Gmail operational recovery remains gated by S08/S09. See [S10 verification](docs/verification/s10-recovery.md).
 
 After implementation, `uv run python -m scenarios.s10` verifies real HTTP/PostgreSQL/workers; leave a minute between suites to respect authentication limits.
+
+## Quality evaluations (S11)
+
+Open **Quality** in a local owned synthetic Admin workspace. Start with the 12 tuning cases; results persist in PostgreSQL. The evaluation worker uses real parsing/indexing, publication and scoped retrieval:
+
+```sh
+cd apps/api
+uv run python -m resolvedesk.evaluation_worker
+```
+
+Public evaluation creation is fixture-only. Dataset labels and fixture extracts are not real AI quality measurements. The frozen 24-article/50-case corpus includes held-out, conflict, retired-source, injection and private-workspace probes. Quality shows actual records, explicit denominators, failed examples, source hashes and separate agent/member assessments. Existing source content is never replaced; use a clean demo. At most three evaluations per demo. Sessions expire after one hour.
+
+For the explicitly bounded ten-case live sample, first pass deterministic integration/spending controls, configure only the ignored local DEEPSEEK_API_KEY, and use the local-only operator command. The server/public API must keep LIVE_AI_ENABLED=false:
+
+```sh
+LIVE_AI_ENABLED=true uv run python -m resolvedesk.local_evaluation WORKSPACE_UUID --method bm25-v1
+# Explicitly resume the exact durable run if processing paused; no automatic paid retry.
+LIVE_AI_ENABLED=true uv run python -m resolvedesk.local_evaluation WORKSPACE_UUID --resume RUN_UUID
+```
+
+The command requires active owned synthetic Admin access and loopback endpoints. It uses normal generation limits and atomic request/session/month allocation. It cannot raise those limits. Default workers ignore paid evaluations. Cancellation preserves results and conservative allocation; an in-flight request may still count. Frozen inputs/source changes stop the run. Review saved outputs before relying on them; no evaluation sends email or applies ticket changes.
+
+After implementation, run `uv run python -m scenarios.s11` against the running HTTP/API/PostgreSQL system with LIVE_AI_ENABLED=false. Leave at least 61 seconds between authentication-heavy suites and browser checks. See docs/verification/s11-quality.md for measured limitations and evidence.

@@ -1114,6 +1114,10 @@ textarea::placeholder {
 .quality-cases {
   margin-top: var(--space-8);
 }
+.quality-layout details li,
+.quality-cases details li {
+  overflow-wrap: anywhere;
+}
 .quality-cases form {
   margin-top: var(--space-6);
 }

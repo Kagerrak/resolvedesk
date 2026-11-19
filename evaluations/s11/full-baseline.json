@@ -812,5 +812,128 @@
       ],
       "outcome": "answer"
     }
+  ],
+  "dataset_version": "meridian-support-2026-11-19-v1",
+  "source_versions": [
+    {
+      "article_id": "roles",
+      "version_id": "bbe958c1-ad27-4050-91f3-789aeba882fa",
+      "content_hash": "6647fdc58207867292bbcf6b2c15442bf233040dc20d2041732e9855e83e4059"
+    },
+    {
+      "article_id": "project-invites",
+      "version_id": "baa23df7-021d-4e0f-a281-70bceecde5b4",
+      "content_hash": "4d0e4ef9a71d6925a746cede9f9c316fd2d722f50fbd544e3c5105108a0c2932"
+    },
+    {
+      "article_id": "project-archive",
+      "version_id": "bc7a6db5-0a0e-4b90-8868-4f3675f79a59",
+      "content_hash": "99ab761e5ddeccb19fb4f9c03fa71e9eb603a6025ddb7c37d8e303d7d499919d"
+    },
+    {
+      "article_id": "invoices",
+      "version_id": "b722eb98-0853-4b09-9a14-475c86ef27df",
+      "content_hash": "d9c6cce3a5a25ba90cb22e80e0c45bf34e7fb169c509f55261db2d521a44dc4a"
+    },
+    {
+      "article_id": "invoice-corrections",
+      "version_id": "edca9ad9-71a8-4d5b-90ae-a5f181ccd7b1",
+      "content_hash": "424587bdc6b01aae677e7a262a4fb26f8d30d02a64993748a84bc0f0b35410f9"
+    },
+    {
+      "article_id": "refunds",
+      "version_id": "9d6170d0-7d30-450d-b45e-13eb72c602cd",
+      "content_hash": "701751a01f5025ec9823607e0125e0b37d11e0427cf1047dc0f8af67e435384a"
+    },
+    {
+      "article_id": "cancellation",
+      "version_id": "2640500d-392f-4fe2-81d5-4df7f53ae3bc",
+      "content_hash": "78d3d0ceeda25f48f3d6a38ff6ba05dd49ae1b74f4956372877bf25d9c175bba"
+    },
+    {
+      "article_id": "seats",
+      "version_id": "dc261402-5f57-46d5-88ec-0e3f71aed9b4",
+      "content_hash": "57367c2e4e8438fad75cf4175c0828c2693544340c5548788a4a8cc5a58046a4"
+    },
+    {
+      "article_id": "two-factor",
+      "version_id": "53c0bf0f-b4c4-4a95-a1cb-5d34546a18f3",
+      "content_hash": "ec6d7d1a763583629c0a976b5c2db996655c387c6784375540ba99394be6c7ca"
+    },
+    {
+      "article_id": "sso",
+      "version_id": "ace09387-af26-4640-b65a-6168327a94bd",
+      "content_hash": "14f1b134f35634710c464b2ffdd33609679b9c7f9d998a4a763f2725d6d89965"
+    },
+    {
+      "article_id": "invitation-expiry",
+      "version_id": "3535c739-2513-4225-889a-e9f2fd0ad019",
+      "content_hash": "56b26590109eff4599694bfe97af594fa688f661ba752c962924291df2bc5171"
+    },
+    {
+      "article_id": "project-deletion",
+      "version_id": "6c933beb-d597-4bf8-8c45-c88291628171",
+      "content_hash": "60033b074f4fedfc63959b44924e8e6af2738c61caf394f2488124469880282f"
+    },
+    {
+      "article_id": "attachments",
+      "version_id": "247b4bbd-5755-48b1-8611-4b9d54cf890c",
+      "content_hash": "68495464cdc49f6d0f352665af5359a785e6c824a64c6a058a4cd9a8621f3b35"
+    },
+    {
+      "article_id": "csv-import",
+      "version_id": "6f09a4b5-4f81-4ee0-8dfd-9a8a5b0464d5",
+      "content_hash": "8105fac133e7cb9d5a23b03cb6ec265d739be9c93adff25ad6f19c5f44e63691"
+    },
+    {
+      "article_id": "csv-export",
+      "version_id": "417ff2c6-aa13-40d3-98f6-4dcadf2f2ebb",
+      "content_hash": "149dd923c28713ddfbc2dbab47c1d1278ec56681b9832907e22cf6950dd30eb5"
+    },
+    {
+      "article_id": "notifications",
+      "version_id": "d491c8a4-4f1e-42d7-86cf-76b7bddb22ac",
+      "content_hash": "e8dc177a07bbd048f238b6dc884af2047862c80780fff68c79cdb8146630f276"
+    },
+    {
+      "article_id": "email-delivery",
+      "version_id": "4dd6f6ea-7b29-4341-ae08-9af25cf46fe0",
+      "content_hash": "ffb183fbf0ee453a7c6493bc06d5faeacddd0d0e4716d61e6068630c3db55935"
+    },
+    {
+      "article_id": "api-access",
+      "version_id": "45595d9e-a32a-4f18-a761-d52761e9cbdd",
+      "content_hash": "81ffa01977a6185405321021571c18de10f7dba32f2d2d127e0f0fbdd50771ef"
+    },
+    {
+      "article_id": "audit-log",
+      "version_id": "35aed341-9a44-4718-b3c7-ac0549aaf162",
+      "content_hash": "12f7f18053e52747aa01f35d833b33205087a2f3bfa15c7a5fb48b1adfe235a4"
+    },
+    {
+      "article_id": "incidents",
+      "version_id": "0b586e4d-dcf0-4c6d-b3a0-7fcfca1aad96",
+      "content_hash": "2586b39a2b0e6da530724bf60921299b333391f3a9495e66815f3e2c95bf8667"
+    },
+    {
+      "article_id": "support-hours",
+      "version_id": "b589e8c4-e76c-4048-8559-970efd859326",
+      "content_hash": "3a811171f02c7f872b92e0f0ce25f676848fad78e56f5a0056f5495d5c61acef"
+    },
+    {
+      "article_id": "untrusted-content",
+      "version_id": "c30ba997-0725-4038-94ac-e0c1ecdfb6bd",
+      "content_hash": "8ba454266532908b02f64c603904545cd8876c0511fc4b54844ae59f88dc9925"
+    },
+    {
+      "article_id": "legacy-invitations",
+      "version_id": "e5c32c67-0f21-4d53-a881-60e40f3bda73",
+      "content_hash": "966ede9c24fa56357c477f607d03604e4d0370e05ce0dd5d165235401b0639ae"
+    },
+    {
+      "article_id": "conflicting-refunds",
+      "version_id": "653f0d6e-f390-4df9-afb3-5aca1be7159c",
+      "content_hash": "16819ebddb95552404b2ebbc816342b07fb2dcad4506a62ae162d43288527cdf"
+    }
   ]
 }

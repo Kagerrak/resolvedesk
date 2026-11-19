@@ -62,6 +62,11 @@ type Run = {
   created_at: string;
   finished_at: string | null;
   limitations: string;
+  source_versions: {
+    article_id: string;
+    version_id: string;
+    content_hash: string;
+  }[];
   reviews?: {
     coverage: number;
     support_denominator: number;
@@ -120,6 +125,11 @@ type CaseDetail = {
   status: string;
   fixture_output: Output | null;
   provider_output: Output | null;
+  retrieval: {
+    ranked_articles: string[];
+    method: string;
+    source_hashes: Record<string, string>;
+  } | null;
   error: string | null;
   reviews: {
     id: string;
@@ -173,6 +183,7 @@ export default function QualityPage() {
   const request = useRef<{ key: string; id: string } | null>(null),
     reviewRequest = useRef<{ key: string; id: string } | null>(null);
   const heading = useRef<HTMLHeadingElement>(null),
+    selectedCaseButton = useRef<HTMLButtonElement>(null),
     current = useRef("");
   const admin = workspaces.find((w) => w.id === workspaceId)?.role === "admin";
   useEffect(() => {
@@ -486,8 +497,9 @@ export default function QualityPage() {
         )}
         <p className="small muted">
           Fixture extracts do not establish live AI quality. Live DeepSeek
-          samples retain fixture retrieval. Agent rubric assessments are
-          supplementary; no numeric answer-quality release threshold is set.
+          samples use synthetic sources and the disclosed retriever. Agent
+          rubric assessments are supplementary; no numeric answer-quality
+          release threshold is set.
         </p>
         {admin && dataset && (
           <section className="quality-controls" aria-labelledby="run-controls">
@@ -578,7 +590,11 @@ export default function QualityPage() {
             {loading ? (
               <p role="status">Loading results…</p>
             ) : !runs.length ? (
-              <p>No saved evaluation runs in this workspace.</p>
+              <p>
+                {error
+                  ? "Saved runs could not be loaded. Refresh results to recover."
+                  : "No saved evaluation runs in this workspace."}
+              </p>
             ) : (
               <ul className="activity-list">
                 {runs.map((row) => (
@@ -623,14 +639,18 @@ export default function QualityPage() {
               {run ? "Recorded results" : "Run details"}
             </h2>
             {!run ? (
-              <p>Choose a run to inspect its measurements.</p>
+              <p>
+                {error
+                  ? "Run details could not be loaded. Recorded results remain saved."
+                  : "Choose a run to inspect its measurements."}
+              </p>
             ) : (
               <>
                 <p>
                   <span className="badge">
                     {run.mode === "fixture"
                       ? "Fixture only"
-                      : "Live sample · fixture retrieval"}
+                      : "Live sample · synthetic corpus"}
                   </span>{" "}
                   · {run.status}
                 </p>
@@ -729,6 +749,19 @@ export default function QualityPage() {
                     <dd>{run.prompt_version ?? "No live-model prompt"}</dd>
                   </dl>
                   <p>{run.limitations}</p>
+                  <details>
+                    <summary>
+                      Recorded source versions ({run.source_versions.length})
+                    </summary>
+                    <ul>
+                      {run.source_versions.map((source) => (
+                        <li key={source.version_id}>
+                          {source.article_id} · {source.version_id} · SHA-256{" "}
+                          {source.content_hash}
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
                 </details>
               </>
             )}
@@ -765,6 +798,7 @@ export default function QualityPage() {
                     <li key={row.id}>
                       <button
                         className="activity-row"
+                        ref={row.id === caseId ? selectedCaseButton : undefined}
                         aria-pressed={row.id === caseId}
                         onClick={() => {
                           if (row.id === caseId || !canNavigate()) return;
@@ -831,6 +865,15 @@ export default function QualityPage() {
                 <h2 ref={heading} id="case-title" tabIndex={-1}>
                   {detail ? detail.definition.subject : "Case details"}
                 </h2>
+                {caseId && (
+                  <button
+                    type="button"
+                    className="secondary"
+                    onClick={() => selectedCaseButton.current?.focus()}
+                  >
+                    Back to cases
+                  </button>
+                )}
                 {!detail ? (
                   <p>
                     {caseId
@@ -850,6 +893,26 @@ export default function QualityPage() {
                       . Expected source labels:{" "}
                       {detail.definition.expected_sources.join(", ") || "none"}.
                     </p>
+                    <p className="small muted">
+                      Retrieved source labels, in rank order:{" "}
+                      {detail.retrieval?.ranked_articles.join(", ") ||
+                        "none recorded"}
+                      .
+                    </p>
+                    {detail.retrieval && (
+                      <details>
+                        <summary>Case source hashes</summary>
+                        <ul>
+                          {Object.entries(detail.retrieval.source_hashes).map(
+                            ([article, hash]) => (
+                              <li key={article}>
+                                {article} · SHA-256 {hash}
+                              </li>
+                            ),
+                          )}
+                        </ul>
+                      </details>
+                    )}
                     {detail.error && (
                       <p className="alert error">{detail.error}</p>
                     )}
