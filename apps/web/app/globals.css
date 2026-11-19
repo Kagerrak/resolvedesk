@@ -1091,3 +1091,55 @@ textarea::placeholder {
 .activity-detail .form-actions {
   margin-block: var(--space-4) var(--space-6);
 }
+
+.quality-controls {
+  margin-block: var(--space-6);
+  padding-block: var(--space-4);
+  border-block: 1px solid var(--border);
+}
+.quality-metrics {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-3) var(--space-4);
+}
+.quality-metrics dt {
+  color: var(--secondary);
+}
+.quality-metrics dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.quality-cases {
+  margin-top: var(--space-8);
+}
+.quality-cases form {
+  margin-top: var(--space-6);
+}
+.quality-cases form label {
+  display: grid;
+  gap: var(--space-2);
+  margin-block: var(--space-4);
+}
+.quality-cases textarea {
+  width: 100%;
+  padding: var(--space-3);
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--control);
+  border-radius: var(--radius-control);
+}
+@media (max-width: 640px) {
+  .quality-metrics {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+  }
+  .quality-metrics dd {
+    margin-bottom: var(--space-4);
+  }
+}
+
+.mobile-knowledge {
+  margin-right: var(--space-4);
+}

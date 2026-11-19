@@ -6,9 +6,9 @@ import math
 import re
 import time
 from datetime import UTC, datetime, timedelta
-from uuid import uuid4
+from uuid import UUID, uuid4
 
-from sqlalchemy import delete, or_, select
+from sqlalchemy import delete, or_, select, true
 from sqlalchemy.exc import SQLAlchemyError
 
 from .database import SessionLocal
@@ -56,7 +56,7 @@ def fixture_embedding(text: str):
     return [x / magnitude for x in vector] if magnitude else vector
 
 
-def run_once() -> bool:
+def run_once(target_version_id: UUID | None = None) -> bool:
     now = datetime.now(UTC)
     with SessionLocal() as db:
         candidate = db.execute(
@@ -66,6 +66,7 @@ def run_once() -> bool:
             .join(Workspace, Workspace.id == KnowledgeDocument.workspace_id)
             .where(
                 KnowledgeDocument.archived.is_(False),
+                DocumentVersion.id == target_version_id if target_version_id else true(),
                 Workspace.expires_at.is_(None) | (Workspace.expires_at > now),
                 or_(
                     KnowledgeJob.status == "queued",

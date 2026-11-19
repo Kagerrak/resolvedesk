@@ -205,6 +205,9 @@ export default function ActivityPage() {
         >
           Knowledge
         </Link>
+        <Link className="secondary" href={`/quality?workspace=${workspaceId}`}>
+          Quality
+        </Link>
         <div className="header-actions">
           <ThemeToggle />
         </div>

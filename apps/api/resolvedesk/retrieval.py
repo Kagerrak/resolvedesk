@@ -9,6 +9,8 @@ from sqlalchemy import select
 from .inbox import membership, ticket_in_workspace
 from .knowledge import DB, Visitor
 from .knowledge_worker import fixture_embedding
+from .lexical_retrieval import PARAMETERS
+from .lexical_retrieval import rank as lexical_rank
 from .models import (
     DocumentVersion,
     KnowledgeChunk,
@@ -86,8 +88,9 @@ def run_view(db, run):
     }
 
 
-@router.post("/workspaces/{workspace_id}/tickets/{ticket_id}/retrievals", status_code=201)
-def retrieve(workspace_id: UUID, ticket_id: UUID, db: DB, visitor: Visitor):
+def retrieve_ranked(
+    workspace_id: UUID, ticket_id: UUID, db: DB, visitor: Visitor, method="exact-cosine-v1"
+):
     member = membership(db, workspace_id, visitor)
     if member.role == "viewer":
         raise HTTPException(403, "Viewers can inspect saved evidence but cannot run retrieval.")
@@ -102,14 +105,30 @@ def retrieve(workspace_id: UUID, ticket_id: UUID, db: DB, visitor: Visitor):
     vector = fixture_embedding(query)
     distance = KnowledgeChunk.embedding.cosine_distance(vector)
     # Exact filtered search avoids approximate-index filtering/recall surprises at demo scale.
-    rows = db.execute(
-        published_chunks(workspace_id)
-        .add_columns(distance.label("distance"))
-        .where(distance <= MAX_DISTANCE)
-        .order_by(distance, KnowledgeChunk.id)
-        .limit(LIMIT)
-        .with_for_update(read=True, of=[KnowledgeDocument, DocumentVersion])
-    ).all()
+    rows = (
+        db.execute(
+            published_chunks(workspace_id)
+            .add_columns(distance.label("distance"))
+            .where(distance <= MAX_DISTANCE)
+            .order_by(distance, KnowledgeChunk.id)
+            .limit(LIMIT)
+            .with_for_update(read=True, of=[KnowledgeDocument, DocumentVersion])
+        ).all()
+        if method == "exact-cosine-v1"
+        else []
+    )
+    if method == "bm25-v1":
+        # Filter in PostgreSQL before lexical scoring; private/archived content never reaches rank().
+        rows = lexical_rank(
+            db.execute(
+                published_chunks(workspace_id).with_for_update(
+                    read=True, of=[KnowledgeDocument, DocumentVersion]
+                )
+            ).all(),
+            query,
+        )
+    elif method != "exact-cosine-v1":
+        raise HTTPException(422, "Unknown retrieval method.")
     run = RetrievalRun(
         workspace_id=workspace_id,
         ticket_id=ticket_id,
@@ -117,7 +136,9 @@ def retrieve(workspace_id: UUID, ticket_id: UUID, db: DB, visitor: Visitor):
         query=query,
         embedding_model=MODEL,
         source_versions=sorted({str(row[1].id) for row in rows}),
-        ranking={"method": "exact-cosine-v1", "limit": LIMIT, "max_distance": MAX_DISTANCE},
+        ranking=dict(PARAMETERS)
+        if method == "bm25-v1"
+        else {"method": "exact-cosine-v1", "limit": LIMIT, "max_distance": MAX_DISTANCE},
         created_by=visitor.user_id,
         created_at=datetime.now(UTC),
     )
@@ -138,6 +159,11 @@ def retrieve(workspace_id: UUID, ticket_id: UUID, db: DB, visitor: Visitor):
     result = run_view(db, run)
     db.commit()
     return result
+
+
+@router.post("/workspaces/{workspace_id}/tickets/{ticket_id}/retrievals", status_code=201)
+def retrieve(workspace_id: UUID, ticket_id: UUID, db: DB, visitor: Visitor):
+    return retrieve_ranked(workspace_id, ticket_id, db, visitor)
 
 
 @router.get("/workspaces/{workspace_id}/tickets/{ticket_id}/retrievals/latest")

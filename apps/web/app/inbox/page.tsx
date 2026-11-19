@@ -271,18 +271,27 @@ export default function InboxPage() {
             <Activity size={18} />
             Activity
           </Link>
-          {[
-            { icon: ChartNoAxesColumn, label: "Quality" },
-            { icon: Settings, label: "Settings" },
-          ].map(({ icon: Glyph, label }) => {
-            return (
-              <span className="nav-item" key={String(label)}>
-                <Glyph size={18} />
-                {String(label)}
-                <span className="soon">Planned</span>
-              </span>
-            );
-          })}
+          <Link
+            href={`/quality?workspace=${workspaceId}`}
+            className="nav-item"
+            onClick={(e) => {
+              if (!canNavigate()) e.preventDefault();
+            }}
+          >
+            <ChartNoAxesColumn size={18} />
+            Quality
+          </Link>
+          {[{ icon: Settings, label: "Settings" }].map(
+            ({ icon: Glyph, label }) => {
+              return (
+                <span className="nav-item" key={String(label)}>
+                  <Glyph size={18} />
+                  {String(label)}
+                  <span className="soon">Planned</span>
+                </span>
+              );
+            },
+          )}
         </nav>
         <div className="rail-footer">
           <span className="small muted">
@@ -306,6 +315,24 @@ export default function InboxPage() {
               }}
             >
               Knowledge
+            </Link>
+            <Link
+              className="mobile-knowledge"
+              href={`/activity?workspace=${workspaceId}`}
+              onClick={(e) => {
+                if (!canNavigate()) e.preventDefault();
+              }}
+            >
+              Activity
+            </Link>
+            <Link
+              className="mobile-knowledge"
+              href={`/quality?workspace=${workspaceId}`}
+              onClick={(e) => {
+                if (!canNavigate()) e.preventDefault();
+              }}
+            >
+              Quality
             </Link>
           </div>
         </header>

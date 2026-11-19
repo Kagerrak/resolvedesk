@@ -1,0 +1,281 @@
+{
+  "run_id": "7ac883e0-547c-4dc5-a6cf-79ea3bbc5b3b",
+  "dataset_hash": "aba5e2cb538e593b4068868dd8edb377601c4e94cd098c676e34f69e159469b8",
+  "method": "exact-cosine-v1",
+  "summary": {
+    "planned_cases": 12,
+    "live_case_ids": [],
+    "completed_cases": 12,
+    "split_source_recall_at_5": {
+      "tuning": {
+        "numerator": 11,
+        "denominator": 11,
+        "value": 1.0,
+        "answerable_cases": 11
+      },
+      "held_out": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null,
+        "answerable_cases": 0
+      }
+    },
+    "failed_cases": 0,
+    "tuning_cases": 12,
+    "held_out_cases": 0,
+    "source_recall_at_5": {
+      "numerator": 11,
+      "denominator": 11,
+      "value": 1.0,
+      "answerable_cases": 11,
+      "definition": "Retrieved expected source labels / all expected source labels in planned answerable cases. Unfinished cases contribute zero hits."
+    },
+    "fixture": {
+      "outputs": 12,
+      "citation_validity": {
+        "numerator": 12,
+        "denominator": 12,
+        "value": 1.0
+      },
+      "workflow_match": {
+        "numerator": 11,
+        "denominator": 12,
+        "value": 0.9166666666666666
+      },
+      "abstention": {
+        "expected_and_escalated": 0,
+        "unexpected_escalation": 0,
+        "expected_but_answered": 1,
+        "completed_outputs": 12
+      },
+      "is_ai_quality": false
+    },
+    "provider": {
+      "planned_outputs": 0,
+      "outputs": 0,
+      "citation_validity": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "workflow_match": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "abstention": {
+        "expected_and_escalated": 0,
+        "unexpected_escalation": 0,
+        "expected_but_answered": 0,
+        "completed_outputs": 0
+      },
+      "application_escalations": 0
+    },
+    "critical": {
+      "workspace_disclosures": 0,
+      "unapproved_actions": 0,
+      "fixture_observed_cases": 12,
+      "provider_observed_cases": 0,
+      "observed_cases": 12,
+      "dedicated_isolation_cases": 0,
+      "note": "Observed finite synthetic set only; not a universal safety guarantee."
+    },
+    "timing": {
+      "retrieval": {
+        "count": 12,
+        "median_ms": 34.9645,
+        "p95_ms": 45.486
+      },
+      "fixture": {
+        "count": 12,
+        "median_ms": 21.978,
+        "p95_ms": 42.972
+      },
+      "provider_preparation": {
+        "count": 0,
+        "median_ms": null,
+        "p95_ms": null
+      },
+      "scope": "Worker/domain processing including PostgreSQL; excludes browser rendering. Missing interrupted measurements are not invented."
+    },
+    "allocation": {
+      "conservative_micros": 0,
+      "generation_attempts": 0,
+      "measured_completions": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "price_versions": [],
+      "note": "Conservative app allocation, including unresolved reservations; not a provider invoice."
+    },
+    "answer_quality_release_threshold": null,
+    "labels": "Author-supplied synthetic expectations, not independent human ground truth."
+  },
+  "cases": [
+    {
+      "id": "c01",
+      "expected_sources": [
+        "roles"
+      ],
+      "ranked_articles": [
+        "roles",
+        "project-invites",
+        "csv-export",
+        "audit-log",
+        "api-access"
+      ],
+      "outcome": "answer"
+    },
+    {
+      "id": "c02",
+      "expected_sources": [
+        "project-invites"
+      ],
+      "ranked_articles": [
+        "project-invites",
+        "roles",
+        "support-hours",
+        "project-deletion",
+        "project-archive"
+      ],
+      "outcome": "answer"
+    },
+    {
+      "id": "c03",
+      "expected_sources": [
+        "invoices"
+      ],
+      "ranked_articles": [
+        "invoice-corrections",
+        "invoices",
+        "audit-log",
+        "cancellation",
+        "incidents"
+      ],
+      "outcome": "answer"
+    },
+    {
+      "id": "c04",
+      "expected_sources": [
+        "invoice-corrections"
+      ],
+      "ranked_articles": [
+        "invoice-corrections",
+        "seats",
+        "roles",
+        "invoices",
+        "incidents"
+      ],
+      "outcome": "answer"
+    },
+    {
+      "id": "c05",
+      "expected_sources": [
+        "refunds"
+      ],
+      "ranked_articles": [
+        "refunds",
+        "sso",
+        "cancellation",
+        "invoice-corrections",
+        "project-deletion"
+      ],
+      "outcome": "answer"
+    },
+    {
+      "id": "c06",
+      "expected_sources": [
+        "cancellation"
+      ],
+      "ranked_articles": [
+        "cancellation",
+        "seats",
+        "sso",
+        "project-archive",
+        "invoices"
+      ],
+      "outcome": "answer"
+    },
+    {
+      "id": "c07",
+      "expected_sources": [
+        "seats"
+      ],
+      "ranked_articles": [
+        "seats",
+        "project-invites",
+        "project-deletion",
+        "support-hours",
+        "project-archive"
+      ],
+      "outcome": "answer"
+    },
+    {
+      "id": "c08",
+      "expected_sources": [
+        "two-factor"
+      ],
+      "ranked_articles": [
+        "two-factor",
+        "cancellation",
+        "project-deletion",
+        "project-archive",
+        "support-hours"
+      ],
+      "outcome": "answer"
+    },
+    {
+      "id": "c09",
+      "expected_sources": [
+        "csv-import"
+      ],
+      "ranked_articles": [
+        "csv-import",
+        "notifications",
+        "api-access",
+        "attachments",
+        "invoice-corrections"
+      ],
+      "outcome": "answer"
+    },
+    {
+      "id": "c10",
+      "expected_sources": [
+        "notifications"
+      ],
+      "ranked_articles": [
+        "notifications",
+        "invitation-expiry",
+        "csv-export",
+        "project-archive",
+        "refunds"
+      ],
+      "outcome": "answer"
+    },
+    {
+      "id": "c11",
+      "expected_sources": [
+        "api-access"
+      ],
+      "ranked_articles": [
+        "api-access",
+        "attachments",
+        "untrusted-content",
+        "invoice-corrections",
+        "csv-export"
+      ],
+      "outcome": "answer"
+    },
+    {
+      "id": "c12",
+      "expected_sources": [],
+      "ranked_articles": [
+        "two-factor",
+        "notifications",
+        "invitation-expiry",
+        "invoice-corrections",
+        "seats"
+      ],
+      "outcome": "answer"
+    }
+  ]
+}

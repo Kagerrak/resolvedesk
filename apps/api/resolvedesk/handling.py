@@ -116,6 +116,7 @@ def editable_ticket(
         select(Ticket)
         .where(Ticket.workspace_id == workspace_id, Ticket.id == ticket_id)
         .with_for_update()
+        .execution_options(populate_existing=True)
     )
     if not item:
         raise HTTPException(404, "Ticket not found.")

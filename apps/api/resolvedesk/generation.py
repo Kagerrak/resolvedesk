@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from .config import settings
 from .database import SessionLocal
 from .generation_provider import (
+    FIXTURE_MODEL,
     MODEL,
     PROMPT_VERSION,
     deepseek_reply,
@@ -30,9 +31,13 @@ from .inbox import membership, ticket_in_workspace
 from .knowledge import DB, Visitor
 from .models import (
     DraftRevision,
+    EvaluationCase,
+    EvaluationRun,
     GenerationRun,
+    Membership,
     RetrievalRun,
     UsageMonth,
+    Workspace,
 )
 from .retrieval import published_chunks, run_view
 
@@ -113,7 +118,7 @@ def queue(db, workspace_id, ticket_id, payload, visitor, mode="fixture"):
         request_id=payload.request_id,
         ticket_revision=item.revision,
         mode=mode,
-        model="fixture-extract-v1" if mode == "fixture" else MODEL,
+        model=FIXTURE_MODEL if mode == "fixture" else MODEL,
         prompt_version=PROMPT_VERSION,
         created_by=visitor.user_id,
         created_at=datetime.now(UTC),
@@ -177,6 +182,36 @@ def cancel(workspace_id: UUID, ticket_id: UUID, run_id: UUID, db: DB, visitor: V
 def context_for(db: Session, run: GenerationRun):
     visitor = Identity(run.created_by, run.mode == "fixture")
     item = editable_ticket(db, run.workspace_id, run.ticket_id, visitor, run.ticket_revision)
+    if run.id is not None:
+        evaluation = db.scalar(
+            select(EvaluationRun)
+            .join(
+                EvaluationCase,
+                (EvaluationCase.run_id == EvaluationRun.id)
+                & (EvaluationCase.workspace_id == EvaluationRun.workspace_id),
+            )
+            .where(
+                EvaluationCase.workspace_id == run.workspace_id,
+                EvaluationCase.ticket_id == run.ticket_id,
+                EvaluationCase.generation_id == run.id,
+            )
+        )
+        if evaluation:
+            member = db.get(Membership, (run.workspace_id, run.created_by))
+            workspace = db.get(Workspace, run.workspace_id)
+            if (
+                not member
+                or member.role != "admin"
+                or not workspace
+                or workspace.demo_owner != run.created_by
+            ):
+                raise ValueError("Evaluation Admin authorization changed.")
+        if evaluation and (
+            evaluation.status not in ("queued", "preparing", "running")
+            or evaluation.mode != "deepseek_sample"
+            or evaluation.created_by != run.created_by
+        ):
+            raise ValueError("This evaluation is no longer authorized for generation.")
     retrieval = db.scalar(
         select(RetrievalRun).where(
             RetrievalRun.workspace_id == run.workspace_id,
