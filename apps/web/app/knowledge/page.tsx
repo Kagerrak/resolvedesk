@@ -257,7 +257,7 @@ export default function KnowledgePage() {
           Inbox
         </Link>
         <div className="header-actions">
-          <span className="badge">Fixture mode</span>
+          <span className="badge">Synthetic demo</span>
           <ThemeToggle />
         </div>
       </header>

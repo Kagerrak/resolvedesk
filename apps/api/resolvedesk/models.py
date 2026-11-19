@@ -84,6 +84,8 @@ class DraftRevision(Base):
     ticket_id: Mapped[UUID] = mapped_column(index=True)
     ticket_revision: Mapped[int]
     body: Mapped[str]
+    generation_id: Mapped[UUID | None]
+    citation_ids: Mapped[list] = mapped_column(JSON, default=list)
     created_by: Mapped[str]
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     __table_args__ = (
@@ -91,6 +93,12 @@ class DraftRevision(Base):
             ["workspace_id", "ticket_id"], ["ticket.workspace_id", "ticket.id"], ondelete="CASCADE"
         ),
         UniqueConstraint("ticket_id", "ticket_revision"),
+        UniqueConstraint("workspace_id", "ticket_id", "id"),
+        ForeignKeyConstraint(
+            ["workspace_id", "ticket_id", "generation_id"],
+            ["generation_run.workspace_id", "generation_run.ticket_id", "generation_run.id"],
+            name="draft_generation_source",
+        ),
     )
 
 
@@ -211,6 +219,7 @@ class RetrievalRun(Base):
             ["workspace_id", "ticket_id"], ["ticket.workspace_id", "ticket.id"], ondelete="CASCADE"
         ),
         UniqueConstraint("workspace_id", "id"),
+        UniqueConstraint("workspace_id", "ticket_id", "id"),
     )
 
 
@@ -241,3 +250,57 @@ class RetrievalResult(Base):
         ),
         UniqueConstraint("run_id", "rank"),
     )
+
+
+class GenerationRun(Base):
+    __tablename__ = "generation_run"
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID]
+    ticket_id: Mapped[UUID]
+    retrieval_id: Mapped[UUID]
+    request_id: Mapped[UUID]
+    ticket_revision: Mapped[int]
+    mode: Mapped[str]
+    model: Mapped[str]
+    prompt_version: Mapped[str]
+    prompt_hash: Mapped[str | None]
+    status: Mapped[str] = mapped_column(default="queued")
+    error: Mapped[str | None]
+    citations: Mapped[list] = mapped_column(JSON, default=list)
+    draft_id: Mapped[UUID | None]
+    charge_micros: Mapped[int] = mapped_column(default=0)
+    usage: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_by: Mapped[str]
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    lease_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["workspace_id", "ticket_id"], ["ticket.workspace_id", "ticket.id"], ondelete="CASCADE"
+        ),
+        ForeignKeyConstraint(
+            ["workspace_id", "ticket_id", "retrieval_id"],
+            ["retrieval_run.workspace_id", "retrieval_run.ticket_id", "retrieval_run.id"],
+            ondelete="CASCADE",
+        ),
+        UniqueConstraint("workspace_id", "request_id"),
+        UniqueConstraint("workspace_id", "ticket_id", "id"),
+        ForeignKeyConstraint(
+            ["workspace_id", "ticket_id", "draft_id"],
+            ["draft_revision.workspace_id", "draft_revision.ticket_id", "draft_revision.id"],
+            name="generation_draft_source",
+            use_alter=True,
+        ),
+        CheckConstraint("mode IN ('fixture','openai','deepseek')"),
+        CheckConstraint(
+            "status IN ('queued','running','succeeded','escalated','failed','cancelled')"
+        ),
+        CheckConstraint("charge_micros >= 0"),
+    )
+
+
+class UsageMonth(Base):
+    __tablename__ = "usage_month"
+    month: Mapped[str] = mapped_column(primary_key=True)
+    allocated_micros: Mapped[int] = mapped_column(default=0)
+    blocked: Mapped[bool] = mapped_column(default=False)
+    __table_args__ = (CheckConstraint("allocated_micros >= 0 AND allocated_micros <= 20000000"),)

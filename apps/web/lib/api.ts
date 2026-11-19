@@ -76,6 +76,8 @@ export type TicketDetail = Ticket & {
     id: string;
     body: string;
     ticket_revision: number;
+    generation_id: string | null;
+    citation_ids: string[];
     created_at: string;
   } | null;
   events: {

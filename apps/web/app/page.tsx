@@ -114,8 +114,8 @@ export default function Home() {
               <div>
                 <strong>Handle with intention</strong>
                 <p className="muted">
-                  Save a manual draft, assign a ticket and review its handling
-                  history. Evidence and human-approved delivery are planned.
+                  Save and revise drafts, inspect published evidence and review
+                  handling history. Human-approved delivery remains planned.
                 </p>
               </div>
             </li>

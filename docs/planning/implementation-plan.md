@@ -6,6 +6,8 @@ Status: agreed product brief and engineering execution plan, originally prepared
 
 Companions: design-system.md, GLOSSARY.md, skill-update-record.json. Job-market rationale: ../research/ai-automation-2026-11-14/recommendation.md.
 
+**18 November provider amendment:** The user selected DeepSeek for generation for now. This supersedes OpenAI generation references below; fixture embeddings remain unchanged. The same AI allowance, isolation, citation, approval and usage-control requirements apply.
+
 ## 1. Outcome and confirmed decisions
 
 Build a polished B2B support workspace that retrieves approved knowledge, drafts source-grounded answers, proposes ticket changes, and leaves consequential decisions to a human. Demonstrate applied AI engineering through a working product with measured quality, real Gmail integration and safe failure handling.

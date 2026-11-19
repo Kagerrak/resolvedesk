@@ -49,6 +49,8 @@ _Avoid_: Knowledge overwrite
 
 **Retrieval run**: A saved search of a Ticket conversation against published Workspace knowledge, recording the query, ranking method and source-version passage references. Fixture runs do not establish AI quality.
 
+**Generation run**: A recorded attempt to prepare a Draft reply using a Ticket and its selected supporting knowledge. It preserves what informed the attempt and whether it succeeded. It does not authorize delivery or other Ticket actions.
+
 ## Operations
 
 **Connector**: A Workspace's authorized connection to an external communication service.

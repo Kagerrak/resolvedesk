@@ -1,4 +1,6 @@
 "use client";
+import { DraftCitations } from "@/components/draft-citations";
+import { DraftGeneration } from "@/components/draft-generation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api, ApiError, type Member, type TicketDetail } from "@/lib/api";
@@ -25,6 +27,7 @@ export function TicketHandling({
   const [priority, setPriority] = useState(detail.priority);
   const [assignee, setAssignee] = useState(detail.assigned_to ?? "");
   const [busy, setBusy] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [baselineRevision, setBaselineRevision] = useState(detail.revision);
   const [error, setError] = useState("");
   const [conflict, setConflict] = useState(false);
@@ -150,7 +153,7 @@ export function TicketHandling({
             }}
           >
             <fieldset
-              disabled={busy || needsReview}
+              disabled={busy || needsReview || generating}
               className="handling-fields"
             >
               <legend className="sr-only">Choose ticket changes</legend>
@@ -205,7 +208,7 @@ export function TicketHandling({
             <div className="form-actions">
               <button
                 className="secondary"
-                disabled={busy || needsReview || !fieldsDirty}
+                disabled={busy || needsReview || generating || !fieldsDirty}
               >
                 Apply ticket changes
               </button>
@@ -213,7 +216,7 @@ export function TicketHandling({
                 <button
                   type="button"
                   className="secondary"
-                  disabled={busy || needsReview}
+                  disabled={busy || needsReview || generating}
                   onClick={() => void save("reopen")}
                 >
                   Reopen ticket
@@ -225,9 +228,30 @@ export function TicketHandling({
       </section>
       <section aria-labelledby="draft-title" className="draft-panel">
         <header>
-          <h3 id="draft-title">Manual draft</h3>
+          <h3 id="draft-title">Draft reply</h3>
           <span className="badge">Not sent</span>
         </header>
+        <DraftGeneration
+          route={path}
+          draftId={detail.draft?.id}
+          revision={baselineRevision}
+          disabled={dirty || busy || needsReview}
+          readOnly={readOnly}
+          onActive={setGenerating}
+          onGenerated={(next) => {
+            onChanged(next);
+            setBaselineRevision(next.revision);
+            setBody(next.draft?.body ?? "");
+            setNotice("Generated draft saved for review. No email was sent.");
+          }}
+        />
+        {detail.draft && (
+          <DraftCitations
+            key={detail.draft.id}
+            root={`workspaces/${workspaceId}`}
+            ids={detail.draft.citation_ids}
+          />
+        )}
         {readOnly ? (
           <p className="message-body">
             {detail.draft?.body || "No saved draft yet."}
@@ -248,7 +272,7 @@ export function TicketHandling({
               onChange={(e) => setBody(e.target.value)}
               maxLength={20000}
               rows={7}
-              disabled={busy}
+              disabled={busy || generating}
               aria-describedby="draft-help"
               placeholder="Write a reply for review…"
             />
@@ -259,7 +283,7 @@ export function TicketHandling({
             <div className="form-actions">
               <button
                 className="primary"
-                disabled={busy || needsReview || !draftDirty}
+                disabled={busy || needsReview || generating || !draftDirty}
               >
                 Save draft
               </button>
@@ -345,9 +369,11 @@ export function TicketHandling({
                 <strong>
                   {event.action === "draft_saved"
                     ? "Draft saved · not sent"
-                    : event.action === "ticket_reopened"
-                      ? "Ticket reopened"
-                      : "Ticket updated"}
+                    : event.action === "draft_generated"
+                      ? "Draft generated · not sent"
+                      : event.action === "ticket_reopened"
+                        ? "Ticket reopened"
+                        : "Ticket updated"}
                 </strong>
                 <span className="small muted">
                   {event.actor} ·{" "}
@@ -355,7 +381,7 @@ export function TicketHandling({
                     {new Date(event.created_at).toLocaleString()}
                   </time>
                 </span>
-                {event.action !== "draft_saved" && (
+                {!["draft_saved", "draft_generated"].includes(event.action) && (
                   <ul>
                     {Object.entries(event.changes).map(([field, change]) =>
                       typeof change === "string" ? null : (

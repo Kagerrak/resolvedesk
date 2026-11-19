@@ -31,6 +31,8 @@ class DraftView(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: UUID
     body: str
+    generation_id: UUID | None = None
+    citation_ids: list[str] = []
     ticket_revision: int
     created_at: datetime
 
