@@ -12,7 +12,7 @@ Specification: https://github.com/Kagerrak/resolvedesk/issues/1
 | S04 | [S04 — Publish text-PDF knowledge with traceable pages](https://github.com/Kagerrak/resolvedesk/issues/5) | Delivered: PR #19 merged; issue #5 closed; 22 API/PDF assertions, browser/review and CI passed |
 | S05 | [S05 — Retrieve supporting evidence from a ticket](https://github.com/Kagerrak/resolvedesk/issues/6) | Delivered: PR #20 merged ea41f16; issue #6 closed; CI 44307545659 passed all 129 S01–S05 assertions |
 | S06 | [S06 — Generate and revise a grounded draft](https://github.com/Kagerrak/resolvedesk/issues/7) | Delivered: PR #21 merged c50d3ad; issue #7 closed; final CI 44472186034 and independent review passed |
-| S07 | [S07 — Approve a precise reply and record simulated delivery](https://github.com/Kagerrak/resolvedesk/issues/8) | Active on feat/s07-approval; issue #8 unblocked |
+| S07 | [S07 — Approve a precise reply and record simulated delivery](https://github.com/Kagerrak/resolvedesk/issues/8) | Implemented on feat/s07-approval; 21 real assertions, browser/static/build and initial review passed; final review/CI delivery pending |
 | S08 | [S08 — Connect Gmail and import a real support conversation](https://github.com/Kagerrak/resolvedesk/issues/9) | Not implemented; blocked by planned prerequisites |
 | S09 | [S09 — Deliver an approved reply through Gmail safely](https://github.com/Kagerrak/resolvedesk/issues/10) | Not implemented; blocked by planned prerequisites |
 | S10 | [S10 — Diagnose and recover an operational failure](https://github.com/Kagerrak/resolvedesk/issues/11) | Not implemented; blocked by planned prerequisites |

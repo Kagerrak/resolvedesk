@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { api, type Member, type TicketDetail } from "@/lib/api";
+import { createPortal } from "react-dom";
+import { api, ApiError, type Member, type TicketDetail } from "@/lib/api";
 import { DraftCitations } from "@/components/draft-citations";
 
 type Review = {
@@ -21,6 +22,7 @@ export function ReplyApproval({
   actions,
   members,
   onApproved,
+  onStale,
 }: {
   detail: TicketDetail;
   workspaceId: string;
@@ -33,12 +35,14 @@ export function ReplyApproval({
   };
   members: Member[];
   onApproved: (next: TicketDetail) => void;
+  onStale: () => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const [review, setReview] = useState<Review | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [stale, setStale] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
   const recorded = detail.events.some(
     (e) =>
@@ -54,7 +58,7 @@ export function ReplyApproval({
   function close() {
     dialog.current?.close();
     setReview(null);
-    setError("");
+    if (!stale) setError("");
     trigger.current?.focus();
   }
   async function openReview() {
@@ -72,9 +76,11 @@ export function ReplyApproval({
           reopen: detail.status === "resolved" && actions.status === "open",
         },
       );
+      setStale(false);
       setAcknowledged(false);
       setReview(next);
     } catch (reason) {
+      setStale(reason instanceof ApiError && reason.status === 409);
       setError(
         reason instanceof Error
           ? reason.message
@@ -98,6 +104,7 @@ export function ReplyApproval({
       onApproved(next);
       close();
     } catch (reason) {
+      setStale(reason instanceof ApiError && reason.status === 409);
       setError(
         reason instanceof Error
           ? reason.message
@@ -128,98 +135,121 @@ export function ReplyApproval({
       {error && !review && (
         <p className="alert error" role="alert">
           {error}
+          {stale && (
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => {
+                setError("");
+                setStale(false);
+                onStale();
+              }}
+            >
+              Load latest saved version
+            </button>
+          )}
         </p>
       )}
-      <dialog
-        ref={dialog}
-        className="approval-dialog"
-        aria-labelledby="approval-title"
-        onCancel={(e) => {
-          e.preventDefault();
-          if (!busy) close();
-        }}
-      >
-        {review && (
-          <>
-            <header>
-              <h2 id="approval-title" tabIndex={-1}>
-                Review exact demo reply
-              </h2>
-              <span className="badge">No email delivery</span>
-            </header>
-            <p>
-              Approval records this exact reply and the changes below in this
-              synthetic conversation.
-            </p>
-            <h3>Reply to {detail.customer_name}</h3>
-            <p className="message-body review-body">{review.body}</p>
-            {detail.draft && (
-              <DraftCitations
-                root={`workspaces/${workspaceId}`}
-                ids={detail.draft.citation_ids}
-              />
-            )}
-            <h3>Ticket changes</h3>
-            {Object.keys(review.actions).length ? (
-              <ul>
-                {Object.entries(review.actions).map(([field, change]) => (
-                  <li key={field}>
-                    {field === "assigned_to" ? "Assignment" : field}:{" "}
-                    {value(field, change.before)} → {value(field, change.after)}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No ticket fields will change.</p>
-            )}
-            {review.warnings.map((warning) => (
-              <p className="alert" key={warning}>
-                {warning}
-              </p>
-            ))}
-            {!!review.warnings.length && (
-              <label className="approval-ack">
-                <input
-                  type="checkbox"
-                  checked={acknowledged}
-                  onChange={(e) => setAcknowledged(e.target.checked)}
-                  disabled={busy}
-                />
-                I reviewed the uncited claims and accept responsibility for this
-                demo reply.
-              </label>
-            )}
-            {error && (
-              <div className="alert error" role="alert">
-                {error}
+      {review &&
+        createPortal(
+          <dialog
+            ref={dialog}
+            className="approval-dialog"
+            aria-labelledby="approval-title"
+            onCancel={(e) => {
+              e.preventDefault();
+              if (!busy) close();
+            }}
+          >
+            {review && (
+              <>
+                <header>
+                  <h2 id="approval-title" tabIndex={-1}>
+                    Review exact demo reply
+                  </h2>
+                  <span className="badge">No email delivery</span>
+                </header>
                 <p>
-                  If confirmation was interrupted, retry this approval to check
-                  the same recorded reply. If the draft or evidence changed,
-                  close this review and review again.
+                  Approval records this exact reply and the changes below in
+                  this synthetic conversation.
                 </p>
-              </div>
+                <h3>Reply to {detail.customer_name}</h3>
+                <p className="small muted">{detail.customer_email}</p>
+                <p className="message-body review-body">{review.body}</p>
+                {detail.draft && (
+                  <DraftCitations
+                    root={`workspaces/${workspaceId}`}
+                    ids={detail.draft.citation_ids}
+                  />
+                )}
+                <h3>Ticket changes</h3>
+                {Object.keys(review.actions).length ? (
+                  <ul>
+                    {Object.entries(review.actions).map(([field, change]) => (
+                      <li key={field}>
+                        {field === "assigned_to" ? "Assignment" : field}:{" "}
+                        {value(field, change.before)} →{" "}
+                        {value(field, change.after)}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No ticket fields will change.</p>
+                )}
+                {review.warnings.map((warning) => (
+                  <p className="alert" key={warning}>
+                    {warning}
+                  </p>
+                ))}
+                {!!review.warnings.length && (
+                  <label className="approval-ack">
+                    <input
+                      type="checkbox"
+                      checked={acknowledged}
+                      onChange={(e) => setAcknowledged(e.target.checked)}
+                      disabled={busy}
+                    />
+                    I reviewed the uncited claims and accept responsibility for
+                    this demo reply.
+                  </label>
+                )}
+                {error && (
+                  <div className="alert error" role="alert">
+                    {error}
+                    <p>
+                      If confirmation was interrupted, retry this approval to
+                      check the same recorded reply. If the draft or evidence
+                      changed, close this review and review again.
+                    </p>
+                  </div>
+                )}
+                <div className="form-actions">
+                  <button
+                    type="button"
+                    className="secondary"
+                    disabled={busy}
+                    onClick={close}
+                  >
+                    Back to editing
+                  </button>
+                  <button
+                    type="button"
+                    className="primary"
+                    disabled={
+                      busy || (!!review.warnings.length && !acknowledged)
+                    }
+                    onClick={() => void approve()}
+                  >
+                    {busy
+                      ? "Checking approval…"
+                      : "Approve and record demo reply"}
+                  </button>
+                </div>
+              </>
             )}
-            <div className="form-actions">
-              <button
-                type="button"
-                className="secondary"
-                disabled={busy}
-                onClick={close}
-              >
-                Back to editing
-              </button>
-              <button
-                type="button"
-                className="primary"
-                disabled={busy || (!!review.warnings.length && !acknowledged)}
-                onClick={() => void approve()}
-              >
-                {busy ? "Checking approval…" : "Approve and record demo reply"}
-              </button>
-            </div>
-          </>
+          </dialog>,
+          document.body,
         )}
-      </dialog>
     </>
   );
 }

@@ -44,6 +44,11 @@ export function TicketHandling({
   const [accessEnded, setAccessEnded] = useState(false);
   const [notice, setNotice] = useState("");
   const needsReview = conflict || detail.revision !== baselineRevision;
+  const draftRecorded = detail.events.some(
+    (e) =>
+      e.action === "demo_reply_recorded" &&
+      e.changes.draft_revision === detail.draft?.id,
+  );
   const draftDirty = body !== (detail.draft?.body ?? "");
   const fieldsDirty =
     JSON.stringify(parsedTags) !== JSON.stringify(detail.tags) ||
@@ -258,7 +263,9 @@ export function TicketHandling({
       <section aria-labelledby="draft-title" className="draft-panel">
         <header>
           <h3 id="draft-title">Draft reply</h3>
-          <span className="badge">Not sent</span>
+          <span className="badge">
+            {draftRecorded ? "Demo reply recorded" : "Not sent"}
+          </span>
         </header>
         <DraftGeneration
           route={path}
@@ -335,6 +342,7 @@ export function TicketHandling({
                 assigned_to: assignee || null,
                 tags: parsedTags,
               }}
+              onStale={() => void loadLatest()}
               onApproved={(next) => {
                 onChanged(next);
                 setBaselineRevision(next.revision);
@@ -434,7 +442,11 @@ export function TicketHandling({
                     {new Date(event.created_at).toLocaleString()}
                   </time>
                 </span>
-                {!["draft_saved", "draft_generated"].includes(event.action) && (
+                {![
+                  "draft_saved",
+                  "draft_generated",
+                  "demo_reply_recorded",
+                ].includes(event.action) && (
                   <ul>
                     {Object.entries(event.changes).map(([field, change]) =>
                       typeof change === "string" ? null : (

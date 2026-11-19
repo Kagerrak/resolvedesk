@@ -4,7 +4,7 @@ Updated 18 November 2026.
 
 ## Active work and branch safety
 
-Functional checkout: `/Users/rommelclarino/projects/resolvedesk-s01`, branch `feat/s06-drafting`. Original `/Users/rommelclarino/projects/resolvedesk` remains on `feat/ui-direction-prototypes` with its pre-existing screenshot changes and generated `apps/web/AGENTS.md`; do not overwrite or merge that prototype branch wholesale.
+Functional checkout: `/Users/rommelclarino/projects/resolvedesk-s01`, branch `feat/s07-approval`. Original `/Users/rommelclarino/projects/resolvedesk` remains on `feat/ui-direction-prototypes` with its pre-existing screenshot changes and generated `apps/web/AGENTS.md`; do not overwrite or merge that prototype branch wholesale.
 
 S01 PR #16 merged as `9427fec425c34cd65230c88863ac027ebea0502f`; issue #2 closed. Command Bright D adopted with real API data, light theme, mobile/keyboard flows. CI run 43829740801 passed.
 
@@ -41,19 +41,24 @@ S04 delivery: https://github.com/Kagerrak/resolvedesk/pull/19; CI https://github
 S05 behavior implemented in `608f68f`, review fixes `428fa1c`, extended integration checks `8db7cf2`. Native pgvector exact cosine retrieval with persisted ranking/source-version provenance, authorized citation passages/PDF pages and mobile panel navigation. 30 real HTTP/PostgreSQL assertions passed; browser, static/build and independent Spec/Standards review evidence in `docs/verification/s05-retrieval.md`. Delivered: PR #20 merged `ea41f167f935d25fc6de787d284b732c4ba30d03`, issue #6 closed, CI https://github.com/Kagerrak/resolvedesk/actions/runs/44307545659 passed all 129 assertions. No provider calls. Local API/web restarted from functional checkout after safe builds; no background worker running.
 
 
-## S06 final verification — delivery pending
+## S06 final verification — delivered
 
 Updated 19 November 2026. Branch `feat/s06-drafting`, draft PR https://github.com/Kagerrak/resolvedesk/pull/21. User configured DEEPSEEK_API_KEY locally; never output/copy it into chat or Git. LIVE_AI_ENABLED remains false in the server environment. Paid calls were enabled only in local evaluation processes and public generation remains fixture-only.
 
-Previous head b674ce4 passed CI 44314422795: 154 real integration assertions +13 explicitly canned local HTTP provider-contract checks. Live review then found internal citation IDs in body text, an unsupported access-loss inference, and invented review-flagging language. Current changes: prompt grounded-reply-v5, application-owned escalation wording, internal-ID body rejection, clear saved-provider/public-demo-action labels; 16 provider-contract checks pass. Final head CI/review pending. See docs/verification/s06-drafting.md and evaluations/s06-deepseek-v5.json.
+Previous head b674ce4 passed CI 44314422795: 154 real integration assertions +13 explicitly canned local HTTP provider-contract checks. Live review then found internal citation IDs in body text, an unsupported access-loss inference, and invented review-flagging language. Current changes: prompt grounded-reply-v5, application-owned escalation wording, internal-ID body rejection, clear saved-provider/public-demo-action labels; 16 provider-contract checks pass. Final head ad3ad76 passed CI 44472186034 and independent review; PR #21 merged c50d3ad. See docs/verification/s06-drafting.md and evaluations/s06-deepseek-v5.json.
 
 Twenty-five exploratory/final actual DeepSeek calls returned measured usage totaling 14,105 input +4,968 output tokens. Conservative allocation USD0.024041 exactly matches November PostgreSQL ledger; not a provider invoice. Current smoke set: five author-labelled task cases plus a separate realistic browser case. Three replies are application-normalized escalations; three provide conditional supported guidance. One task case conservatively escalated instead of its expected answer (four of five workflow labels match); keep this limitation explicit. Agent rubric review is disclosed; these are not an independent human-labelled benchmark. Broader S11 quality work remains unfinished.
 
 Browser verified live provider provenance/source opening/edit+save and mobile no overflow; prior fixture/resume/connection-recovery checks remain valid. Existing web/API were inspected and restarted after overnight shutdown, and the production web was stopped before its final build. No background generation/knowledge worker is running. Use normal --once or worker commands as needed; default fixture-only worker leaves local paid work for an explicitly enabled worker. Live evaluation workspaces were cleaned; browser QA workspace remains synthetic and expires normally.
 
-Finish independent review, final CI, then deliver PR #21/issue #7 before promoting S07. Keep S07–S13, hosted demo and Gmail verification unfinished. Preserve original prototype checkout and pending files.
+PR #21 delivered and issue #7 closed; S07 is active. Keep S07–S13, hosted demo and Gmail verification unfinished. Preserve original prototype checkout and pending files.
 
 
 ## S06 delivered / S07 active — 19 November 2026
 
 S06 PR #21 merged `c50d3ade794a8621879cea4facadc963d4b2afba`; issue #7 closed. Final CI [44472186034](https://github.com/Kagerrak/resolvedesk/actions/runs/44472186034) passed 154 real integration assertions and 16 explicitly canned local HTTP provider-contract checks, migrations/static/build/audit. Independent final Spec/Standards review clear. Live smoke limitations and USD0.024041 conservative measured allocation are preserved in docs/verification/s06-drafting.md. Public generation remains fixture-only. S07 issue #8 is unblocked; active branch `feat/s07-approval`. S07–S13, hosting and Gmail remain unfinished.
+
+
+## S07 implementation / verification in progress
+
+Branch feat/s07-approval. Exact persisted reviews, human authorization, synthetic transactional delivery receipts/messages, tags and accessible review UI implemented. Local 21 genuine integration assertions, fresh migration round trip, static/build and browser stale/offline/mobile journeys passed. Separate Spec/Standards review found no blocker; shared lock suggestion fixed. Final reviewer refresh and GitHub CI/delivery pending. See docs/verification/s07-approval.md. Gmail setup question is pending interactively; do not claim S08 live verification. Public generation remains fixture-only; no additional paid AI calls during S07.

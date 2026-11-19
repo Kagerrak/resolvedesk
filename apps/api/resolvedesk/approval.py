@@ -8,12 +8,13 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy import select, text
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .database import database
 from .handling import HandlingChange, audit, editable_ticket, read_detail, validate_changes
 from .identity import Identity, identity
+from .knowledge_snapshot import lock_snapshot
 from .models import (
     ApprovalRecord,
     ApprovalReview,
@@ -41,20 +42,12 @@ class ApproveRequest(BaseModel):
     acknowledge_unverified: bool = False
 
 
-def knowledge_lock(db: Session, workspace_id: UUID):
-    # Serialize publication (including new documents) with the final approval snapshot.
-    db.execute(
-        text("SELECT pg_advisory_xact_lock(hashtextextended(:key, 0))"),
-        {"key": f"published-snapshot:{workspace_id}"},
-    )
-
-
 def fingerprint(value) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True, default=str).encode()).hexdigest()
 
 
 def basis(db: Session, item: Ticket, draft: DraftRevision):
-    knowledge_lock(db, item.workspace_id)
+    lock_snapshot(db, item.workspace_id)
     messages = db.execute(
         select(Message.id, Message.body, Message.sender_email, Message.created_at)
         .where(Message.workspace_id == item.workspace_id, Message.ticket_id == item.id)
@@ -95,6 +88,9 @@ def basis(db: Session, item: Ticket, draft: DraftRevision):
         sources.append({"citation_id": citation_id, "version_id": str(result.version_id)})
     return {
         "ticket_revision": item.revision,
+        "recipient": item.customer_email,
+        "customer_name": item.customer_name,
+        "subject": item.subject,
         "conversation_hash": fingerprint([tuple(m) for m in messages]),
         "published_snapshot_hash": fingerprint([tuple(v) for v in versions]),
         "draft_id": str(draft.id),
