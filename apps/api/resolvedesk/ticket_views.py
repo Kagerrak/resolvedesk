@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict
 class MessageView(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: UUID
+    kind: str
     sender_name: str
     sender_email: str
     body: str
@@ -24,6 +25,7 @@ class TicketView(BaseModel):
     priority: str
     assigned_to: str | None
     revision: int
+    tags: list[str]
     created_at: datetime
 
 

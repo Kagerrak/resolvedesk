@@ -950,3 +950,49 @@ textarea::placeholder {
     display: none;
   }
 }
+
+.approval-dialog {
+  width: min(680px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 24px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+.approval-dialog::backdrop {
+  background: rgb(0 0 0 / 65%);
+}
+.approval-dialog header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.approval-dialog .review-body {
+  overflow-wrap: anywhere;
+  padding-block: 16px;
+}
+.approval-dialog .approval-ack {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-block: 16px;
+}
+.approval-dialog .approval-ack input {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+}
+.approval-dialog .form-actions {
+  margin-top: 24px;
+}
+@media (max-width: 640px) {
+  .approval-dialog {
+    padding: 16px;
+  }
+  .approval-dialog button {
+    min-height: 44px;
+  }
+}

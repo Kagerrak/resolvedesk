@@ -52,3 +52,8 @@ Twenty-five exploratory/final actual DeepSeek calls returned measured usage tota
 Browser verified live provider provenance/source opening/edit+save and mobile no overflow; prior fixture/resume/connection-recovery checks remain valid. Existing web/API were inspected and restarted after overnight shutdown, and the production web was stopped before its final build. No background generation/knowledge worker is running. Use normal --once or worker commands as needed; default fixture-only worker leaves local paid work for an explicitly enabled worker. Live evaluation workspaces were cleaned; browser QA workspace remains synthetic and expires normally.
 
 Finish independent review, final CI, then deliver PR #21/issue #7 before promoting S07. Keep S07–S13, hosted demo and Gmail verification unfinished. Preserve original prototype checkout and pending files.
+
+
+## S06 delivered / S07 active — 19 November 2026
+
+S06 PR #21 merged `c50d3ade794a8621879cea4facadc963d4b2afba`; issue #7 closed. Final CI [44472186034](https://github.com/Kagerrak/resolvedesk/actions/runs/44472186034) passed 154 real integration assertions and 16 explicitly canned local HTTP provider-contract checks, migrations/static/build/audit. Independent final Spec/Standards review clear. Live smoke limitations and USD0.024041 conservative measured allocation are preserved in docs/verification/s06-drafting.md. Public generation remains fixture-only. S07 issue #8 is unblocked; active branch `feat/s07-approval`. S07–S13, hosting and Gmail remain unfinished.

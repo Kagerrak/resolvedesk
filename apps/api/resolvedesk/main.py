@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from sqlalchemy import or_, select, text
 from sqlalchemy.orm import Session
 
+from .approval import router as approval_router
 from .config import settings
 from .database import database
 from .generation import router as generation_router
@@ -21,6 +22,7 @@ from .ticket_views import TicketDetail, TicketView
 
 app = FastAPI(title="ResolveDesk", version="0.1.0")
 app.include_router(handling_router)
+app.include_router(approval_router)
 app.include_router(knowledge_router)
 app.include_router(retrieval_router)
 app.include_router(generation_router)

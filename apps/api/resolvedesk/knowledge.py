@@ -11,7 +11,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, ConfigDict, Field
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
 from .database import database
@@ -59,6 +59,10 @@ def require_admin(db: Session, workspace_id: UUID, visitor: Identity):
         raise HTTPException(404, "Workspace not found or no longer available.")
     if member.role != "admin":
         raise HTTPException(403, "Only an Admin can manage knowledge.")
+    db.execute(
+        text("SELECT pg_advisory_xact_lock(hashtextextended(:key, 0))"),
+        {"key": f"published-snapshot:{workspace_id}"},
+    )
 
 
 def document_pair(db: Session, workspace_id: UUID, document_id: UUID, lock=False):

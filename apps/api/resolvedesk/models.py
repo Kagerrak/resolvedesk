@@ -47,6 +47,7 @@ class Ticket(Base):
     priority: Mapped[str] = mapped_column(default="normal")
     assigned_to: Mapped[str | None]
     revision: Mapped[int] = mapped_column(default=1)
+    tags: Mapped[list] = mapped_column(JSON, default=list)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     __table_args__ = (
         UniqueConstraint("workspace_id", "id"),
@@ -66,11 +67,13 @@ class Message(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     workspace_id: Mapped[UUID]
     ticket_id: Mapped[UUID] = mapped_column(index=True)
+    kind: Mapped[str] = mapped_column(default="customer")
     sender_name: Mapped[str]
     sender_email: Mapped[str]
     body: Mapped[str]
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     __table_args__ = (
+        UniqueConstraint("workspace_id", "ticket_id", "id"),
         ForeignKeyConstraint(
             ["workspace_id", "ticket_id"], ["ticket.workspace_id", "ticket.id"], ondelete="CASCADE"
         ),
@@ -304,3 +307,60 @@ class UsageMonth(Base):
     allocated_micros: Mapped[int] = mapped_column(default=0)
     blocked: Mapped[bool] = mapped_column(default=False)
     __table_args__ = (CheckConstraint("allocated_micros >= 0 AND allocated_micros <= 20000000"),)
+
+
+class ApprovalReview(Base):
+    __tablename__ = "approval_review"
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID]
+    ticket_id: Mapped[UUID]
+    draft_id: Mapped[UUID]
+    body: Mapped[str]
+    actions: Mapped[dict] = mapped_column(JSON)
+    basis: Mapped[dict] = mapped_column(JSON)
+    created_by: Mapped[str]
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["workspace_id", "ticket_id", "draft_id"],
+            ["draft_revision.workspace_id", "draft_revision.ticket_id", "draft_revision.id"],
+            ondelete="CASCADE",
+        ),
+        UniqueConstraint("workspace_id", "ticket_id", "id"),
+    )
+
+
+class ApprovalRecord(Base):
+    __tablename__ = "approval_record"
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID]
+    ticket_id: Mapped[UUID]
+    review_id: Mapped[UUID | None]
+    draft_id: Mapped[UUID | None]
+    message_id: Mapped[UUID | None]
+    actor_id: Mapped[str]
+    content: Mapped[dict] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["workspace_id", "ticket_id"], ["ticket.workspace_id", "ticket.id"], ondelete="CASCADE"
+        ),
+        ForeignKeyConstraint(
+            ["workspace_id", "ticket_id", "review_id"],
+            ["approval_review.workspace_id", "approval_review.ticket_id", "approval_review.id"],
+            ondelete="CASCADE",
+        ),
+        ForeignKeyConstraint(
+            ["workspace_id", "ticket_id", "draft_id"],
+            ["draft_revision.workspace_id", "draft_revision.ticket_id", "draft_revision.id"],
+            ondelete="CASCADE",
+        ),
+        ForeignKeyConstraint(
+            ["workspace_id", "ticket_id", "message_id"],
+            ["message.workspace_id", "message.ticket_id", "message.id"],
+            ondelete="CASCADE",
+        ),
+        UniqueConstraint("review_id"),
+        UniqueConstraint("draft_id"),
+        UniqueConstraint("message_id"),
+    )

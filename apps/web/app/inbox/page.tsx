@@ -503,6 +503,11 @@ export default function InboxPage() {
                           </span>
                           <div>
                             <strong>{m.sender_name}</strong>
+                            {m.kind === "simulated_reply" && (
+                              <span className="badge">
+                                Demo reply · no email sent
+                              </span>
+                            )}
                             <div className="small muted">{m.sender_email}</div>
                           </div>
                           <time dateTime={m.created_at}>
