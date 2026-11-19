@@ -5,6 +5,7 @@ type Run = {
   id: string;
   ticket_revision: number;
   created_at: string;
+  sources_changed: boolean;
   results: {
     id: string;
     rank: number;
@@ -149,12 +150,19 @@ export function TicketEvidence({
                     evidence.
                   </p>
                 )}
-                {!run.results.some((r) => r.available) && (
+                {run.sources_changed && (
                   <p>
-                    I couldn&apos;t find a published source for this answer.
-                    Review the ticket or escalate it.
+                    Source material changed or was deleted. Find current
+                    supporting evidence before relying on this retrieval.
                   </p>
                 )}
+                {!run.sources_changed &&
+                  !run.results.some((r) => r.available) && (
+                    <p>
+                      I couldn&apos;t find a published source for this answer.
+                      Review the ticket or escalate it.
+                    </p>
+                  )}
               </>
             )}
           </div>

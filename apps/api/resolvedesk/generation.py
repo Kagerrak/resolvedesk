@@ -187,8 +187,9 @@ def context_for(db: Session, run: GenerationRun):
     if not retrieval:
         raise ValueError("Evidence is no longer available. Retrieve again.")
     db.execute(published_chunks(run.workspace_id).with_for_update(read=True)).all()
-    evidence = run_view(db, retrieval)["results"]
-    if any(not row["available"] for row in evidence):
+    saved_evidence = run_view(db, retrieval)
+    evidence = saved_evidence["results"]
+    if saved_evidence["sources_changed"]:
         raise ValueError("Source material changed. Retrieve again before generating.")
     # Read-only application tool: model sees only this scoped, validated snapshot.
     return item, {

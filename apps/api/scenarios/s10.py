@@ -238,6 +238,17 @@ try:
     )
     review.raise_for_status()
     citation = d["draft"]["citation_ids"][0]
+    fresh_evidence = a.post(ticket + "/retrievals")
+    fresh_evidence.raise_for_status()
+    pending = a.post(
+        ticket + "/generations",
+        json={
+            "expected_revision": d["revision"],
+            "retrieval_id": fresh_evidence.json()["id"],
+            "request_id": str(uuid4()),
+        },
+    )
+    pending.raise_for_status()
     a.post(
         root + f"/knowledge/{good['id']}/archive",
         json={"expected_revision": published.json()["revision"]},
@@ -285,6 +296,19 @@ try:
     check(
         a.get(root + f"/knowledge/{good['id']}/download").status_code == 404,
         "Even Admin cannot download a deleted source",
+    )
+    historical = a.get(ticket + "/retrievals/latest").json()
+    check(
+        historical["sources_changed"] and historical["results"] == [],
+        "Deleted passages retain explicit stale evidence rather than ordinary empty evidence",
+    )
+    generate_once()
+    failed_generation = a.get(ticket + "/generations/latest").json()
+    check(
+        failed_generation["id"] == pending.json()["id"]
+        and failed_generation["status"] == "failed"
+        and a.get(ticket).json()["draft"]["id"] == d["draft"]["id"],
+        "Source deletion rejects queued generation before provider requests and preserves saved draft",
     )
     deleted_trace = a.get(root + f"/activity/indexing/{job_id}").json()
     check(
