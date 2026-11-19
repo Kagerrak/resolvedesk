@@ -4,7 +4,7 @@ Updated 18 November 2026.
 
 ## Active work and branch safety
 
-Functional checkout: `/Users/rommelclarino/projects/resolvedesk-s01`, branch `feat/s07-approval`. Original `/Users/rommelclarino/projects/resolvedesk` remains on `feat/ui-direction-prototypes` with its pre-existing screenshot changes and generated `apps/web/AGENTS.md`; do not overwrite or merge that prototype branch wholesale.
+Functional checkout: `/Users/rommelclarino/projects/resolvedesk-s01`, branch `feat/s10-recovery`. Original `/Users/rommelclarino/projects/resolvedesk` remains on `feat/ui-direction-prototypes` with its pre-existing screenshot changes and generated `apps/web/AGENTS.md`; do not overwrite or merge that prototype branch wholesale.
 
 S01 PR #16 merged as `9427fec425c34cd65230c88863ac027ebea0502f`; issue #2 closed. Command Bright D adopted with real API data, light theme, mobile/keyboard flows. CI run 43829740801 passed.
 
@@ -62,3 +62,12 @@ S06 PR #21 merged `c50d3ade794a8621879cea4facadc963d4b2afba`; issue #7 closed. F
 ## S07 implementation / verification in progress
 
 Branch feat/s07-approval. Exact persisted reviews, human authorization, synthetic transactional delivery receipts/messages, tags and accessible review UI implemented. Local 21 genuine integration assertions, fresh migration round trip, static/build and browser stale/offline/mobile journeys passed. Separate Spec/Standards review found no blocker; shared lock suggestion fixed. Final reviewer refresh and GitHub CI/delivery pending. See docs/verification/s07-approval.md. Gmail setup question is pending interactively; do not claim S08 live verification. Public generation remains fixture-only; no additional paid AI calls during S07.
+
+
+## Current frontier — 19 November 2026
+
+S07 delivered via PR #22, merge f354d801ab8f5a3094edc7ab9f7598a94dea78ce; issue #8 closed. CI 44475535950 passed 175 real S01–S07 assertions +16 distinctly canned local provider-contract checks, static/build/migration/audit. Final Spec/Standards refreshes clear; report docs/verification/s07-approval.md. No S07 paid provider calls.
+
+S08 OAuth credentials and encryption key are absent. Interactive question pending: help configure a dedicated synthetic test mailbox and Google OAuth client / already configured / defer real verification. Do not infer an answer. Gmail has not been accessed. Prep notes docs/planning/s08-connector-preparation.md. Issue #9 remains blocked/needs-info. S09 remains blocked by S08. S10 indexing/simulated recovery is explicitly independently unblocked per issue #11; now active on feat/s10-recovery. S11 issue #12 is also unblocked/ready-for-agent but not implemented. S10 Gmail recovery cases remain gated by S08/S09. Never claim project complete.
+
+API production process currently runs from this functional checkout; web was safely stopped/rebuilt/restarted for final S07 changes. Inspect current ports/processes before restarting. No background workers run. Ego TaskSpace 27 was finished with keep=[] after verification/research. Use a new space only if it no longer exists. Original prototype checkout remains untouched. The local .env key remains ignored and LIVE_AI_ENABLED=false. Audit passed; latest observed picomatch remains4.0.7; exception unchanged.

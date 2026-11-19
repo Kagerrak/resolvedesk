@@ -1,6 +1,6 @@
 # S07 — Exact human approval and simulated delivery
 
-Verified locally 19 November 2026. Issue #8; implementation follows delivered S06 (PR #21, merge c50d3ad). S07 GitHub delivery remains pending final CI/review.
+Verified locally 19 November 2026. Issue #8; implementation follows delivered S06 (PR #21, merge c50d3ad). Delivered: PR #22 merged f354d801ab8f5a3094edc7ab9f7598a94dea78ce; issue #8 closed. [Final CI 44475535950](https://github.com/Kagerrak/resolvedesk/actions/runs/44475535950) passed all 175 S01–S07 real integration assertions and 16 separately labeled local provider-contract checks.
 
 ## Persisted behavior
 
@@ -20,7 +20,7 @@ The source publication/approval boundary shares a workspace advisory lock, inclu
 
 ## Independent review
 
-Separate fresh-context Spec and Standards reviewers checked c50d3ad…30e2640. Spec: no material findings. Standards: no documented breaches; one low-priority duplicated snapshot-lock policy was extracted to a shared module. Final recovery/portal changes are queued for reviewer refresh; final CI and delivery remain pending.
+Separate fresh-context Spec and Standards reviewers checked c50d3ad…30e2640. Spec: no material findings. Standards: no documented breaches; one low-priority duplicated snapshot-lock policy was extracted to a shared module. Both final reviewer refreshes through cfc393a are clear. Final CI passed and PR #22 is merged.
 
 ## Evidence and limitations
 
