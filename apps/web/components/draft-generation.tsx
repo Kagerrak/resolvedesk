@@ -135,10 +135,10 @@ export function DraftGeneration({
     <div className="draft-generation">
       <p className="small muted">
         {run?.mode === "deepseek"
-          ? "DeepSeek generation"
+          ? "Saved generation: DeepSeek"
           : run?.mode === "openai"
-            ? "Historical OpenAI generation"
-            : "Fixture generation · extracts published evidence; no AI provider call"}
+            ? "Saved generation: historical OpenAI"
+            : "Demo generation · published extract, no AI provider call"}
       </p>
       {!readOnly && (
         <div className="form-actions">
@@ -148,7 +148,7 @@ export function DraftGeneration({
             disabled={disabled || active || busy || loading}
             onClick={generate}
           >
-            Generate draft
+            Generate demo draft
           </button>
           {active && (
             <button
@@ -161,6 +161,11 @@ export function DraftGeneration({
             </button>
           )}
         </div>
+      )}
+      {!readOnly && (
+        <p className="small muted">
+          This demo button uses a published extract without an AI provider call.
+        </p>
       )}
       {disabled && !active && !readOnly && (
         <p className="small muted">

@@ -4,7 +4,7 @@ import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from threading import Thread
 
-from resolvedesk.generation_provider import deepseek_reply
+from resolvedesk.generation_provider import ESCALATION_BODY, deepseek_reply
 
 checks = []
 case = {
@@ -82,12 +82,33 @@ try:
         "Provider receives only read-only scoped context; no mutation or network tools",
     )
     original = json.loads(json.dumps(case))
+    case["reply"] = {
+        "body": "I've flagged this and refunded your invoice.",
+        "citation_ids": [],
+        "outcome": "escalation",
+        "reason": "No evidence. Human review needed.",
+    }
+    reply, usage = deepseek_reply(
+        {"ticket": "Synthetic refund question", "evidence": []},
+        "resolvedesk-provider-fixture",
+        endpoint=endpoint,
+    )
+    check(
+        reply.body == ESCALATION_BODY and usage["escalation_template_applied"],
+        "Escalation uses application-owned wording without invented completed actions",
+    )
+    case.clear()
+    case.update(original)
     for label, change in [
         (
             "Invented citation rejected",
             {"reply": {**original["reply"], "citation_ids": ["foreign-citation"]}},
         ),
         ("Uncited factual answer rejected", {"reply": {**original["reply"], "citation_ids": []}}),
+        (
+            "Internal citation IDs in customer reply rejected",
+            {"reply": {**original["reply"], "body": "Policy says authorized-citation"}},
+        ),
         ("Unknown schema field rejected", {"reply": {**original["reply"], "send_email": True}}),
         ("Incomplete provider response rejected", {"status": "incomplete"}),
         ("Provider refusal rejected", {"refusal": True}),

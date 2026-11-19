@@ -220,7 +220,7 @@ export default function InboxPage() {
           </select>
         </div>
         <div className="header-actions">
-          <span className="badge">Fixture mode</span>
+          <span className="badge">Synthetic demo</span>
           <ThemeToggle />
           <button
             className="icon-button"
@@ -490,7 +490,7 @@ export default function InboxPage() {
                       <span className="badge open">{detail.status}</span>
                       <span>{detail.priority} priority</span>
                       <span>{workspace?.role} access</span>
-                      <span>Fixture · no email delivery</span>
+                      <span>Synthetic conversation · no email delivery</span>
                     </div>
                     {detail.messages.map((m) => (
                       <article key={m.id} className="message">

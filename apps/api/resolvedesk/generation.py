@@ -324,7 +324,7 @@ def run_once(target_run_id: UUID | None = None):
             if not settings.deepseek_api_key or not settings.has_deepseek_key:
                 raise ValueError("Provider credentials unavailable.")
             reply, usage = deepseek_reply(context, settings.deepseek_api_key.get_secret_value())
-        validate_reply(reply, context)
+        reply = validate_reply(reply, context)
         error = None
     except (ValueError, httpx.HTTPError, KeyError, TypeError):
         reply = None

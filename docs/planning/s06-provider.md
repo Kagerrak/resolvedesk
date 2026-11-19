@@ -1,6 +1,6 @@
 # S06 provider selection and verification boundary
 
-18 November 2026. User selected DeepSeek for generation for now. No paid request has been made. Existing fixture embeddings stay unchanged.
+Updated 19 November 2026. User selected DeepSeek for generation. Nineteen exploratory/final live calls are recorded in the verification report; the current five-example smoke set uses grounded-reply-v4. Existing fixture embeddings stay unchanged.
 
 Use `deepseek-flash` through [DeepSeek Responses API](https://api-docs.deepseek.com/api/create-response/). Its [compatibility guide](https://api-docs.deepseek.com/guides/responses_api/) documents input/instructions, output bounds, reasoning effort and structured text formats; unsupported `store`/`service_tier` parameters are omitted. The API is stateless; this does not claim a broader provider data-retention guarantee. Only synthetic data is eligible for the local command.
 
@@ -8,4 +8,4 @@ Use `deepseek-flash` through [DeepSeek Responses API](https://api-docs.deepseek.
 
 Public API requests cannot select a paid mode, provider URL or credentials. The local-only CLI requires an active synthetic Admin workspace, explicit LIVE_AI_ENABLED and a server-side DEEPSEEK_API_KEY. The worker reserves allowance transactionally before contacting DeepSeek, limits encoded input and output, validates response envelopes/schema/citation IDs, and rechecks source/access/revision before saving. It has no provider-controlled network or mutation tools.
 
-Verified so far: 25 real HTTP/PostgreSQL/worker assertions, including concurrent reservations; 13 explicit local HTTP provider-contract checks. Live DeepSeek response compatibility, actual usage reconciliation and answer-quality examples remain pending credentials and must not be represented as completed by fixtures.
+Verified so far: 25 real HTTP/PostgreSQL/worker assertions, including concurrent reservations; 13 explicit local HTTP provider-contract checks. Live DeepSeek response compatibility, measured token reconciliation and five disclosed application-output smoke examples are now recorded in [S06 verification](../verification/s06-drafting.md). These agent-reviewed smoke examples are not a representative benchmark or independently human-labelled quality result. Public live calls remain disabled.
