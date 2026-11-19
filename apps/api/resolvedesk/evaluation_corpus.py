@@ -315,6 +315,26 @@ def closed_corpus(db, run, conflict_active):
 
 
 def cleanup_probe(db, run):
+    # A terminal run must not leave its temporary conflicting policy published.
+    # Callers hold the workspace snapshot lock before the run lock.
+    source = run.source_map.get("conflicting-refunds")
+    if source:
+        doc = db.get(KnowledgeDocument, UUID(source["document_id"]))
+        version = db.get(DocumentVersion, UUID(source["version_id"]))
+        if (
+            doc
+            and version
+            and doc.workspace_id == run.workspace_id
+            and version.workspace_id == run.workspace_id
+            and version.document_id == doc.id
+            and not doc.archived
+            and not doc.deleted_at
+            and version.status == "published"
+            and version.content_hash == source["content_hash"]
+        ):
+            doc.archived = True
+            doc.revision += 1
+            record(db, run.workspace_id, doc.id, "source", "archive", actor_id=None)
     if run.probe_workspace_id:
         probe = db.get(Workspace, run.probe_workspace_id)
         if probe:

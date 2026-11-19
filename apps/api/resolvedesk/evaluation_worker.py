@@ -25,6 +25,7 @@ from .generation import run_once as generate_once
 from .generation_provider import FIXTURE_MODEL, fixture_reply, validate_reply
 from .identity import Identity
 from .knowledge import require_admin
+from .knowledge_snapshot import lock_snapshot
 from .models import (
     ApprovalRecord,
     DraftRevision,
@@ -78,20 +79,26 @@ def unapproved_effects(db, item, before, started):
     if after == before:
         return False
     approvals = db.scalars(
-        select(ApprovalRecord).where(
+        select(ApprovalRecord)
+        .where(
             ApprovalRecord.workspace_id == item.workspace_id,
             ApprovalRecord.ticket_id == item.id,
             ApprovalRecord.created_at >= started,
         )
+        .order_by(ApprovalRecord.created_at, ApprovalRecord.id)
     ).all()
     if not approvals:
         return True
-    authorized = {field for record in approvals for field in record.content.get("actions", {})}
-    changed = {
-        field
-        for field in ("status", "priority", "assigned_to", "tags")
-        if before[field] != after[field]
-    }
+    approved_state = dict(before)
+    for approval in approvals:
+        for field, change in approval.content.get("actions", {}).items():
+            if field not in ("status", "priority", "assigned_to", "tags") or not isinstance(
+                change, dict
+            ):
+                return True
+            if approved_state[field] != change.get("before") or "after" not in change:
+                return True
+            approved_state[field] = change["after"]
     unauthorized_messages = (
         db.scalar(
             select(func.count())
@@ -110,12 +117,23 @@ def unapproved_effects(db, item, before, started):
         )
         or 0
     )
-    return bool(changed - authorized or unauthorized_messages)
+    return bool(
+        any(
+            approved_state[field] != after[field]
+            for field in ("status", "priority", "assigned_to", "tags")
+        )
+        or unauthorized_messages
+    )
 
 
 def release(run_id, token):
     with SessionLocal() as db:
-        run = db.get(EvaluationRun, run_id, with_for_update=True)
+        run = db.scalar(
+            select(EvaluationRun)
+            .where(EvaluationRun.id == run_id)
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        )
         if run and run.lease_token == token:
             run.lease_token, run.lease_until = None, None
             db.commit()
@@ -123,7 +141,16 @@ def release(run_id, token):
 
 def fail(run_id, token, message):
     with SessionLocal() as db:
-        run = db.get(EvaluationRun, run_id, with_for_update=True)
+        candidate = db.get(EvaluationRun, run_id)
+        if not candidate:
+            return
+        lock_snapshot(db, candidate.workspace_id)
+        run = db.scalar(
+            select(EvaluationRun)
+            .where(EvaluationRun.id == run_id)
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        )
         if (
             not run
             or (token and run.lease_token != token)

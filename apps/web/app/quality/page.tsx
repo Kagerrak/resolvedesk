@@ -686,6 +686,22 @@ export default function QualityPage() {
                     {run.reviews?.coverage ?? 0} reviewed · support denominator{" "}
                     {run.reviews?.support_denominator ?? 0}
                   </dd>
+                  <dt>Assessed answers</dt>
+                  <dd>
+                    {run.reviews?.verdicts.supported ?? 0} supported ·{" "}
+                    {run.reviews?.verdicts.unsupported ?? 0} unsupported
+                  </dd>
+                  <dt>Assessed escalations</dt>
+                  <dd>
+                    {run.reviews?.verdicts.safe_escalation ?? 0} appropriate ·{" "}
+                    {run.reviews?.verdicts.conservative_escalation ?? 0}{" "}
+                    conservative
+                  </dd>
+                  <dt>Assessment origins</dt>
+                  <dd>
+                    {run.reviews?.origins.agent_rubric ?? 0} agent rubric ·{" "}
+                    {run.reviews?.origins.member ?? 0} member
+                  </dd>
                   <dt>Retrieval median / p95</dt>
                   <dd>{duration(summary?.timing?.retrieval)}</dd>
                   <dt>Live preparation median / p95</dt>
@@ -730,6 +746,7 @@ export default function QualityPage() {
                   onChange={(e) => {
                     if (!canNavigate()) return;
                     setNote("");
+                    setCaseOffset(0);
                     setCaseSplit(e.target.value);
                     setCaseId("");
                     setDetail(null);
