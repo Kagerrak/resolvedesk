@@ -310,6 +310,40 @@ try:
         == 0,
         "All deterministic journeys remain free of paid requests and normal draft generations",
     )
+    with engine.connect() as db:
+        quota_cases = db.execute(
+            text(
+                "SELECT c.ticket_id,c.retrieval->>'id' AS retrieval_id,t.revision FROM evaluation_case c JOIN ticket t ON t.workspace_id=c.workspace_id AND t.id=c.ticket_id WHERE c.workspace_id=:w AND c.run_id=:r ORDER BY c.case_key"
+            ),
+            {"w": wa, "r": second},
+        ).all()
+
+    def request_generation(row):
+        return a.post(
+            root + f"/tickets/{row.ticket_id}/generations",
+            json={
+                "expected_revision": row.revision,
+                "retrieval_id": row.retrieval_id,
+                "request_id": str(uuid4()),
+            },
+        )
+
+    for row in quota_cases[:9]:
+        request_generation(row).raise_for_status()
+    with ThreadPoolExecutor(2) as pool:
+        final_slots = list(pool.map(request_generation, quota_cases[9:11]))
+    check(
+        sorted(r.status_code for r in final_slots) == [202, 429]
+        and scalar("SELECT count(*) FROM generation_run WHERE workspace_id=:w", w=wa) == 10,
+        "Concurrent distinct tickets cannot both consume the tenth generation slot",
+    )
+    check(
+        scalar(
+            "SELECT count(*) FROM generation_run WHERE workspace_id=:w AND mode='deepseek'", w=wa
+        )
+        == 0,
+        "Quota race verification queues actual fixture jobs without paid calls",
+    )
     print(f"\n{len(checks)} genuine HTTP/PostgreSQL/evaluation-worker assertions passed.")
 finally:
     with engine.begin() as db:

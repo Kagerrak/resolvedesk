@@ -74,6 +74,12 @@ def view(run):
 
 def queue(db, workspace_id, ticket_id, payload, visitor, mode="fixture"):
     item = editable_ticket(db, workspace_id, ticket_id, visitor, payload.expected_revision)
+    # Ticket locks protect revisions; a workspace lock also protects the shared
+    # ten-generation limit when distinct tickets are submitted concurrently.
+    db.execute(
+        text("SELECT pg_advisory_xact_lock(hashtextextended(:key, 0))"),
+        {"key": f"generation-quota:{workspace_id}"},
+    )
     existing = db.scalar(
         select(GenerationRun).where(
             GenerationRun.workspace_id == workspace_id,
