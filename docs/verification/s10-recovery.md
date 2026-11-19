@@ -22,6 +22,6 @@ Source deletion permanently clears uploaded bytes/text, filename/hash and indexe
 
 ## Review and delivery
 
-Fresh Spec/Standards review of f354d80…a35192f: Spec clear within the explicit independent scope. Standards found technical recovery jargon in primary copy; corrected to plain language and moved lease metadata into technical disclosure. Both final reviewer refreshes through 5a25a4d are clear. Final CI/GitHub delivery pending.
+Fresh Spec/Standards review of f354d80…a35192f: Spec clear within the explicit independent scope. Standards found technical recovery jargon in primary copy; corrected to plain language and moved lease metadata into technical disclosure. Both final reviewer refreshes through 5a25a4d are clear. Independent scope delivered in PR #23, merge fb059bf368f87086b74bb26db4375fa0db3b1670. [Final CI44523451098](https://github.com/Kagerrak/resolvedesk/actions/runs/44523451098) passed204 genuine integration assertions plus16 separately labeled provider-contract checks, static/migration/build/audit. Issue #11 stays open and blocked for Gmail cases.
 
 Evidence: [light desktop](images/s10-activity-desktop.png), [dark mobile](images/s10-activity-mobile.png), [deleted evidence warning](images/s10-deleted-evidence-mobile.png). No native 200% zoom or unattended CI browser coverage is claimed. S08/S09, remaining S10 Gmail cases, S11–S13 and hosting remain unfinished.

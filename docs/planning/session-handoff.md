@@ -4,7 +4,7 @@ Updated 18 November 2026.
 
 ## Active work and branch safety
 
-Functional checkout: `/Users/rommelclarino/projects/resolvedesk-s01`, branch `feat/s10-recovery`. Original `/Users/rommelclarino/projects/resolvedesk` remains on `feat/ui-direction-prototypes` with its pre-existing screenshot changes and generated `apps/web/AGENTS.md`; do not overwrite or merge that prototype branch wholesale.
+Functional checkout: `/Users/rommelclarino/projects/resolvedesk-s01`, branch `feat/s11-quality`. Original `/Users/rommelclarino/projects/resolvedesk` remains on `feat/ui-direction-prototypes` with its pre-existing screenshot changes and generated `apps/web/AGENTS.md`; do not overwrite or merge that prototype branch wholesale.
 
 S01 PR #16 merged as `9427fec425c34cd65230c88863ac027ebea0502f`; issue #2 closed. Command Bright D adopted with real API data, light theme, mobile/keyboard flows. CI run 43829740801 passed.
 
@@ -82,3 +82,12 @@ Behavior a35192f plus pending review/copy/queue-history refinements. Scoped Acti
 
 
 S10 final deletion review found that cascading deleted passages could make old retrieval appear empty. Fixed in 5a25a4d: source-version comparison exposes sources_changed, generation rejects stale deleted evidence before any provider dispatch, and Evidence shows a changed/deleted warning. Final29 real assertions passed; both reviewer refreshes clear. Browser verified the new warning after an actual source lifecycle. PR #23 final-head CI pending (old-head run44522227577 cancelled after this material fix). S08/S09 live verification remains explicitly deferred.
+
+
+## Current S11 frontier
+
+Independent S10 PR #23 merged fb059bf368f87086b74bb26db4375fa0db3b1670; CI44523451098 passed204 genuine integration assertions +16 separately canned provider-contract checks, static/migration/build/audit. Both final reviews through5a25a4d clear. Issue #11 remains open/blocked; native remaining dependencies #9/#10 added. User explicitly deferred real Gmail verification; no more OAuth setup questions during this phase.
+
+Active branch feat/s11-quality from merged main, issue #12. Dataset draft24 articles/50 tickets (12 tuning/38 held out) and rubric now present; no S11 evaluation or paid call executed. /tmp/resolvedesk-s11-plan.md has implementation preparation. Critical: GenerationRun quota counts ALL modes (10/workspace), so fixture evaluations must be separate EvaluationCase simulations through real scoped context/provider validation, not50 normal DraftGeneration runs or a hidden cap bypass. At most10 actual live sample generations use normal quota/usage controls, explicit local Admin-only enablement; public evaluation stays fixture-only. Existing public paid access remains off. Budget20/month and.25/session remain unchanged.
+
+Current API/web serve S10 final code; inspect processes before restart/build. No background worker runs. Ego space28 disappeared after user-turn/session interval; inventory confirmed absent, so fresh space29 was created for continuing verification. Fresh synthetic QA workspace096ba070-afc5-4824-9507-98ae13cbedf6, active local Admin; its published/retrieved test source was deleted to verify the stale warning. Prior expired QA workspaceea2303f7-ff7c-4eb8-af3f-128b7ec40bae is preserved. Do not touch user space0 or job-application space26. No additional paid calls during S07/S10; November conservative ledger remains S06 usage unless verified otherwise. S11 fresh evaluation should use a clean owned synthetic workspace.
