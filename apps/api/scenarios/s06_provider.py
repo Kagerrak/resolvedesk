@@ -59,6 +59,7 @@ context = {
     "evidence": [
         {
             "citation_id": "authorized-citation",
+            "version_id": "internal-source-version",
             "content": "Project membership is separate from workspace role.",
         }
     ],
@@ -108,6 +109,10 @@ try:
         (
             "Internal citation IDs in customer reply rejected",
             {"reply": {**original["reply"], "body": "Policy says authorized-citation"}},
+        ),
+        (
+            "Internal source-version IDs in customer reply rejected",
+            {"reply": {**original["reply"], "body": "Policy says internal-source-version"}},
         ),
         ("Unknown schema field rejected", {"reply": {**original["reply"], "send_email": True}}),
         ("Incomplete provider response rejected", {"status": "incomplete"}),

@@ -102,7 +102,7 @@ After implementation, `cd apps/api && uv run python -m scenarios.s05` verifies r
 
 ### Draft generation (S06 work in progress)
 
-S06 final review/delivery is in progress on `feat/s06-drafting`. Live DeepSeek compatibility and a five-example application-output smoke review are recorded in [S06 verification](docs/verification/s06-drafting.md); broader evaluation remains S11 work.
+S06 final review/delivery is in progress on `feat/s06-drafting`. Live DeepSeek compatibility and a six-example application-output smoke review are recorded in [S06 verification](docs/verification/s06-drafting.md); broader evaluation remains S11 work.
 
 Run `uv run python -m resolvedesk.generation` from `apps/api` alongside the API and existing knowledge worker. Retrieve current evidence, then use **Generate demo draft**. An authorized published extract becomes a new saved draft revision; missing evidence produces an escalation draft. You can cancel queued/running work. Changes to the ticket, source or access discard stale generated results. Editing creates another saved revision and retains evidence references for human review. No generation sends email or changes ticket fields.
 

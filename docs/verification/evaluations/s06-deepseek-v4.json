@@ -270,7 +270,7 @@
       }
     }
   ],
-  "manual_review": "completed by agent rubric inspection; independent review pending",
+  "manual_review": "Historical v4 agent rubric review; superseded after independent review generalized the prompt and extended identifier guarding.",
   "scope": "Five synthetic English smoke examples of saved application drafts, not a benchmark or independent human-labelled dataset. Retrieval uses fixture-hash-v1; generation calls real DeepSeek.",
   "review_method": "Agent rubric inspection of saved draft text against actual retrieved excerpts; provider reason is not treated as a correctness score. Escalation wording is normalized by application policy.",
   "spending": {
@@ -306,5 +306,6 @@
     "final_v4_calls": 5,
     "final_v4_accounted_micros": 5466,
     "notes": "Includes exploratory v1-v3 calls and the final v4 set. Authentication throttles/connection failures occurred before a provider request and are not counted as paid calls."
-  }
+  },
+  "superseded_by": "s06-deepseek-v5.json"
 }
