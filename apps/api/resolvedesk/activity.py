@@ -137,7 +137,9 @@ def operation_view(row):
     )
     if row.kind == "indexing":
         if can_retry:
-            next_action = "Retry indexing. An expired worker is fenced before work resumes."
+            next_action = (
+                "Retry indexing. The previous attempt will be stopped before work resumes."
+            )
         elif row.status in ("deleted", "archived"):
             next_action = (
                 "Source unavailable for retrieval. Dependent drafts require evidence review."
@@ -145,13 +147,13 @@ def operation_view(row):
         elif row.status == "failed":
             next_action = "Attempt limit reached. Upload a corrected source."
         elif row.status == "processing":
-            next_action = "A worker holds this lease. Wait for completion or lease expiry."
+            next_action = "Indexing is in progress. Refresh to check completion; recovery becomes available if it stops responding."
         elif row.status == "queued":
-            next_action = "Waiting for the knowledge worker."
+            next_action = "Waiting to index this source."
         else:
-            next_action = "Inspect the extracted sections before publishing."
+            next_action = "Open the source to inspect its sections and publication status."
     elif row.kind == "generation":
-        next_action = "Open the ticket to review the saved draft or request a fresh generation. Paid work is never retried here."
+        next_action = "Open the ticket to review the saved draft or request a new one. Delivery still requires human approval."
     else:
         next_action = "Authorization recorded. Demo replies are simulated; no email was sent."
     return {

@@ -92,7 +92,7 @@ try:
     )
     trace = a.get(root + f"/activity/indexing/{failed['id']}").json()
     check(
-        [e["phase"] for e in trace["timeline"]] == ["started", "failed"],
+        [e["phase"] for e in trace["timeline"]] == ["queued", "started", "failed"],
         "Worker transitions persist in correlated chronological timeline",
     )
     check(

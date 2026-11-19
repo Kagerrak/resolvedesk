@@ -1087,3 +1087,7 @@ textarea::placeholder {
     min-width: min(180px, 100%);
   }
 }
+
+.activity-detail .form-actions {
+  margin-block: var(--space-4) var(--space-6);
+}

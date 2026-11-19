@@ -38,7 +38,7 @@ type Detail = Operation & {
   history_note: string;
 };
 const names: Record<string, string> = {
-  queued: "Waiting for worker",
+  queued: "Waiting to start",
   processing: "In progress",
   succeeded: "Completed",
   failed: "Needs attention",
@@ -58,6 +58,8 @@ const names: Record<string, string> = {
   confirmed_demo_reply: "Demo reply recorded · no email sent",
   confirmed_ticket_changes: "Ticket changes approved",
 };
+const stateName = (row: Operation) =>
+  row.lease_expired ? "Stopped responding" : label(row.status);
 const label = (value: string) => names[value] ?? value.replaceAll("_", " ");
 const kindName = (row: Operation) =>
   row.kind === "handling"
@@ -177,7 +179,7 @@ export default function ActivityPage() {
         { expected_revision: detail.revision },
       );
       setNotice(
-        "Indexing queued again. The worker will resume safely; this does not publish the source.",
+        "Indexing queued again. Inspect the completed sections before publishing.",
       );
       reload();
     } catch (reason) {
@@ -219,6 +221,7 @@ export default function ActivityPage() {
           <label>
             Workspace
             <select
+              className="workspace-select"
               value={workspaceId}
               disabled={busy || !workspaces.length}
               onChange={(e) => {
@@ -350,7 +353,7 @@ export default function ActivityPage() {
                             : ""}
                       </span>
                       <strong>{row.title}</strong>
-                      <span className="badge">{label(row.status)}</span>
+                      <span className="badge">{stateName(row)}</span>
                       <time className="small muted" dateTime={row.updated_at}>
                         {new Date(row.updated_at).toLocaleString()}
                       </time>
@@ -407,29 +410,17 @@ export default function ActivityPage() {
               <>
                 <h3>{detail.title}</h3>
                 <p>
-                  <span className="badge">{label(detail.status)}</span>
+                  <span className="badge">{stateName(detail)}</span>
                 </p>
                 <p>{detail.next_action}</p>
                 {detail.kind === "indexing" && (
-                  <p>
-                    Attempts: {detail.attempts} of 3
-                    {detail.lease_until && (
-                      <>
-                        {" "}
-                        · Worker lock{" "}
-                        {detail.lease_expired ? "expired" : "expires"}{" "}
-                        <time dateTime={detail.lease_until}>
-                          {new Date(detail.lease_until).toLocaleString()}
-                        </time>
-                      </>
-                    )}
-                  </p>
+                  <p>Attempts: {detail.attempts} of 3</p>
                 )}
                 <div className="form-actions">
                   {detail.can_retry && workspace?.role === "admin" && (
                     <button
                       className="primary"
-                      disabled={busy}
+                      disabled={busy || loading}
                       onClick={() => void retry()}
                     >
                       Retry indexing
@@ -474,6 +465,19 @@ export default function ActivityPage() {
                 <details>
                   <summary>Technical details</summary>
                   <dl>
+                    {detail.lease_until && (
+                      <>
+                        <dt>
+                          Worker lease{" "}
+                          {detail.lease_expired ? "expired" : "expires"}
+                        </dt>
+                        <dd>
+                          <time dateTime={detail.lease_until}>
+                            {new Date(detail.lease_until).toLocaleString()}
+                          </time>
+                        </dd>
+                      </>
+                    )}
                     <dt>Correlation ID</dt>
                     <dd>{detail.id}</dd>
                     <dt>Source or ticket ID</dt>

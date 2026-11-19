@@ -173,9 +173,12 @@ def upload(workspace_id: UUID, payload: Upload, db: DB, visitor: Visitor):
     )
     db.add(version)
     db.flush()
-    db.add(
-        KnowledgeJob(workspace_id=workspace_id, version_id=version.id, created_at=datetime.now(UTC))
+    job = KnowledgeJob(
+        workspace_id=workspace_id, version_id=version.id, created_at=datetime.now(UTC)
     )
+    db.add(job)
+    db.flush()
+    record(db, workspace_id, job.id, "indexing", "queued", actor_id=visitor.user_id)
     db.commit()
     return document_view(doc, version)
 
@@ -289,7 +292,8 @@ def command(
         record(db, workspace_id, job.id, "indexing", "retry_queued", job.attempts, visitor.user_id)
     else:
         raise HTTPException(404, "Action not found.")
-    record(db, workspace_id, doc.id, "source", action, actor_id=visitor.user_id)
+    if action != "retry":
+        record(db, workspace_id, doc.id, "source", action, actor_id=visitor.user_id)
     doc.revision += 1
     db.commit()
     return document_view(doc, version)
