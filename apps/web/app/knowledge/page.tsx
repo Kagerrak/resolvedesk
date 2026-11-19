@@ -10,6 +10,7 @@ type Document = {
   title: string;
   revision: number;
   archived: boolean;
+  deleted_at: string | null;
   status: string;
   version_id: string;
   version_number: number;
@@ -80,9 +81,11 @@ export default function KnowledgePage() {
           "workspace",
         );
         const id = rows.find((w) => w.id === wanted)?.id ?? rows[0]?.id ?? "";
-        selection.current = { workspace: id, document: "" };
+        const documentId =
+          new URLSearchParams(window.location.search).get("document") ?? "";
+        selection.current = { workspace: id, document: documentId };
         setWorkspaceId(id);
-        setSelected("");
+        setSelected(documentId);
         setDetail(null);
         if (!id) setLoading(false);
       })
@@ -219,8 +222,15 @@ export default function KnowledgePage() {
       setBusy(false);
     }
   }
-  async function command(action: "publish" | "archive" | "retry") {
+  async function command(action: "publish" | "archive" | "retry" | "delete") {
     if (!detail) return;
+    if (
+      action === "delete" &&
+      !window.confirm(
+        `Delete source content for "${detail.title}"? This permanently removes the uploaded file and indexed passages. Source references become unavailable; saved replies remain as business records and require review. This cannot be undone.`,
+      )
+    )
+      return;
     setBusy(true);
     setError("");
     setNotice("");
@@ -236,7 +246,9 @@ export default function KnowledgePage() {
           ? "Version published. Workspace members can now use these sections."
           : action === "archive"
             ? "Document archived. It is no longer available as published knowledge."
-            : "Indexing queued again. Refresh to check progress.",
+            : action === "delete"
+              ? "Source content deleted. References are unavailable; dependent drafts require review."
+              : "Indexing queued again. Refresh to check progress.",
       );
       await refresh(false);
     } catch (reason) {
@@ -255,6 +267,9 @@ export default function KnowledgePage() {
         <Brand />
         <Link className="secondary" href="/inbox">
           Inbox
+        </Link>
+        <Link className="secondary" href={`/activity?workspace=${workspaceId}`}>
+          Activity
         </Link>
         <div className="header-actions">
           <span className="badge">Synthetic demo</span>
@@ -434,12 +449,14 @@ export default function KnowledgePage() {
                 <h2 tabIndex={-1}>{detail.title}</h2>
                 <span className="badge">{detail.status}</span>
                 <p>
-                  <a
-                    href={`/api/backend/workspaces/${workspaceId}/knowledge/${detail.id}/download`}
-                    download
-                  >
-                    Download original source
-                  </a>
+                  {!detail.deleted_at && (
+                    <a
+                      href={`/api/backend/workspaces/${workspaceId}/knowledge/${detail.id}/download`}
+                      download
+                    >
+                      Download original source
+                    </a>
+                  )}
                   {detail.page_count && ` · ${detail.page_count} pages`}
                 </p>
                 <p className="small muted">
@@ -481,6 +498,15 @@ export default function KnowledgePage() {
                           Retry indexing
                         </button>
                       )}
+                    {!detail.deleted_at && (
+                      <button
+                        className="secondary danger"
+                        disabled={busy}
+                        onClick={() => void command("delete")}
+                      >
+                        Delete source content
+                      </button>
+                    )}
                     {!detail.archived && (
                       <button
                         className="secondary"

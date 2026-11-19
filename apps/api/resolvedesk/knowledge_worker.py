@@ -13,6 +13,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from .database import SessionLocal
 from .models import DocumentVersion, KnowledgeChunk, KnowledgeDocument, KnowledgeJob, Workspace
+from .operation_history import record
 from .pdf_source import extract_pages
 
 
@@ -100,6 +101,9 @@ def run_once() -> bool:
                 "Indexing stopped after three interrupted attempts. Upload a corrected file."
             )
             version.status = "failed"
+            job.lease_until = None
+            job.lease_token = None
+            record(db, doc.workspace_id, job.id, "indexing", "attempt_limit_reached", job.attempts)
             doc.revision += 1
             db.commit()
             return True
@@ -110,6 +114,7 @@ def run_once() -> bool:
         job.error = None
         version.status = "processing"
         doc.revision += 1
+        record(db, doc.workspace_id, job.id, "indexing", "started", job.attempts)
         token, job_id, version_id, doc_id, workspace_id = (
             job.lease_token,
             job.id,
@@ -178,6 +183,14 @@ def run_once() -> bool:
             version.status = "failed"
             job.status = "failed"
             job.error = error or "Document archived during indexing."
+        record(
+            db,
+            workspace_id,
+            job.id,
+            "indexing",
+            "succeeded" if job.status == "succeeded" else "failed",
+            job.attempts,
+        )
         job.lease_until = None
         job.lease_token = None
         doc.revision += 1

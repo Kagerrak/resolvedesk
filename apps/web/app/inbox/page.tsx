@@ -102,7 +102,9 @@ export default function InboxPage() {
         });
         const nextId = rows.some((w) => w.id === selectedWorkspace.current)
           ? selectedWorkspace.current
-          : (rows[0]?.id ?? "");
+          : (rows.find((w) => w.id === params.get("workspace"))?.id ??
+            rows[0]?.id ??
+            "");
         if (nextId !== selectedWorkspace.current) {
           setTickets([]);
           selectedTicket.current = "";
@@ -137,7 +139,12 @@ export default function InboxPage() {
         if (selectedWorkspace.current !== workspaceId) return;
         setMembers(people);
         setTickets(rows);
-        if (!selectedTicket.current) selectedTicket.current = rows[0]?.id ?? "";
+        if (!selectedTicket.current) {
+          const wanted = params.get("ticket");
+          selectedTicket.current =
+            rows.find((t) => t.id === wanted)?.id ?? rows[0]?.id ?? "";
+          if (wanted && selectedTicket.current === wanted) setDetailOpen(true);
+        }
         setTicketId(selectedTicket.current);
         setLoading(false);
       })
@@ -254,8 +261,17 @@ export default function InboxPage() {
             <BookOpen size={18} />
             Knowledge
           </Link>
+          <Link
+            href={`/activity?workspace=${workspaceId}`}
+            className="nav-item"
+            onClick={(e) => {
+              if (!canNavigate()) e.preventDefault();
+            }}
+          >
+            <Activity size={18} />
+            Activity
+          </Link>
           {[
-            { icon: Activity, label: "Activity" },
             { icon: ChartNoAxesColumn, label: "Quality" },
             { icon: Settings, label: "Settings" },
           ].map(({ icon: Glyph, label }) => {

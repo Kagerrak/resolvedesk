@@ -129,6 +129,7 @@ class KnowledgeDocument(Base):
     )
     title: Mapped[str]
     archived: Mapped[bool] = mapped_column(default=False)
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     revision: Mapped[int] = mapped_column(default=1)
     created_by: Mapped[str]
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
@@ -364,3 +365,18 @@ class ApprovalRecord(Base):
         UniqueConstraint("draft_id"),
         UniqueConstraint("message_id"),
     )
+
+
+class OperationEvent(Base):
+    __tablename__ = "operation_event"
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID] = mapped_column(
+        ForeignKey("workspace.id", ondelete="CASCADE"), index=True
+    )
+    operation_id: Mapped[UUID] = mapped_column(index=True)
+    kind: Mapped[str]
+    phase: Mapped[str]
+    attempt: Mapped[int]
+    actor_id: Mapped[str | None]
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    __table_args__ = (CheckConstraint("kind IN ('indexing','source')"),)

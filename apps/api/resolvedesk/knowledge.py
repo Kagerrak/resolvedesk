@@ -11,7 +11,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, ConfigDict, Field
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from .database import database
@@ -26,6 +26,7 @@ from .models import (
     Membership,
     Workspace,
 )
+from .operation_history import record
 
 router = APIRouter()
 DB = Annotated[Session, Depends(database)]
@@ -89,7 +90,8 @@ def document_view(doc: KnowledgeDocument, version: DocumentVersion):
         "title": doc.title,
         "revision": doc.revision,
         "archived": doc.archived,
-        "status": "archived" if doc.archived else version.status,
+        "deleted_at": doc.deleted_at,
+        "status": "deleted" if doc.deleted_at else "archived" if doc.archived else version.status,
         "version_id": version.id,
         "version_number": version.number,
         "filename": version.filename,
@@ -220,7 +222,32 @@ def command(
     doc, version = document_pair(db, workspace_id, document_id, lock=True)
     if payload.expected_revision != doc.revision:
         raise HTTPException(409, "This document changed. Refresh it before trying again.")
-    if action == "archive":
+    if doc.deleted_at:
+        raise HTTPException(409, "This source was deleted. Its content cannot be restored.")
+    if action == "delete":
+        doc.archived = True
+        doc.deleted_at = datetime.now(UTC)
+        doc.title = "Deleted source"
+        version.content = ""
+        version.source_bytes = None
+        version.filename = "deleted"
+        version.content_hash = ""
+        version.page_count = None
+        version.status = "failed"
+        job = db.scalar(
+            select(KnowledgeJob).where(KnowledgeJob.version_id == version.id).with_for_update()
+        )
+        if job:
+            job.status = "failed"
+            job.error = "Source deleted. Upload a new source if needed."
+            job.lease_token = None
+            job.lease_until = None
+        db.execute(
+            delete(KnowledgeChunk).where(
+                KnowledgeChunk.workspace_id == workspace_id, KnowledgeChunk.version_id == version.id
+            )
+        )
+    elif action == "archive":
         doc.archived = True
     elif doc.archived:
         raise HTTPException(409, "This document is archived. Upload a new document to replace it.")
@@ -243,7 +270,13 @@ def command(
         job = db.scalar(
             select(KnowledgeJob).where(KnowledgeJob.version_id == version.id).with_for_update()
         )
-        if not job or job.status != "failed" or job.attempts >= 3:
+        expired = (
+            job
+            and job.status == "processing"
+            and job.lease_until
+            and job.lease_until < datetime.now(UTC)
+        )
+        if not job or (job.status != "failed" and not expired) or job.attempts >= 3:
             raise HTTPException(
                 409,
                 "This job cannot be retried. After three failed attempts, upload a corrected file.",
@@ -253,8 +286,10 @@ def command(
         job.lease_until = None
         job.lease_token = None
         version.status = "queued"
+        record(db, workspace_id, job.id, "indexing", "retry_queued", job.attempts, visitor.user_id)
     else:
         raise HTTPException(404, "Action not found.")
+    record(db, workspace_id, doc.id, "source", action, actor_id=visitor.user_id)
     doc.revision += 1
     db.commit()
     return document_view(doc, version)
@@ -264,7 +299,9 @@ def command(
 def download(workspace_id: UUID, document_id: UUID, db: DB, visitor: Visitor):
     member = membership(db, workspace_id, visitor)
     doc, version = document_pair(db, workspace_id, document_id, lock=True)
-    if member.role != "admin" and (doc.archived or version.status != "published"):
+    if doc.deleted_at or (
+        member.role != "admin" and (doc.archived or version.status != "published")
+    ):
         raise HTTPException(404, "Knowledge document not found.")
     return Response(
         content=version.source_bytes
