@@ -64,6 +64,7 @@ export type Ticket = {
   priority: string;
   assigned_to: string | null;
   revision: number;
+  tags: string[];
   created_at: string;
 };
 export type Member = {
@@ -86,12 +87,14 @@ export type TicketDetail = Ticket & {
     action: string;
     changes: Record<
       string,
-      { before: string | null; after: string | null } | string
+      | { before: string | string[] | null; after: string | string[] | null }
+      | string
     >;
     created_at: string;
   }[];
   messages: {
     id: string;
+    kind: string;
     sender_name: string;
     sender_email: string;
     body: string;

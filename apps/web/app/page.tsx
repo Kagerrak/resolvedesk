@@ -115,7 +115,7 @@ export default function Home() {
                 <strong>Handle with intention</strong>
                 <p className="muted">
                   Save and revise drafts, inspect published evidence and review
-                  handling history. Human-approved delivery remains planned.
+                  handling history. Review and approve a simulated reply. No email is sent.
                 </p>
               </div>
             </li>

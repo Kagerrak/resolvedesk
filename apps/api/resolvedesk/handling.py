@@ -5,14 +5,22 @@ from typing import Annotated, Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 from .database import database
 from .identity import Identity, identity
 from .inbox import membership
-from .models import AuditEvent, DraftRevision, Membership, Message, Ticket, Workspace
+from .models import (
+    ApprovalRecord,
+    AuditEvent,
+    DraftRevision,
+    Membership,
+    Message,
+    Ticket,
+    Workspace,
+)
 from .ticket_views import DraftView, EventView, MessageView, TicketDetail, TicketView
 
 router = APIRouter()
@@ -27,6 +35,19 @@ class HandlingChange(BaseModel):
     priority: Literal["low", "normal", "high", "urgent"]
     assigned_to: str | None = Field(max_length=128)
     reopen: bool = False
+    tags: list[str] | None = Field(default=None, max_length=10)
+
+    @field_validator("tags")
+    @classmethod
+    def normalized_tags(cls, tags):
+        if tags is None:
+            return None
+        result = sorted({t.strip().lower() for t in tags if t.strip()})
+        if any(len(t) > 32 or not all(c.isalnum() or c in " -_" for c in t) for t in result):
+            raise ValueError(
+                "Use tags of up to 32 letters, numbers, spaces, hyphens or underscores."
+            )
+        return result
 
 
 class SaveDraft(BaseModel):
@@ -70,7 +91,11 @@ def read_detail(db: Session, item: Ticket, visitor: Identity) -> TicketDetail:
 
 
 def editable_ticket(
-    db: Session, workspace_id: UUID, ticket_id: UUID, visitor: Identity, expected_revision: int
+    db: Session,
+    workspace_id: UUID,
+    ticket_id: UUID,
+    visitor: Identity,
+    expected_revision: int | None,
 ) -> Ticket:
     # Hold authorization rows until commit; every handling command uses this lock order.
     member = db.scalar(
@@ -94,7 +119,7 @@ def editable_ticket(
     )
     if not item:
         raise HTTPException(404, "Ticket not found.")
-    if item.revision != expected_revision:
+    if expected_revision is not None and item.revision != expected_revision:
         raise HTTPException(
             409,
             "This ticket changed since you opened it. Load the latest version and review your edits before saving again.",
@@ -139,27 +164,32 @@ def change_ticket(
     workspace_id: UUID, ticket_id: UUID, change: HandlingChange, db: DB, visitor: Visitor
 ):
     item = editable_ticket(db, workspace_id, ticket_id, visitor, change.expected_revision)
-    if item.status == "resolved" and change.status != "resolved" and not change.reopen:
-        raise HTTPException(422, "Use Reopen ticket to explicitly reopen a resolved conversation.")
-    if change.reopen and not (item.status == "resolved" and change.status == "open"):
-        raise HTTPException(422, "Only a resolved ticket can be reopened to open.")
-    if change.assigned_to is not None:
-        assignee = db.scalar(
-            select(Membership)
-            .where(
-                Membership.workspace_id == workspace_id, Membership.user_id == change.assigned_to
-            )
-            .with_for_update(read=True)
-        )
-        if not assignee or assignee.role not in ("agent", "admin"):
-            raise HTTPException(422, "Assign this ticket to an Agent or Admin in this workspace.")
+    validate_changes(db, item, change)
     changes = {}
-    for field in ("status", "priority", "assigned_to"):
+    for field in ("status", "priority", "assigned_to", "tags"):
+        if field == "tags" and change.tags is None:
+            continue
         before, after = getattr(item, field), getattr(change, field)
         if before != after:
             changes[field] = {"before": before, "after": after}
             setattr(item, field, after)
     if changes:
+        db.add(
+            ApprovalRecord(
+                workspace_id=workspace_id,
+                ticket_id=ticket_id,
+                actor_id=visitor.user_id,
+                review_id=None,
+                draft_id=None,
+                message_id=None,
+                content={
+                    "actions": changes,
+                    "ticket_revision": item.revision,
+                    "kind": "explicit_ticket_command",
+                },
+                created_at=datetime.now(UTC),
+            )
+        )
         item.revision += 1
         audit(db, item, visitor, "ticket_reopened" if change.reopen else "ticket_updated", changes)
     db.flush()
@@ -196,3 +226,21 @@ def save_draft(workspace_id: UUID, ticket_id: UUID, change: SaveDraft, db: DB, v
     result = read_detail(db, item, visitor)
     db.commit()
     return result
+
+
+def validate_changes(db: Session, item: Ticket, change: HandlingChange):
+    if item.status == "resolved" and change.status != "resolved" and not change.reopen:
+        raise HTTPException(422, "Use Reopen ticket to explicitly reopen a resolved conversation.")
+    if change.reopen and not (item.status == "resolved" and change.status == "open"):
+        raise HTTPException(422, "Only a resolved ticket can be reopened to open.")
+    if change.assigned_to is not None:
+        assignee = db.scalar(
+            select(Membership)
+            .where(
+                Membership.workspace_id == item.workspace_id,
+                Membership.user_id == change.assigned_to,
+            )
+            .with_for_update(read=True)
+        )
+        if not assignee or assignee.role not in ("agent", "admin"):
+            raise HTTPException(422, "Assign this ticket to an Agent or Admin in this workspace.")

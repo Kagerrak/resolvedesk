@@ -1,4 +1,5 @@
 "use client";
+import { ReplyApproval } from "@/components/reply-approval";
 import { DraftCitations } from "@/components/draft-citations";
 import { DraftGeneration } from "@/components/draft-generation";
 import Link from "next/link";
@@ -26,6 +27,15 @@ export function TicketHandling({
   const [status, setStatus] = useState(detail.status);
   const [priority, setPriority] = useState(detail.priority);
   const [assignee, setAssignee] = useState(detail.assigned_to ?? "");
+  const [tags, setTags] = useState(detail.tags.join(", "));
+  const parsedTags = [
+    ...new Set(
+      tags
+        .split(",")
+        .map((t) => t.trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  ].sort();
   const [busy, setBusy] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [baselineRevision, setBaselineRevision] = useState(detail.revision);
@@ -34,8 +44,14 @@ export function TicketHandling({
   const [accessEnded, setAccessEnded] = useState(false);
   const [notice, setNotice] = useState("");
   const needsReview = conflict || detail.revision !== baselineRevision;
+  const draftRecorded = detail.events.some(
+    (e) =>
+      e.action === "demo_reply_recorded" &&
+      e.changes.draft_revision === detail.draft?.id,
+  );
   const draftDirty = body !== (detail.draft?.body ?? "");
   const fieldsDirty =
+    JSON.stringify(parsedTags) !== JSON.stringify(detail.tags) ||
     status !== detail.status ||
     priority !== detail.priority ||
     assignee !== (detail.assigned_to ?? "");
@@ -54,6 +70,13 @@ export function TicketHandling({
     return () => window.removeEventListener("beforeunload", warn);
   }, [dirty]);
   async function save(kind: "draft" | "fields" | "reopen") {
+    if (
+      kind !== "draft" &&
+      !window.confirm(
+        `Approve ticket changes?\nStatus: ${detail.status} → ${kind === "reopen" ? "open" : status}\nPriority: ${detail.priority} → ${kind === "reopen" ? detail.priority : priority}\nAssignment: ${memberName(detail.assigned_to)} → ${memberName(kind === "reopen" ? detail.assigned_to : assignee || null)}\nTags: ${detail.tags.join(", ") || "None"} → ${kind === "reopen" ? detail.tags.join(", ") || "None" : parsedTags.join(", ") || "None"}`,
+      )
+    )
+      return;
     setBusy(true);
     setError("");
     setNotice("");
@@ -71,6 +94,7 @@ export function TicketHandling({
               assigned_to:
                 kind === "reopen" ? detail.assigned_to : assignee || null,
               reopen: kind === "reopen",
+              tags: kind === "reopen" ? detail.tags : parsedTags,
             },
       );
       onChanged(next);
@@ -80,6 +104,7 @@ export function TicketHandling({
         setStatus(next.status);
         setPriority(next.priority);
         setAssignee(next.assigned_to ?? "");
+        setTags(next.tags.join(", "));
       }
       setNotice(
         kind === "draft"
@@ -123,7 +148,7 @@ export function TicketHandling({
       setBusy(false);
     }
   }
-  const memberName = (id: string | null) =>
+  const memberName = (id: string | string[] | null) =>
     id
       ? (members.find((m) => m.user_id === id)?.name ??
         "Former workspace member")
@@ -204,6 +229,15 @@ export function TicketHandling({
                     ))}
                 </select>
               </label>
+              <label>
+                Tags (comma separated)
+                <input
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                  maxLength={330}
+                  placeholder="billing, follow-up"
+                />
+              </label>
             </fieldset>
             <div className="form-actions">
               <button
@@ -229,7 +263,9 @@ export function TicketHandling({
       <section aria-labelledby="draft-title" className="draft-panel">
         <header>
           <h3 id="draft-title">Draft reply</h3>
-          <span className="badge">Not sent</span>
+          <span className="badge">
+            {draftRecorded ? "Demo reply recorded" : "Not sent"}
+          </span>
         </header>
         <DraftGeneration
           route={path}
@@ -277,8 +313,8 @@ export function TicketHandling({
               placeholder="Write a reply for review…"
             />
             <p id="draft-help" className="small muted">
-              Saving keeps a draft revision. Sending and approval are not
-              available yet.
+              Saving keeps a draft revision. Review the saved reply before
+              recording a simulated delivery.
             </p>
             <div className="form-actions">
               <button
@@ -295,6 +331,28 @@ export function TicketHandling({
                     : "No saved draft"}
               </span>
             </div>
+            <ReplyApproval
+              detail={detail}
+              workspaceId={workspaceId}
+              members={members}
+              disabled={busy || generating || needsReview || draftDirty}
+              actions={{
+                status,
+                priority,
+                assigned_to: assignee || null,
+                tags: parsedTags,
+              }}
+              onStale={() => void loadLatest()}
+              onApproved={(next) => {
+                onChanged(next);
+                setBaselineRevision(next.revision);
+                setStatus(next.status);
+                setPriority(next.priority);
+                setAssignee(next.assigned_to ?? "");
+                setTags(next.tags.join(", "));
+                setNotice("Demo reply recorded. No email was sent.");
+              }}
+            />
             {notice.startsWith("Latest") && (
               <details>
                 <summary>Compare latest saved draft</summary>
@@ -306,6 +364,7 @@ export function TicketHandling({
                   className="secondary"
                   onClick={() => {
                     setBody(detail.draft?.body ?? "");
+                    setTags(detail.tags.join(", "));
                     setStatus(detail.status);
                     setPriority(detail.priority);
                     setAssignee(detail.assigned_to ?? "");
@@ -367,13 +426,15 @@ export function TicketHandling({
             {detail.events.map((event) => (
               <li key={event.id}>
                 <strong>
-                  {event.action === "draft_saved"
-                    ? "Draft saved · not sent"
-                    : event.action === "draft_generated"
-                      ? "Draft generated · not sent"
-                      : event.action === "ticket_reopened"
-                        ? "Ticket reopened"
-                        : "Ticket updated"}
+                  {event.action === "demo_reply_recorded"
+                    ? "Demo reply recorded · no email sent"
+                    : event.action === "draft_saved"
+                      ? "Draft saved · not sent"
+                      : event.action === "draft_generated"
+                        ? "Draft generated · not sent"
+                        : event.action === "ticket_reopened"
+                          ? "Ticket reopened"
+                          : "Ticket updated"}
                 </strong>
                 <span className="small muted">
                   {event.actor} ·{" "}
@@ -381,7 +442,11 @@ export function TicketHandling({
                     {new Date(event.created_at).toLocaleString()}
                   </time>
                 </span>
-                {!["draft_saved", "draft_generated"].includes(event.action) && (
+                {![
+                  "draft_saved",
+                  "draft_generated",
+                  "demo_reply_recorded",
+                ].includes(event.action) && (
                   <ul>
                     {Object.entries(event.changes).map(([field, change]) =>
                       typeof change === "string" ? null : (
@@ -389,11 +454,15 @@ export function TicketHandling({
                           {field === "assigned_to" ? "Assignment" : field}:{" "}
                           {field === "assigned_to"
                             ? memberName(change.before)
-                            : change.before}{" "}
+                            : Array.isArray(change.before)
+                              ? change.before.join(", ") || "No tags"
+                              : change.before}{" "}
                           →{" "}
                           {field === "assigned_to"
                             ? memberName(change.after)
-                            : change.after}
+                            : Array.isArray(change.after)
+                              ? change.after.join(", ") || "No tags"
+                              : change.after}
                         </li>
                       ),
                     )}

@@ -2,7 +2,7 @@
 
 Support, grounded in knowledge.
 
-An AI-assisted B2B support product under construction. The local preview provides an isolated synthetic workspace, persisted ticket inbox, manual drafts, explicit ticket handling and audit history. AI drafting, Gmail and the hosted recruiter demo remain unfinished; no live-provider or quality results are claimed.
+An AI-assisted B2B support product under construction. The local preview provides an isolated synthetic workspace, persisted ticket inbox, manual drafts, explicit ticket handling and audit history. S01–S06 are delivered, including limited live DeepSeek smoke verification. S07 approval is under verification; Gmail, broader quality evaluation and the hosted recruiter demo remain unfinished.
 
 ## Run the local fixture preview
 
@@ -32,7 +32,7 @@ cd apps/web
 npm run start
 ```
 
-Open [localhost:3000](http://localhost:3000). Use this exact hostname for the session origin. Explore the sample inbox to create a Better Auth anonymous session and a unique persisted workspace. Search/filter the actual queue, save a manual draft, assign a ticket, change priority/status and inspect history. Saved drafts are not messages and cannot be sent yet. Conflicting edits require comparison before saving again. Reload preserves saved work and query filters. End demo session signs out. Sessions and workspace access expire after one hour.
+Open [localhost:3000](http://localhost:3000). Use this exact hostname for the session origin. Explore the sample inbox to create a Better Auth anonymous session and a unique persisted workspace. Search/filter the actual queue, save a manual draft, assign a ticket, change priority/status and inspect history. Saved drafts are not messages. Review and explicitly approve a saved reply to record simulated delivery; no email is sent. Conflicting edits require comparison before saving again. Reload preserves saved work and query filters. End demo session signs out. Sessions and workspace access expire after one hour.
 
 The scripts generate local environment files without overwriting existing configuration. Never commit them. `.env.example` files show placeholders only. Docker data remains in a local volume when stopped; `docker compose down` stops the database without deleting it.
 
@@ -100,9 +100,9 @@ Saved evidence reloads with the ticket. Open a citation to inspect its authorize
 
 After implementation, `cd apps/api && uv run python -m scenarios.s05` verifies real HTTP/PostgreSQL/pgvector behavior, including a similar private source in another workspace. Space scenario suites by 61 seconds for auth rate limits. Stop the production web process before any build and restart afterward.
 
-### Draft generation (S06 work in progress)
+### Draft generation (S06 delivered)
 
-S06 final review/delivery is in progress on `feat/s06-drafting`. Live DeepSeek compatibility and a six-example application-output smoke review are recorded in [S06 verification](docs/verification/s06-drafting.md); broader evaluation remains S11 work.
+S06 was delivered in PR #21 with final CI 44472186034. Live DeepSeek compatibility and a six-example application-output smoke review are recorded in [S06 verification](docs/verification/s06-drafting.md); broader evaluation remains S11 work.
 
 Run `uv run python -m resolvedesk.generation` from `apps/api` alongside the API and existing knowledge worker. Retrieve current evidence, then use **Generate demo draft**. An authorized published extract becomes a new saved draft revision; missing evidence produces an escalation draft. You can cancel queued/running work. Changes to the ticket, source or access discard stale generated results. Editing creates another saved revision and retains evidence references for human review. No generation sends email or changes ticket fields.
 
@@ -113,3 +113,10 @@ Allowance accounting uses PostgreSQL serialization and conservative reservations
 After implementation: `uv run python -m scenarios.s06` verifies real HTTP/PostgreSQL/worker behavior and concurrent allowances; `uv run python -m scenarios.s06_provider` exercises the actual adapter against an explicitly canned local HTTP provider. The latter is contract verification, not live AI or quality measurement. Keep LIVE_AI_ENABLED=false for disposable allowance scenarios; respect 61-second spacing between auth scenario suites and browser journeys.
 
 Escalation drafts use application-owned wording so they do not claim reviews or account actions already occurred. Provider citation IDs stay in internal evidence references, not customer reply text. General membership policy must not be used to diagnose an individual account. Every draft still requires human review.
+
+
+### Human approval and simulated delivery (S07 under verification)
+
+Save your draft, choose any proposed ticket changes, then select **Review demo reply**. Inspect the exact reply, source citations and changes before **Approve and record demo reply**. Uncited drafts require explicit acknowledgement. A changed draft, conversation, ticket or published source invalidates the review. Retrying the same approval checks its existing receipt instead of creating another message. Simulated delivery is restricted to synthetic demo workspaces and has no email transport. Separate **Apply ticket changes** commands also require explicit confirmation and persist authorization.
+
+Run `uv run python -m scenarios.s07` from `apps/api` against the real running application/PostgreSQL after the implementation. It paces requests to respect the real sign-in limit. Allow one minute between suites and browser verification.
