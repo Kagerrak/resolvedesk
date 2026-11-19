@@ -13,7 +13,7 @@ Specification: https://github.com/Kagerrak/resolvedesk/issues/1
 | S05 | [S05 — Retrieve supporting evidence from a ticket](https://github.com/Kagerrak/resolvedesk/issues/6) | Delivered: PR #20 merged ea41f16; issue #6 closed; CI 44307545659 passed all 129 S01–S05 assertions |
 | S06 | [S06 — Generate and revise a grounded draft](https://github.com/Kagerrak/resolvedesk/issues/7) | Delivered: PR #21 merged c50d3ad; issue #7 closed; final CI 44472186034 and independent review passed |
 | S07 | [S07 — Approve a precise reply and record simulated delivery](https://github.com/Kagerrak/resolvedesk/issues/8) | Delivered: PR #22 merged f354d80; issue #8 closed; final CI 44475535950 and review passed |
-| S08 | [S08 — Connect Gmail and import a real support conversation](https://github.com/Kagerrak/resolvedesk/issues/9) | OAuth setup unavailable; interactive setup question pending; implementation/live verification unfinished |
+| S08 | [S08 — Connect Gmail and import a real support conversation](https://github.com/Kagerrak/resolvedesk/issues/9) | Real Gmail verification explicitly deferred by user; OAuth setup unavailable; implementation/live verification unfinished |
 | S09 | [S09 — Deliver an approved reply through Gmail safely](https://github.com/Kagerrak/resolvedesk/issues/10) | Not implemented; blocked by planned prerequisites |
 | S10 | [S10 — Diagnose and recover an operational failure](https://github.com/Kagerrak/resolvedesk/issues/11) | Active on feat/s10-recovery; independent indexing/simulated-delivery work unblocked; Gmail cases gated |
 | S11 | [S11 — Measure retrieval and answer quality](https://github.com/Kagerrak/resolvedesk/issues/12) | Unblocked after S06/S07; not implemented |

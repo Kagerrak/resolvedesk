@@ -76,3 +76,6 @@ API production process currently runs from this functional checkout; web was saf
 ## S10 independent implementation — verification/delivery pending
 
 Behavior a35192f plus pending review/copy/queue-history refinements. Scoped Activity, content-free indexing/source history, bounded Admin retry with expired-worker fencing, source content deletion/tombstones, exact source/ticket navigation. 27 real integration assertions passed initially; final queue-event rerun underway. Fresh migration/static/build and ego-browser failure/offline/retry/delete/keyboard/mobile flows passed. Review found only primary-copy jargon, fixed; final refresh and CI pending. See docs/verification/s10-recovery.md. Keep issue #11 open for Gmail recovery after independent delivery; add remaining native blockers #9/#10 and remove ready-for-agent then. S11 remains independently ready. No S10 paid AI calls.
+
+
+19 November steering: user explicitly chose “Defer real Gmail verification for now.” Do not repeat OAuth/mailbox setup questions. No Gmail connection or live verification exists. Independent S10 final 27-scenario rerun passed after respecting sign-in spacing; both final reviews through bf51a6d clear. S10 partial PR/CI delivery next, then independently unblocked S11.

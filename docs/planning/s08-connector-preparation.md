@@ -1,6 +1,6 @@
 # S08 connector preparation (not implementation or verification)
 
-19 November 2026. No Google OAuth credentials/token encryption key are configured in this checkout. User setup choice is pending. No mailbox has been accessed and no resources provisioned.
+19 November 2026. No Google OAuth credentials/token encryption key are configured in this checkout. User explicitly deferred real Gmail verification on 19 November 2026; do not request setup again during this deferred phase. No mailbox has been accessed and no resources provisioned.
 
 Official sources inspected through ego-browser:
 - https://developers.google.com/workspace/gmail/api/auth/scopes
