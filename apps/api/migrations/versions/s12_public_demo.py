@@ -36,7 +36,11 @@ def upgrade():
 
 
 def downgrade():
-    if op.get_bind().scalar(sa.text("SELECT count(*) FROM workspace WHERE public_demo")):
+    if (
+        op.get_bind().scalar(sa.text("SELECT count(*) FROM workspace WHERE public_demo"))
+        or op.get_bind().scalar(sa.text("SELECT count(*) FROM demo_window"))
+        or op.get_bind().scalar(sa.text("SELECT count(*) FROM demo_quota"))
+    ):
         raise RuntimeError(
             "Preserve public demo boundaries; downgrade requires an empty public demo ledger."
         )

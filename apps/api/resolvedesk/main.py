@@ -63,6 +63,11 @@ async def request_policy(request: Request, call_next):
 @app.get("/health")
 def health(db: DB):
     db.execute(text("SELECT 1"))
+    if settings.public_demo_only:
+        db.execute(text("SELECT identities FROM public_auth_window LIMIT 0"))
+        db.execute(text('SELECT "publicDemo" FROM "user" LIMIT 0'))
+        db.execute(text("SELECT writes,retrievals FROM demo_quota LIMIT 0"))
+        return {"status": "ok", "mode": "fixture", "public_demo": True}
     return {"status": "ok", "mode": "fixture"}
 
 

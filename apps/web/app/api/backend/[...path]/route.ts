@@ -53,7 +53,10 @@ async function proxy(
       }
     }
     const response = await fetch(
-      new URL(`${route}${request.nextUrl.search}`, `${(process.env.API_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "")}/`),
+      new URL(
+        `${route}${request.nextUrl.search}`,
+        `${(process.env.API_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "")}/`,
+      ),
       {
         method: request.method,
         headers: {

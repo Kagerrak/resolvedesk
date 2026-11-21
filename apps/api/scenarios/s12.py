@@ -7,6 +7,7 @@ import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
+from pathlib import Path
 from threading import Lock
 from uuid import UUID, uuid4
 
@@ -18,12 +19,14 @@ from resolvedesk.generation import Generate, queue
 from resolvedesk.identity import Identity
 from resolvedesk.local_admin import grant
 
-WEB, API = "http://localhost:3000", "http://localhost:8001"
+WEB, API = "http://localhost:3001", "http://localhost:8001"
 SECRET = "resolvedesk-s12-maintenance-fixture-only"
 users, workspaces, checks = [], [], []
 process = None
+web_process = None
 log = None
 window_hour, saved_window = None, None
+saved_auth_window = None
 request_count, request_lock = 0, Lock()
 
 
@@ -75,10 +78,29 @@ def demo(client):
 
 
 try:
-    with socket.socket() as probe:
-        if probe.connect_ex(("127.0.0.1", 8001)) == 0:
-            raise RuntimeError("Port8001 is already occupied; preserve that process.")
-    env = dict(os.environ, PUBLIC_DEMO_ONLY="true", LIVE_AI_ENABLED="false", CRON_SECRET=SECRET)
+    for port in (8001, 3001):
+        with socket.socket() as probe:
+            if probe.connect_ex(("127.0.0.1", port)) == 0:
+                raise RuntimeError(f"Port{port} is already occupied; preserve that process.")
+    env = dict(
+        os.environ,
+        PUBLIC_DEMO_ONLY="TRUE",
+        LIVE_AI_ENABLED="false",
+        CRON_SECRET=SECRET,
+        AUTH_URL=WEB,
+        APP_ORIGIN=WEB,
+        BETTER_AUTH_URL=WEB,
+        API_URL=API,
+    )
+    with open("/tmp/resolvedesk-s12-web.log", "w") as web_log:
+        web_process = subprocess.Popen(
+            ["npm", "start", "--", "--port", "3001"],
+            cwd=Path(__file__).resolve().parents[2] / "web",
+            env=env,
+            stdout=web_log,
+            stderr=web_log,
+            start_new_session=True,
+        )
     with open("/tmp/resolvedesk-s12-api.log", "w") as log:
         process = subprocess.Popen(
             [
@@ -97,7 +119,7 @@ try:
         )
     for _ in range(40):
         try:
-            if httpx.get(API + "/health").status_code == 200:
+            if httpx.get(API + "/health").status_code == 200 and httpx.get(WEB).status_code == 200:
                 break
         except httpx.HTTPError:
             pass
@@ -105,8 +127,23 @@ try:
     else:
         raise RuntimeError("Public profile did not start; inspect the local server log.")
     before_cost = scalar("SELECT coalesce(sum(allocated_micros),0) FROM usage_month")
+    health = httpx.get(WEB + "/api/health").json()
+    check(
+        health.get("status") == "ok" and health.get("public_demo") is True,
+        "Frontend health reaches the actual public API and required domain/auth schema",
+    )
     a, ua = visitor()
     b, ub = visitor()
+    check(
+        scalar('SELECT "publicDemo" FROM "user" WHERE id=:u', u=ua) is True,
+        "Public authentication stamps the protected origin marker in the actual user record",
+    )
+    marker_change = a.post(WEB + "/api/auth/update-user", json={"publicDemo": False})
+    check(
+        marker_change.status_code in (200, 400, 403, 422)
+        and scalar('SELECT "publicDemo" FROM "user" WHERE id=:u', u=ua) is True,
+        "A client cannot unset the protected public-origin marker to escape cleanup",
+    )
     wa = demo(a)
     wb = demo(b)
     root = API + f"/workspaces/{wa['id']}"
@@ -156,6 +193,17 @@ try:
         check(True, "Local Admin setup refuses an explicitly public workspace")
     else:
         raise AssertionError("Public Admin grant was accepted")
+    sql("UPDATE membership SET role='admin' WHERE workspace_id=:w AND user_id=:u", w=wa["id"], u=ua)
+    check(
+        a.post(
+            root + "/knowledge",
+            json={"title": "Denied", "filename": "x.txt", "content_base64": "eA=="},
+        ).status_code
+        == 403
+        and a.post(root + "/evaluations", json={"request_id": str(uuid4())}).status_code == 403,
+        "Explicit public boundary rejects Admin routes even after an accidental role elevation",
+    )
+    sql("UPDATE membership SET role='agent' WHERE workspace_id=:w AND user_id=:u", w=wa["id"], u=ua)
     primary = root + f"/tickets/{ta[0]['id']}"
     evidence = a.post(primary + "/retrievals")
     evidence.raise_for_status()
@@ -335,21 +383,77 @@ try:
     )
     sql("UPDATE demo_window SET sessions=:n WHERE hour=:h", n=saved_window, h=window_hour)
     saved_window = None
+    d, ud = visitor()
+    e, ue = visitor()
+    # Conservative fixtures represent a pre-existing local orphan and an active public orphan.
+    sql(
+        'UPDATE "user" SET "publicDemo"=false,"createdAt"=now()-interval \'2 hours\' WHERE id=:u',
+        u=ud,
+    )
+    sql('UPDATE "user" SET "createdAt"=now()-interval \'2 hours\' WHERE id IN (:c,:e)', c=uc, e=ue)
+    sql(
+        'UPDATE "session" SET "expiresAt"=now()-interval \'1 second\' WHERE "userId" IN (:c,:d)',
+        c=uc,
+        d=ud,
+    )
+    if datetime.now(UTC).minute == 59 and datetime.now(UTC).second >= 58:
+        time.sleep(2)
+    window_hour = datetime.now(UTC).replace(minute=0, second=0, microsecond=0)
+    sql(
+        "INSERT INTO public_auth_window(hour,identities) VALUES(:h,0) ON CONFLICT DO NOTHING",
+        h=window_hour,
+    )
+    saved_auth_window = scalar(
+        "SELECT identities FROM public_auth_window WHERE hour=:h", h=window_hour
+    )
+    sql("UPDATE public_auth_window SET identities=20 WHERE hour=:h", h=window_hour)
+    identities_before = scalar('SELECT count(*) FROM "user" WHERE "publicDemo"=true')
+    denied_identity = httpx.post(
+        WEB + "/api/auth/sign-in/anonymous", headers={"Origin": WEB}, json={}
+    )
+    if denied_identity.status_code == 200:
+        users.append(denied_identity.json()["user"]["id"])
+    check(
+        denied_identity.status_code == 429
+        and scalar('SELECT count(*) FROM "user" WHERE "publicDemo"=true') == identities_before,
+        "Global signup reservation rejects excess visitors before auth rows are inserted",
+    )
+    sql(
+        "UPDATE public_auth_window SET identities=:n WHERE hour=:h",
+        n=saved_auth_window,
+        h=window_hour,
+    )
+    saved_auth_window = None
     sql("UPDATE workspace SET expires_at=now()-interval '1 second' WHERE id=:w", w=wa["id"])
     check(a.get(primary).status_code == 404, "Expiry immediately revokes public data access")
     check(
         httpx.post(API + "/internal/maintenance", headers={"Origin": WEB}).status_code == 401,
         "Cleanup requires the server-only maintenance credential",
     )
-    cleaned = httpx.post(
-        API + "/internal/maintenance", headers={"Origin": WEB, "Authorization": "Bearer " + SECRET}
-    ).json()
+    check(
+        httpx.get(WEB + "/api/maintenance").status_code == 401,
+        "Public scheduled-cleanup gateway also requires its server-only credential",
+    )
+    cleanup_response = httpx.get(
+        WEB + "/api/maintenance", headers={"Authorization": "Bearer " + SECRET}, timeout=30
+    )
+    cleanup_response.raise_for_status()
+    cleaned = cleanup_response.json()
     check(
         cleaned["deleted_workspaces"] >= 1
         and scalar("SELECT count(*) FROM workspace WHERE id=:w", w=wa["id"]) == 0
         and scalar("SELECT count(*) FROM knowledge_chunk WHERE workspace_id=:w", w=wa["id"]) == 0
         and scalar("SELECT count(*) FROM draft_revision WHERE workspace_id=:w", w=wa["id"]) == 0,
         "Actual expiry cleanup removes public sources vectors drafts jobs and handling content",
+    )
+    check(
+        scalar('SELECT count(*) FROM "user" WHERE id=:u', u=uc) == 0
+        and scalar('SELECT count(*) FROM "session" WHERE "userId"=:u', u=uc) == 0,
+        "Expired capacity-denied public identities and sessions are removed without a Workspace",
+    )
+    check(
+        scalar('SELECT count(*) FROM "user" WHERE id IN (:d,:e)', d=ud, e=ue) == 2,
+        "Orphan cleanup preserves unmarked local identities and active public sessions",
     )
     check(
         scalar("SELECT count(*) FROM workspace WHERE id=:w", w=legacy) == 1
@@ -371,6 +475,17 @@ try:
         invalid.returncode != 0 and "Public demo deployment requires" in invalid.stderr,
         "Public deployment refuses to start with paid provider dispatch enabled",
     )
+    missing_maintenance = subprocess.run(
+        [sys.executable, "-c", "import resolvedesk.config"],
+        env={**env, "CRON_SECRET": ""},
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    check(
+        missing_maintenance.returncode != 0 and "maintenance secret" in missing_maintenance.stderr,
+        "Public startup refuses missing maintenance authorization",
+    )
     check(
         scalar(
             "SELECT count(*) FROM generation_run WHERE workspace_id=:w AND mode <> 'fixture'",
@@ -381,6 +496,12 @@ try:
     )
     print(f"\n{len(checks)} genuine public HTTP/PostgreSQL/profile assertions passed.")
 finally:
+    if saved_auth_window is not None:
+        sql(
+            "UPDATE public_auth_window SET identities=:n WHERE hour=:h",
+            n=saved_auth_window,
+            h=window_hour,
+        )
     if saved_window is not None:
         sql("UPDATE demo_window SET sessions=:n WHERE hour=:h", n=saved_window, h=window_hour)
     with engine.begin() as db:
@@ -395,3 +516,12 @@ finally:
         except subprocess.TimeoutExpired:
             process.kill()
             process.wait()
+    if web_process:
+        import signal
+
+        os.killpg(web_process.pid, signal.SIGTERM)
+        try:
+            web_process.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            os.killpg(web_process.pid, signal.SIGKILL)
+            web_process.wait()

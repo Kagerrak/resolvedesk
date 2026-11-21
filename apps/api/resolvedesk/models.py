@@ -44,6 +44,13 @@ class DemoWindow(Base):
     __table_args__ = (CheckConstraint("sessions >= 0 AND sessions <= 20"),)
 
 
+class PublicAuthWindow(Base):
+    __tablename__ = "public_auth_window"
+    hour: Mapped[datetime] = mapped_column(DateTime(timezone=True), primary_key=True)
+    identities: Mapped[int] = mapped_column(default=0)
+    __table_args__ = (CheckConstraint("identities >= 0 AND identities <= 20"),)
+
+
 class Membership(Base):
     __tablename__ = "membership"
     workspace_id: Mapped[UUID] = mapped_column(

@@ -1,10 +1,11 @@
 import { timingSafeEqual } from "node:crypto";
+import { publicDemoEnabled } from "@/lib/public-demo";
 
 export const maxDuration = 60;
 
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET ?? "";
-  if (process.env.PUBLIC_DEMO_ONLY !== "true" || secret.length < 32)
+  if (!publicDemoEnabled || secret.length < 32)
     return Response.json(
       { detail: "Public demo maintenance is not configured." },
       { status: 503 },
@@ -21,7 +22,10 @@ export async function GET(request: Request) {
     );
   try {
     const response = await fetch(
-      new URL("internal/maintenance", `${(process.env.API_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "")}/`),
+      new URL(
+        "internal/maintenance",
+        `${(process.env.API_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "")}/`,
+      ),
       {
         method: "POST",
         headers: {

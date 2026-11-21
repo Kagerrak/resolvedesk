@@ -86,7 +86,14 @@ export default function Home() {
               {busy ? "Opening your workspace…" : "Explore the sample inbox"}
               <ArrowRight size={18} />
             </button>
-            <a className="secondary" href="https://github.com/Kagerrak/resolvedesk/blob/main/docs/verification/s11-quality.md" target="_blank" rel="noreferrer">Read the evaluation report</a>
+            <a
+              className="secondary"
+              href="https://github.com/Kagerrak/resolvedesk/blob/main/docs/verification/s11-quality.md"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Read the evaluation report
+            </a>
           </div>
           <p className="small muted">
             Private demo session · Synthetic data · No email sent

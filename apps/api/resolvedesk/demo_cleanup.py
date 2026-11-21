@@ -1,6 +1,6 @@
 """Remove only expired, explicitly tagged public demos; preserve local work and monthly spend."""
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select, text
 
@@ -51,9 +51,26 @@ def cleanup(db, limit=50):
         ):
             result = db.execute(
                 text(
-                    'DELETE FROM "user" WHERE id=:owner AND "isAnonymous"=true AND NOT EXISTS (SELECT 1 FROM workspace WHERE demo_owner=:owner)'
+                    'DELETE FROM "user" WHERE id=:owner AND "isAnonymous"=true AND "publicDemo"=true AND NOT EXISTS (SELECT 1 FROM workspace WHERE demo_owner=:owner)'
                 ),
                 {"owner": owner},
             )
             users += result.rowcount
-    return {"deleted_workspaces": deleted, "deleted_anonymous_users": users}
+    # The auth hook stamps this protected marker in the same insert as the user.
+    # Rejected/abandoned signups have no Workspace but still need bounded expiry.
+    orphans = db.execute(
+        text("""DELETE FROM "user" WHERE id IN (
+        SELECT u.id FROM "user" u WHERE u."publicDemo"=true AND u."isAnonymous"=true
+        AND u."createdAt" < :cutoff
+        AND NOT EXISTS (SELECT 1 FROM "session" s WHERE s."userId"=u.id AND s."expiresAt">:now)
+        AND NOT EXISTS (SELECT 1 FROM membership m WHERE m.user_id=u.id)
+        AND NOT EXISTS (SELECT 1 FROM workspace w WHERE w.demo_owner=u.id)
+        ORDER BY u."createdAt",u.id LIMIT 500
+    ) RETURNING id"""),
+        {"cutoff": now - timedelta(hours=1), "now": now},
+    ).all()
+    db.execute(
+        text("DELETE FROM public_auth_window WHERE hour < :cutoff"),
+        {"cutoff": now - timedelta(days=2)},
+    )
+    return {"deleted_workspaces": deleted, "deleted_anonymous_users": users + len(orphans)}
