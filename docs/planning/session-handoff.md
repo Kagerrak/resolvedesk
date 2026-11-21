@@ -111,3 +111,12 @@ Active branch feat/s12-demo from mergedmain. User said useexisting hosting; Verc
 Official hosting docs checked19November: VercelServices beta allplans, FastAPI supported; HobbycontinuousDaemon420GB-hours/month insufficient for continuous1GiB month. Prefer on-demand fixture-only publicdemo with private APIservice and dedicated NeonFree PostgreSQL, subject to actual selected team/Marketplace plan verification beforeprovisioning. NeonpublicFree pricing lists100CU-hours/1GB/project, hard suspension atcompute/egresslimits; Marketplace plan must bechecked separately. No paidupgrade/AIpublicactivation approved by implication. Overallinfra cap25/month remains.
 
 Prior ego space30 finished keep=[] afterS11QA; hostingresearch space31 mayhaveexpired acrosssessioninterval, inspectinventory first. API/web andDocker were stopped duringovernightinterval; no current project-owned listeners on3000/8000. Inspect beforestarting. Preserve oldQA/publicdata; futureTTL should target explicitly tagged public-demo workspaces, never blindly erase all prior local demos. Originalprototype checkout remains untouched.
+
+
+## S12 local browser/platform verification — 21 November
+
+Final39 real public-profile HTTP/PostgreSQL assertions passed, plus fresh domain/auth migration and populated-ledger downgrade guard. Both independent reviews clear through677ad32; narrow final refresh pending explicit Vercel API devCommand and evidence docs. Actual VercelCLI66.2.0 local Services router health/policy200, private-maintenance404, unauthenticated maintenance401. Explicit API devCommand fixed initial local startup. This is local evidence only, no cloud resources.
+
+Ego-browser public entry/retrieve/fixture/edit/save/review/approve/source/Activity/Knowledge/Quality passed; offline Activity error recovered and five inbox widths had no overflow. Production build and audit0/0 passed after stopping localServices. DarkReader extension caused devhydration SVG warning and recolors light screenshot; do not claim clean lightvisual or native200%zoom/full keyboard-only proof. Report docs/verification/s12-public-demo.md. Ego space2 finished keep=[]; user space0 untouched.
+
+Current public-profile local production web3002 and API8002 run from functional checkout; inspect/stop before builds. Verceldev stopped. No backgroundworker orpaidcall. Vercelteamselection still pending; no arbitraryteam orcostassumption. S12 remains unfinished/issue13open, Gmaildeferred/S13unfinished. GitHub partialPR/CI next.

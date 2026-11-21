@@ -10,6 +10,7 @@
       "root": "apps/api",
       "framework": "fastapi",
       "entrypoint": "resolvedesk.main:app",
+      "devCommand": "uv run uvicorn resolvedesk.main:app --host 127.0.0.1 --port $PORT",
       "bindings": [{ "type": "service", "service": "web", "format": "url", "env": "AUTH_URL" }],
       "functions": { "resolvedesk/main.py": { "maxDuration": 60 } }
     }
