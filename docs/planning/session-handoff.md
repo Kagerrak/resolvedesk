@@ -4,7 +4,7 @@ Updated 19 November 2026.
 
 ## Active work and branch safety
 
-Functional checkout: `/Users/rommelclarino/projects/resolvedesk-s01`, branch `feat/s11-quality`. Original `/Users/rommelclarino/projects/resolvedesk` remains on `feat/ui-direction-prototypes` with its pre-existing screenshot changes and generated `apps/web/AGENTS.md`; do not overwrite or merge that prototype branch wholesale.
+Functional checkout: `/Users/rommelclarino/projects/resolvedesk-s01`, branch `feat/s12-demo`. Original `/Users/rommelclarino/projects/resolvedesk` remains on `feat/ui-direction-prototypes` with its pre-existing screenshot changes and generated `apps/web/AGENTS.md`; do not overwrite or merge that prototype branch wholesale.
 
 S01 PR #16 merged as `9427fec425c34cd65230c88863ac027ebea0502f`; issue #2 closed. Command Bright D adopted with real API data, light theme, mobile/keyboard flows. CI run 43829740801 passed.
 
@@ -100,3 +100,14 @@ Branch feat/s11-quality. Behavior5b6ee51, recovery/35 actual API/PostgreSQL/work
 S11 measured usage13,567 input+2,943 output, conservative allocation USD0.019453. Central November usage_month verified USD0.043494 (S06 prior0.024041+S11). Not provider invoice. Local ignored key unchanged, server LIVE_AI_ENABLED=false; no more S11 paid calls needed. Dedicated evaluation workspace955b2086-caa1-4f35-b5fb-488d24d22e40 holds all three runs and ten normal paid generations, expires2026-11-19T14:31:28Z. Private probe workspaces were cleaned. Do not use other sessions to bypass the ten-generation limit.
 
 Static/build/fresh migration roundtrip and35 real scenarios pass;16 separately canned provider-contract assertions pass. Independent two-axis review clear through34ee8ea, final refresh pending current provenance/browser fixes. Actual browser queue/live comparison/source opening, split pagination, keyboard focus, unsaved-note confirmation, offline/recovery, five widths/both themes verified. Expanded hashes overflow found and fixed with wrapping. Final mobile Back-to-cases and truthful offline-state recovery passed. Ego space30 was finished with keep=[];29 no longer existed. Do not touch user0/job26. API/web safely rebuilt/restarted; inspect ports before mutations. No background workers running. Audit0 production/0 development findings, latest picomatch4.0.7, exception unchanged. Gmail remains explicitly deferred; no OAuth questions.
+
+
+## Current frontier — 21 November 2026
+
+S11 delivered: PR #24 merged822d81d33e49961bf8c24f9917b5d098d87251fb, issue #12 closed. Final CI44538711481 passed241 real integration assertions+16 explicitly canned provider-contract checks, static/migration/build/audit. Both final review refreshes through17644b2 clear. Distinct-ticket quota race fixed and verified with real9+2 concurrent fixture submissions. No additional paid calls; November allocation last verifiedUSD0.043494. AllS11sample/data/rubric limitations remain in report.
+
+Active branch feat/s12-demo from mergedmain. User said useexisting hosting; VercelCLI28.11.0 authenticatedKagerrak, no ResolveDesk project existed in inspected account. EphemeralCLI66.2.0 supports current FastAPI/Services features; globalCLI/customizations unchanged. Read-only API requires explicit team; pending interactive choice: my-team-7e4eb888 (recommended) versus alpa-pro-team. No selection inferred, no resources provisioned. Do not repeat Gmail questions: real Gmail remains deferred. S12 issue13 stays blocked for deployment/dependency frontier; independent local public-demo controls can progress.
+
+Official hosting docs checked19November: VercelServices beta allplans, FastAPI supported; HobbycontinuousDaemon420GB-hours/month insufficient for continuous1GiB month. Prefer on-demand fixture-only publicdemo with private APIservice and dedicated NeonFree PostgreSQL, subject to actual selected team/Marketplace plan verification beforeprovisioning. NeonpublicFree pricing lists100CU-hours/1GB/project, hard suspension atcompute/egresslimits; Marketplace plan must bechecked separately. No paidupgrade/AIpublicactivation approved by implication. Overallinfra cap25/month remains.
+
+Prior ego space30 finished keep=[] afterS11QA; hostingresearch space31 mayhaveexpired acrosssessioninterval, inspectinventory first. API/web andDocker were stopped duringovernightinterval; no current project-owned listeners on3000/8000. Inspect beforestarting. Preserve oldQA/publicdata; futureTTL should target explicitly tagged public-demo workspaces, never blindly erase all prior local demos. Originalprototype checkout remains untouched.
