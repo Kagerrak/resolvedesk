@@ -15,6 +15,7 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from .database import database
+from .demo_policy import public_scope
 from .identity import Identity, identity
 from .inbox import membership
 from .knowledge_snapshot import lock_snapshot
@@ -53,12 +54,16 @@ def require_admin(db: Session, workspace_id: UUID, visitor: Identity):
         .where(
             Membership.workspace_id == workspace_id,
             Membership.user_id == visitor.user_id,
+            public_scope(visitor),
             Workspace.expires_at.is_(None) | (Workspace.expires_at > datetime.now(UTC)),
         )
         .with_for_update(read=True, of=[Membership, Workspace])
     )
     if not member:
         raise HTTPException(404, "Workspace not found or no longer available.")
+    workspace = db.get(Workspace, workspace_id)
+    if workspace and workspace.public_demo:
+        raise HTTPException(403, "Public demos cannot manage sources, members or connectors.")
     if member.role != "admin":
         raise HTTPException(403, "Only an Admin can manage knowledge.")
     lock_snapshot(db, workspace_id)

@@ -10,6 +10,7 @@ from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 from .database import database
+from .demo_policy import public_scope, reserve_action
 from .identity import Identity, identity
 from .inbox import membership
 from .models import (
@@ -104,6 +105,7 @@ def editable_ticket(
         .where(
             Membership.workspace_id == workspace_id,
             Membership.user_id == visitor.user_id,
+            public_scope(visitor),
             Workspace.expires_at.is_(None) | (Workspace.expires_at > datetime.now(UTC)),
         )
         .with_for_update(read=True, of=[Membership, Workspace])
@@ -175,6 +177,7 @@ def change_ticket(
             changes[field] = {"before": before, "after": after}
             setattr(item, field, after)
     if changes:
+        reserve_action(db, workspace_id, "writes")
         db.add(
             ApprovalRecord(
                 workspace_id=workspace_id,
@@ -209,6 +212,7 @@ def save_draft(workspace_id: UUID, ticket_id: UUID, change: SaveDraft, db: DB, v
         .limit(1)
     )
     if (previous.body if previous else "") != change.body:
+        reserve_action(db, workspace_id, "writes")
         item.revision += 1
         draft = DraftRevision(
             workspace_id=workspace_id,

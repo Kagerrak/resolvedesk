@@ -5,8 +5,10 @@ from fastapi import HTTPException
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
+from .config import settings
+from .demo_policy import public_scope, reserve_creation
 from .identity import Identity
-from .models import Membership, Message, Ticket, Workspace
+from .models import DemoQuota, Membership, Message, Ticket, Workspace
 
 
 def create_demo(db: Session, visitor: Identity) -> Workspace:
@@ -24,12 +26,25 @@ def create_demo(db: Session, visitor: Identity) -> Workspace:
         membership(db, workspace.id, visitor)
         return workspace
     now = datetime.now(UTC)
+    if settings.public_demo_only:
+        from .demo_cleanup import cleanup
+
+        cleanup(db)
+        reserve_creation(db)
     workspace = Workspace(
-        name="Meridian · Demo", demo_owner=visitor.user_id, expires_at=now + timedelta(hours=1)
+        name="Meridian · Demo",
+        demo_owner=visitor.user_id,
+        expires_at=now + timedelta(hours=1),
+        public_demo=settings.public_demo_only,
     )
     db.add(workspace)
     db.flush()
     db.add(Membership(workspace_id=workspace.id, user_id=visitor.user_id, role="agent"))
+    if workspace.public_demo:
+        from .demo_seed import seed
+
+        db.add(DemoQuota(workspace_id=workspace.id))
+        seed(db, workspace)
     ticket = Ticket(
         workspace_id=workspace.id,
         number=1042,
@@ -61,6 +76,7 @@ def membership(db: Session, workspace_id: UUID, visitor: Identity) -> Membership
         .where(
             Membership.workspace_id == workspace_id,
             Membership.user_id == visitor.user_id,
+            public_scope(visitor),
             (Workspace.expires_at.is_(None)) | (Workspace.expires_at > datetime.now(UTC)),
         )
     )

@@ -53,6 +53,7 @@ export type Workspace = {
   role: "admin" | "agent" | "viewer";
   mode: "fixture";
   expires_at: string | null;
+  public_demo?: boolean;
 };
 export type Ticket = {
   id: string;

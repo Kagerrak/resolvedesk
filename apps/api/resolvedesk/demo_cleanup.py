@@ -1,0 +1,76 @@
+"""Remove only expired, explicitly tagged public demos; preserve local work and monthly spend."""
+
+from datetime import UTC, datetime, timedelta
+
+from sqlalchemy import select, text
+
+from .models import EvaluationRun, GenerationRun, Membership, Workspace
+
+
+def cleanup(db, limit=50):
+    db.execute(text("SELECT pg_advisory_xact_lock(hashtextextended('public-demo-capacity',0))"))
+    now = datetime.now(UTC)
+    rows = db.scalars(
+        select(Workspace)
+        .where(
+            Workspace.public_demo.is_(True),
+            Workspace.demo_owner.is_not(None),
+            Workspace.expires_at <= now,
+        )
+        .order_by(Workspace.expires_at, Workspace.id)
+        .limit(limit)
+        .with_for_update(skip_locked=True)
+    ).all()
+    deleted, users = 0, 0
+    for workspace in rows:
+        # Public deployment never dispatches paid jobs. Preserve an anomalous ledger for review.
+        if db.scalar(
+            select(GenerationRun.id)
+            .where(GenerationRun.workspace_id == workspace.id, GenerationRun.mode != "fixture")
+            .limit(1)
+        ):
+            continue
+        for run in db.scalars(
+            select(EvaluationRun).where(EvaluationRun.workspace_id == workspace.id)
+        ):
+            if run.probe_workspace_id:
+                probe = db.get(Workspace, run.probe_workspace_id)
+                if (
+                    probe
+                    and probe.name == "Synthetic private evaluation probe"
+                    and not probe.demo_owner
+                    and probe.expires_at == workspace.expires_at
+                ):
+                    db.delete(probe)
+        owner = workspace.demo_owner
+        db.delete(workspace)
+        db.flush()
+        deleted += 1
+        if not db.scalar(
+            select(Membership.workspace_id).where(Membership.user_id == owner).limit(1)
+        ):
+            result = db.execute(
+                text(
+                    'DELETE FROM "user" WHERE id=:owner AND "isAnonymous"=true AND "publicDemo"=true AND NOT EXISTS (SELECT 1 FROM workspace WHERE demo_owner=:owner)'
+                ),
+                {"owner": owner},
+            )
+            users += result.rowcount
+    # The auth hook stamps this protected marker in the same insert as the user.
+    # Rejected/abandoned signups have no Workspace but still need bounded expiry.
+    orphans = db.execute(
+        text("""DELETE FROM "user" WHERE id IN (
+        SELECT u.id FROM "user" u WHERE u."publicDemo"=true AND u."isAnonymous"=true
+        AND u."createdAt" < :cutoff
+        AND NOT EXISTS (SELECT 1 FROM "session" s WHERE s."userId"=u.id AND s."expiresAt">:now)
+        AND NOT EXISTS (SELECT 1 FROM membership m WHERE m.user_id=u.id)
+        AND NOT EXISTS (SELECT 1 FROM workspace w WHERE w.demo_owner=u.id)
+        ORDER BY u."createdAt",u.id LIMIT 500
+    ) RETURNING id"""),
+        {"cutoff": now - timedelta(hours=1), "now": now},
+    ).all()
+    db.execute(
+        text("DELETE FROM public_auth_window WHERE hour < :cutoff"),
+        {"cutoff": now - timedelta(days=2)},
+    )
+    return {"deleted_workspaces": deleted, "deleted_anonymous_users": users + len(orphans)}

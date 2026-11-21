@@ -11,6 +11,8 @@ from .activity import router as activity_router
 from .approval import router as approval_router
 from .config import settings
 from .database import database
+from .demo_policy import description as demo_description
+from .demo_policy import public_scope
 from .evaluation import router as evaluation_router
 from .generation import router as generation_router
 from .handling import read_detail
@@ -40,6 +42,7 @@ class WorkspaceView(BaseModel):
     role: str
     mode: str = "fixture"
     expires_at: datetime | None
+    public_demo: bool = False
 
 
 @app.middleware("http")
@@ -60,7 +63,35 @@ async def request_policy(request: Request, call_next):
 @app.get("/health")
 def health(db: DB):
     db.execute(text("SELECT 1"))
+    if settings.public_demo_only:
+        db.execute(text("SELECT identities FROM public_auth_window LIMIT 0"))
+        db.execute(text('SELECT "publicDemo" FROM "user" LIMIT 0'))
+        db.execute(text("SELECT writes,retrievals FROM demo_quota LIMIT 0"))
+        return {"status": "ok", "mode": "fixture", "public_demo": True}
     return {"status": "ok", "mode": "fixture"}
+
+
+@app.get("/public-policy")
+def public_policy():
+    return demo_description()
+
+
+@app.post("/internal/maintenance")
+def maintain(request: Request, db: DB):
+    import hmac
+
+    secret = settings.cron_secret.get_secret_value() if settings.cron_secret else ""
+    if not settings.public_demo_only or len(secret) < 32:
+        raise HTTPException(503, "Public demo maintenance is not configured.")
+    if not hmac.compare_digest(
+        request.headers.get("authorization", "").encode(), ("Bearer " + secret).encode()
+    ):
+        raise HTTPException(401, "Maintenance authorization required.")
+    from .demo_cleanup import cleanup
+
+    result = cleanup(db)
+    db.commit()
+    return result
 
 
 @app.post("/demo", response_model=WorkspaceView)
@@ -73,6 +104,7 @@ def demo(db: DB, visitor: Visitor):
         name=workspace.name,
         role=membership(db, workspace.id, visitor).role,
         expires_at=workspace.expires_at,
+        public_demo=workspace.public_demo,
     )
 
 
@@ -83,12 +115,16 @@ def workspaces(db: DB, visitor: Visitor):
         .join(Membership)
         .where(
             Membership.user_id == visitor.user_id,
+            public_scope(visitor),
             Workspace.expires_at.is_(None) | (Workspace.expires_at > datetime.now(UTC)),
         )
         .order_by(Workspace.name)
     ).all()
     return [
-        WorkspaceView(id=w.id, name=w.name, role=role, expires_at=w.expires_at) for w, role in rows
+        WorkspaceView(
+            id=w.id, name=w.name, role=role, expires_at=w.expires_at, public_demo=w.public_demo
+        )
+        for w, role in rows
     ]
 
 

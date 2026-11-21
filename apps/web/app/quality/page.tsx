@@ -490,8 +490,8 @@ export default function QualityPage() {
         </header>
         {dataset && (
           <p>
-            {dataset.article_count} authored articles · {dataset.case_count}{" "}
-            synthetic cases ({dataset.tuning_count} tuning,{" "}
+            Evaluation dataset: {dataset.article_count} authored articles ·{" "}
+            {dataset.case_count} synthetic cases ({dataset.tuning_count} tuning,{" "}
             {dataset.held_out_count} held out). Labels are author supplied.
           </p>
         )}
@@ -501,6 +501,19 @@ export default function QualityPage() {
           rubric assessments are supplementary; no numeric answer-quality
           release threshold is set.
         </p>
+        {!admin && (
+          <p className="small muted">
+            This workspace does not run paid quality evaluations.{" "}
+            <a
+              href="https://github.com/Kagerrak/resolvedesk/blob/main/docs/verification/s11-quality.md"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Read the published synthetic evaluation report
+            </a>{" "}
+            for its recorded results and limitations.
+          </p>
+        )}
         {admin && dataset && (
           <section className="quality-controls" aria-labelledby="run-controls">
             <h2 id="run-controls">Prepare a fixture evaluation</h2>

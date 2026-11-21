@@ -3,11 +3,13 @@ import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { api, type TicketDetail } from "@/lib/api";
 type Run = {
   id: string;
+  request_id: string;
   status: string;
   mode: "fixture" | "openai" | "deepseek";
   error: string | null;
   draft_id: string | null;
   citations: string[];
+  can_resume?: boolean;
 };
 export function DraftGeneration({
   route,
@@ -36,6 +38,7 @@ export function DraftGeneration({
   const active = run?.status === "queued" || run?.status === "running";
   const applyRun = useEffectEvent(
     async (next: Run | null, signal: AbortSignal) => {
+      if (next?.request_id === requestId.current) requestId.current = null;
       if (
         next &&
         ["succeeded", "escalated"].includes(next.status) &&
@@ -131,6 +134,23 @@ export function DraftGeneration({
       setBusy(false);
     }
   }
+  async function resume() {
+    if (!run) return;
+    setBusy(true);
+    setError("");
+    try {
+      setRun(await api<Run>(`${route}/generations/${run.id}/resume`, "POST"));
+      setRetry((v) => v + 1);
+    } catch (e) {
+      setError(
+        e instanceof Error
+          ? e.message
+          : "Could not resume. Refresh the saved run before retrying.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <div className="draft-generation">
       <p className="small muted">
@@ -166,6 +186,16 @@ export function DraftGeneration({
         <p className="small muted">
           This demo button uses a published extract without an AI provider call.
         </p>
+      )}
+      {run?.can_resume && !readOnly && (
+        <button
+          type="button"
+          className="secondary"
+          disabled={busy || disabled}
+          onClick={() => void resume()}
+        >
+          Resume fixture preparation
+        </button>
       )}
       {disabled && !active && !readOnly && (
         <p className="small muted">
