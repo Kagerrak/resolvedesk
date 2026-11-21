@@ -120,3 +120,12 @@ Final39 real public-profile HTTP/PostgreSQL assertions passed, plus fresh domain
 Ego-browser public entry/retrieve/fixture/edit/save/review/approve/source/Activity/Knowledge/Quality passed; offline Activity error recovered and five inbox widths had no overflow. Production build and audit0/0 passed after stopping localServices. DarkReader extension caused devhydration SVG warning and recolors light screenshot; do not claim clean lightvisual or native200%zoom/full keyboard-only proof. Report docs/verification/s12-public-demo.md. Ego space2 finished keep=[]; user space0 untouched.
 
 Current public-profile local production web3002 and API8002 run from functional checkout; inspect/stop before builds. Verceldev stopped. No backgroundworker orpaidcall. Vercelteamselection still pending; no arbitraryteam orcostassumption. S12 remains unfinished/issue13open, Gmaildeferred/S13unfinished. GitHub partialPR/CI next.
+
+
+## Current frontier — S12 hosting, 21 November
+
+S12 local safeguard PR #25 merged facb4f94f8703f09a567f3baaea947e8ec2ee38a; final code-head99f6a59 CI44897430922 SUCCESS:280 genuine integration assertions+16 separately canned HTTP provider-contract assertions, migration/static/build/audit. Both final Spec/Standards refreshes through99f6a59 clear. Issue13 staysOPEN/blocked, not full S12 delivery. Continuation branch feat/s12-hosting from mergedmain.
+
+Read-only Vercel account query: both my-team-7e4eb888 and alpa-pro-team are activeHobby plans. Account-view integration lists returnedempty. Costs endpoint returned404“Costs not found” for both; do not treat this aszero charges. Explicitteam choice remains pending; recommendationmy-team-7e4eb888. No project/database/integration/paidplan created ormodified. Current Marketplaceoffering/accountcost still requiresverification beforeprovisioning. No DeepSeek key deployed; publicfixtureonly. Clean lightvisual/fullkeyboard/postdeploy evidence remainpending, asdisclosed. S13blocked; Gmailrealverification explicitlydeferred.
+
+Localproduction publicprofile web3002/API8002 remain running fromfunctionalcheckout, no backgroundworker. Inspectbeforebuild/restart. Ego space2 finishedkeep=[]; userspace0 untouched. Originalprototypecheckout retains its two preexisting screenshot modifications anduntrackedapps/web/AGENTS.md. No newpaidcalls orsecrets committed. PR/issuecomments preservefinalCI/review/accountfacts.

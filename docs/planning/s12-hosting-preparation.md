@@ -36,3 +36,6 @@ Target incremental recurring cost:USD0 using verified free plans and pausing at 
 7. Roll back only to a previously verified S12 release with the public guards. For an initial failed release, keep public access disabled until a verified S12 build exists. Never downgrade/drop a nonempty public/evaluation ledger to make a rollback pass.
 
 VercelCLI global28.11.0 remains untouched; an ephemeral pinned66.2.0 invocation supports current Services/FastAPI features. Skill checks21November found applicable code-review/pr/domain-modeling files unchanged at upstreamabeeaf95660ba9e8b7c753eb38f441ca707a8823; local customizations preserved. Ego-browser guide2.2.1 verified. TDD excluded.
+
+
+21November account read-only follow-up: both existing Vercel teams report active Hobby plans and account-view integration lists wereempty. The costs endpoint returned404“Costs not found” for both scopes; current charges are therefore still unverified, not assertedzero. No resources/settings werechanged. Local safeguard PR25 mergedfacb4f94 with CI44897430922 passing280 real assertions+16 separately canned provider-contract checks. Remaining cloud/team/cost/visual/keyboard gates still apply.

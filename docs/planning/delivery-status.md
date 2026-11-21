@@ -35,3 +35,6 @@ S06 PR #21 merged `c50d3ade794a8621879cea4facadc963d4b2afba`; issue #7 closed. F
 
 
 19 November delivery: S07 PR #22 merged f354d80; issue #8 closed; final CI 44475535950 passed 175 genuine integration assertions +16 clearly labeled provider-contract assertions. Both independent final reviews clear. S08 is needs-info/blocked for unavailable OAuth setup. S10 independent indexing/simulated recovery and S11 are unblocked; S10 is active. No additional paid AI calls in S07.
+
+
+21November S12 partial delivery: PR #25 merged facb4f94f8703f09a567f3baaea947e8ec2ee38a. Final code-head99f6a59 CI [44897430922](https://github.com/Kagerrak/resolvedesk/actions/runs/44897430922) passed280 real integration assertions+16 separately canned HTTP provider-contract checks, migrations/static/build/audit. Both final independent reviews clear. Report docs/verification/s12-public-demo.md. Issue13 remains open/blocked: hosting team/cost/Marketplace database/cloud proof, uncontaminated light visual and full keyboard/post-deployment verification unfinished. No resources provisioned or S12 paid calls.

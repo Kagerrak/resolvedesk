@@ -35,3 +35,8 @@ Inbox document widths equaled scroll widths at360,390,768,1280,1440 CSS pixels. 
 - [Production mobile inbox](images/s12-public-mobile.png)
 
 Final production build passed; dependency audit returned0 production and0 development findings on21November. Registry latest picomatch remains4.0.7; the previously approved narrow exception remains unchanged and expires2December. No S12 paid provider call or infrastructure provisioning occurred.
+
+
+## GitHub delivery of local safeguards
+
+PR [#25](https://github.com/Kagerrak/resolvedesk/pull/25) merged as facb4f94f8703f09a567f3baaea947e8ec2ee38a. Final code-head99f6a59 [CI44897430922](https://github.com/Kagerrak/resolvedesk/actions/runs/44897430922) passed280 genuine integration assertions (39S12) and16 separately canned local HTTP provider-contract assertions, domain/auth migrations, static checks, production build and audit. Final narrow Spec/Standards refreshes through99f6a59 both returned no actionable findings. This is local safeguard delivery only; issue13 remains open for the outstanding deployment and browser gates above.
