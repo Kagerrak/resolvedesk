@@ -7,7 +7,7 @@ async function proxy(
   const { path } = await context.params;
   const route = path.join("/");
   if (
-    !/^(demo|workspaces|workspaces\/[0-9a-f-]+\/(?:evaluation-dataset|evaluations(?:\/[0-9a-f-]+(?:\/(?:cancel|cases(?:\/[0-9a-f-]+(?:\/reviews)?)?))?)?|activity(?:\/(?:indexing|generation|handling)\/[0-9a-f-]+(?:\/retry)?)?|knowledge(?:\/[0-9a-f-]+(?:\/(?:publish|archive|delete|retry|download))?)?|citations\/[0-9a-f-]+|members|tickets(?:\/[0-9a-f-]+(?:\/(?:draft|approval-reviews(?:\/[0-9a-f-]+\/approve)?|generations(?:\/(?:latest|[0-9a-f-]+\/cancel))?|retrievals(?:\/latest)?))?)?))$/.test(
+    !/^(public-policy|demo|workspaces|workspaces\/[0-9a-f-]+\/(?:evaluation-dataset|evaluations(?:\/[0-9a-f-]+(?:\/(?:cancel|cases(?:\/[0-9a-f-]+(?:\/reviews)?)?))?)?|activity(?:\/(?:indexing|generation|handling)\/[0-9a-f-]+(?:\/retry)?)?|knowledge(?:\/[0-9a-f-]+(?:\/(?:publish|archive|delete|retry|download))?)?|citations\/[0-9a-f-]+|members|tickets(?:\/[0-9a-f-]+(?:\/(?:draft|approval-reviews(?:\/[0-9a-f-]+\/approve)?|generations(?:\/(?:latest|[0-9a-f-]+\/(?:cancel|resume)))?|retrievals(?:\/latest)?))?)?))$/.test(
       route,
     )
   ) {
@@ -53,7 +53,7 @@ async function proxy(
       }
     }
     const response = await fetch(
-      `${process.env.API_URL ?? "http://127.0.0.1:8000"}/${route}${request.nextUrl.search}`,
+      new URL(`${route}${request.nextUrl.search}`, `${(process.env.API_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "")}/`),
       {
         method: request.method,
         headers: {

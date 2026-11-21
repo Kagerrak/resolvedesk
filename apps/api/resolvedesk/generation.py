@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from .config import settings
 from .database import SessionLocal
+from .demo_policy import reserve_action
 from .generation_provider import (
     FIXTURE_MODEL,
     MODEL,
@@ -59,6 +60,7 @@ class Generate(BaseModel):
 def view(run):
     return {
         "id": run.id,
+        "request_id": run.request_id,
         "status": run.status,
         "mode": run.mode,
         "model": run.model,
@@ -69,11 +71,17 @@ def view(run):
         "error": run.error,
         "created_at": run.created_at,
         "prompt_version": run.prompt_version,
+        "can_resume": settings.public_demo_only
+        and run.mode == "fixture"
+        and run.status == "queued",
     }
 
 
 def queue(db, workspace_id, ticket_id, payload, visitor, mode="fixture"):
     item = editable_ticket(db, workspace_id, ticket_id, visitor, payload.expected_revision)
+    workspace = db.get(Workspace, workspace_id)
+    if workspace and workspace.public_demo and mode != "fixture":
+        raise HTTPException(403, "Public demos use fixture preparation only.")
     # Ticket locks protect revisions; a workspace lock also protects the shared
     # ten-generation limit when distinct tickets are submitted concurrently.
     db.execute(
@@ -117,6 +125,7 @@ def queue(db, workspace_id, ticket_id, payload, visitor, mode="fixture"):
     )
     if active:
         raise HTTPException(409, "A draft is already being prepared. Inspect or cancel that run.")
+    reserve_action(db, workspace_id, "writes")
     run = GenerationRun(
         workspace_id=workspace_id,
         ticket_id=ticket_id,
@@ -138,8 +147,18 @@ def queue(db, workspace_id, ticket_id, payload, visitor, mode="fixture"):
 def generate(workspace_id: UUID, ticket_id: UUID, payload: Generate, db: DB, visitor: Visitor):
     # Public API never accepts a provider mode/key or enables paid anonymous generation.
     run = queue(db, workspace_id, ticket_id, payload, visitor)
+    run_id = run.id
     result = view(run)
     db.commit()
+    if settings.public_demo_only:
+        # Fixture preparation fits one request; PostgreSQL remains the durable queue.
+        # No background process or paid provider is enabled on the public deployment.
+        run_once(target_run_id=run_id)
+        db.expire_all()
+        saved = db.scalar(select(GenerationRun).where(GenerationRun.id == run_id))
+        if not saved:
+            raise HTTPException(404, "This demo expired. Start a new demo to continue.")
+        result = view(saved)
     return result
 
 
@@ -183,6 +202,19 @@ def cancel(workspace_id: UUID, ticket_id: UUID, run_id: UUID, db: DB, visitor: V
     result = view(run)
     db.commit()
     return result
+
+
+@router.post("/workspaces/{workspace_id}/tickets/{ticket_id}/generations/{run_id}/resume")
+def resume_fixture(workspace_id: UUID, ticket_id: UUID, run_id: UUID, db: DB, visitor: Visitor):
+    editable_ticket(db, workspace_id, ticket_id, visitor, None)
+    run = scoped_run(db, workspace_id, ticket_id, run_id)
+    workspace = db.get(Workspace, workspace_id)
+    if not workspace or not workspace.public_demo or run.mode != "fixture":
+        raise HTTPException(403, "Only public fixture preparation can be resumed here.")
+    db.commit()
+    run_once(target_run_id=run_id)
+    db.expire_all()
+    return view(scoped_run(db, workspace_id, ticket_id, run_id))
 
 
 def context_for(db: Session, run: GenerationRun):
@@ -306,14 +338,19 @@ def run_once(target_run_id: UUID | None = None):
     now = datetime.now(UTC)
     with SessionLocal() as db:
         # Expired running jobs are never automatically retried: provider acceptance may be unknown.
-        expired = db.scalars(
-            select(GenerationRun)
-            .where(GenerationRun.status == "running", GenerationRun.lease_until < now)
-            .with_for_update(skip_locked=True)
-        ).all()
+        expired_query = select(GenerationRun).where(
+            GenerationRun.status == "running", GenerationRun.lease_until < now
+        )
+        if target_run_id is not None:
+            expired_query = expired_query.where(GenerationRun.id == target_run_id)
+        expired = db.scalars(expired_query.with_for_update(skip_locked=True)).all()
         for run in expired:
             run.status = "failed"
-            run.error = "Generation was interrupted. Previous drafts are safe. Any uncertain AI allowance remains reserved."
+            run.error = (
+                "Fixture preparation was interrupted. Previous drafts are safe. Find current evidence and start a new preparation."
+                if run.mode == "fixture"
+                else "Generation was interrupted. Previous drafts are safe. Any uncertain AI allowance remains reserved."
+            )
         db.commit()
         allowed_modes = ["fixture"]
         if settings.live_ai_enabled and settings.has_deepseek_key:

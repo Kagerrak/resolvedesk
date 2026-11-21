@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -11,6 +11,20 @@ export default function Home() {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [policy, setPolicy] = useState<{
+    public_demo: boolean;
+    generation_limit: number;
+    retrieval_limit: number;
+    write_limit: number;
+    cleanup: string;
+  } | null>(null);
+  useEffect(() => {
+    const controller = new AbortController();
+    api<typeof policy>("public-policy", "GET", controller.signal)
+      .then(setPolicy)
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
   async function enter() {
     setBusy(true);
     setError("");
@@ -72,6 +86,7 @@ export default function Home() {
               {busy ? "Opening your workspace…" : "Explore the sample inbox"}
               <ArrowRight size={18} />
             </button>
+            <a className="secondary" href="https://github.com/Kagerrak/resolvedesk/blob/main/docs/verification/s11-quality.md" target="_blank" rel="noreferrer">Read the evaluation report</a>
           </div>
           <p className="small muted">
             Private demo session · Synthetic data · No email sent
@@ -115,7 +130,8 @@ export default function Home() {
                 <strong>Handle with intention</strong>
                 <p className="muted">
                   Save and revise drafts, inspect published evidence and review
-                  handling history. Review and approve a simulated reply. No email is sent.
+                  handling history. Review and approve a simulated reply. No
+                  email is sent.
                 </p>
               </div>
             </li>
@@ -124,6 +140,19 @@ export default function Home() {
             Fixture mode. No AI provider or Gmail connection is used. Sessions
             last up to one hour.
           </p>
+          {policy?.public_demo && (
+            <div className="small muted">
+              <p>
+                Each demo includes published synthetic guidance, up to{" "}
+                {policy.generation_limit} fixture drafts,{" "}
+                {policy.retrieval_limit} evidence searches and{" "}
+                {policy.write_limit} saved actions. No uploads or real mailbox
+                access.
+              </p>
+              <p>{policy.cleanup}</p>
+              <p>Use only fictional information in this demo.</p>
+            </div>
+          )}
         </aside>
       </main>
     </>

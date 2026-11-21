@@ -6,6 +6,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
 
+from .demo_policy import reserve_action
 from .inbox import membership, ticket_in_workspace
 from .knowledge import DB, Visitor
 from .knowledge_worker import fixture_embedding
@@ -95,6 +96,7 @@ def retrieve_ranked(
     if member.role == "viewer":
         raise HTTPException(403, "Viewers can inspect saved evidence but cannot run retrieval.")
     ticket = ticket_in_workspace(db, workspace_id, ticket_id)
+    reserve_action(db, workspace_id, "retrievals")
     messages = db.scalars(
         select(Message)
         .where(Message.workspace_id == workspace_id, Message.ticket_id == ticket_id)

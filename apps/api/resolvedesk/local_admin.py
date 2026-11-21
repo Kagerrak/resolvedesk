@@ -23,6 +23,7 @@ def grant(workspace_id: UUID):
         workspace = db.get(Workspace, workspace_id)
         if (
             not workspace
+            or workspace.public_demo
             or not workspace.demo_owner
             or not workspace.expires_at
             or workspace.expires_at <= datetime.now(UTC)

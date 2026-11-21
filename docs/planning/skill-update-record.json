@@ -194,5 +194,16 @@
     "Installer skipped unrelated software-factory skill because its upstream YAML is invalid; all selected skills succeeded.",
     "TDD was neither installed nor invoked.",
     "Verified conventions: GLOSSARY.md, to-spec, to-tickets."
-  ]
+  ],
+  "applicable_skill_recheck_2026_11_21": {
+    "upstream_commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823",
+    "unchanged_verified": [
+      "code-review",
+      "pr",
+      "domain-modeling"
+    ],
+    "method": "Compared exact upstream SKILL.md files to local SHA-256 hashes; no installation or customization overwrite.",
+    "ego_browser_guide": "2.2.1",
+    "tdd": "Excluded; never installed or invoked."
+  }
 }

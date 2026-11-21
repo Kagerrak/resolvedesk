@@ -21,6 +21,27 @@ class Workspace(Base):
     name: Mapped[str]
     demo_owner: Mapped[str | None] = mapped_column(unique=True)
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    public_demo: Mapped[bool] = mapped_column(default=False)
+
+
+class DemoQuota(Base):
+    __tablename__ = "demo_quota"
+    workspace_id: Mapped[UUID] = mapped_column(
+        ForeignKey("workspace.id", ondelete="CASCADE"), primary_key=True
+    )
+    writes: Mapped[int] = mapped_column(default=0)
+    retrievals: Mapped[int] = mapped_column(default=0)
+    __table_args__ = (
+        CheckConstraint("writes >= 0 AND writes <= 100"),
+        CheckConstraint("retrievals >= 0 AND retrievals <= 30"),
+    )
+
+
+class DemoWindow(Base):
+    __tablename__ = "demo_window"
+    hour: Mapped[datetime] = mapped_column(DateTime(timezone=True), primary_key=True)
+    sessions: Mapped[int] = mapped_column(default=0)
+    __table_args__ = (CheckConstraint("sessions >= 0 AND sessions <= 20"),)
 
 
 class Membership(Base):

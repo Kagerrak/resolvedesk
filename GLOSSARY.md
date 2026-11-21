@@ -53,6 +53,8 @@ _Avoid_: Knowledge overwrite
 
 ## Operations
 
+**Public demo**: A temporary synthetic Workspace provided for visitors to explore support workflows using supplied fictional knowledge and simulated actions. It contains no real mailbox connection or customer operation.
+
 **Connector**: A Workspace's authorized connection to an external communication service.
 
 **Audit event**: A record of a meaningful support action and who or what performed it.

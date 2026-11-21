@@ -12,6 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .database import database
+from .demo_policy import reserve_action
 from .handling import HandlingChange, audit, editable_ticket, read_detail, validate_changes
 from .identity import Identity, identity
 from .knowledge_snapshot import lock_snapshot
@@ -153,13 +154,15 @@ def create_review(
         if getattr(change, field) is not None or field == "assigned_to"
     }
     actions = {k: v for k, v in actions.items() if v["before"] != v["after"]}
+    reviewed_basis = basis(db, item, draft)
+    reserve_action(db, workspace_id, "writes")
     review = ApprovalReview(
         workspace_id=workspace_id,
         ticket_id=ticket_id,
         draft_id=draft.id,
         body=draft.body,
         actions=actions,
-        basis=basis(db, item, draft),
+        basis=reviewed_basis,
         created_by=visitor.user_id,
         created_at=datetime.now(UTC),
     )
@@ -224,6 +227,7 @@ def approve(
     )
     validate_changes(db, item, change)
     now = datetime.now(UTC)
+    reserve_action(db, workspace_id, "writes")
     message = Message(
         workspace_id=workspace_id,
         ticket_id=ticket_id,
