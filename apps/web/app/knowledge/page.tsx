@@ -271,6 +271,9 @@ export default function KnowledgePage() {
         <Link className="secondary" href={`/activity?workspace=${workspaceId}`}>
           Activity
         </Link>
+        <Link className="secondary" href={`/quality?workspace=${workspaceId}`}>
+          Quality
+        </Link>
         <div className="header-actions">
           <span className="badge">Synthetic demo</span>
           <ThemeToggle />

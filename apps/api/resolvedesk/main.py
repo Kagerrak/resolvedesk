@@ -11,6 +11,7 @@ from .activity import router as activity_router
 from .approval import router as approval_router
 from .config import settings
 from .database import database
+from .evaluation import router as evaluation_router
 from .generation import router as generation_router
 from .handling import read_detail
 from .handling import router as handling_router
@@ -28,6 +29,7 @@ app.include_router(activity_router)
 app.include_router(knowledge_router)
 app.include_router(retrieval_router)
 app.include_router(generation_router)
+app.include_router(evaluation_router)
 DB = Annotated[Session, Depends(database)]
 Visitor = Annotated[Identity, Depends(identity)]
 

@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 PROMPT_VERSION = "grounded-reply-v5"
 MODEL = "deepseek-flash"
+FIXTURE_MODEL = "fixture-extract-v2"
 MAX_OUTPUT = 2048
 ESCALATION_BODY = (
     "Thanks for your message. I don't have enough verified information to confirm an answer "
@@ -45,7 +46,7 @@ def fixture_reply(context: dict) -> GeneratedReply:
     evidence = context["evidence"]
     if not evidence:
         return GeneratedReply(
-            body="Thanks for your message. I couldn't find a published source to confirm an answer. I'll ask a support specialist to review the ticket before advising on access.",
+            body=ESCALATION_BODY,
             citation_ids=[],
             outcome="escalation",
             reason="No published evidence. Human review required.",
@@ -54,7 +55,7 @@ def fixture_reply(context: dict) -> GeneratedReply:
     return GeneratedReply(
         body="Thanks for your message. The published guidance says:\n\n"
         + first["content"]
-        + "\n\nPlease review these steps with your project Admin. No access changes have been made.",
+        + "\n\nA support specialist should review how this guidance applies to your situation.",
         citation_ids=[first["citation_id"]],
         outcome="answer",
         reason="Fixture extract only; a human must review relevance and support.",

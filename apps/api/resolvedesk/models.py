@@ -380,3 +380,108 @@ class OperationEvent(Base):
     actor_id: Mapped[str | None]
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     __table_args__ = (CheckConstraint("kind IN ('indexing','source')"),)
+
+
+class EvaluationRun(Base):
+    __tablename__ = "evaluation_run"
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID] = mapped_column(
+        ForeignKey("workspace.id", ondelete="CASCADE"), index=True
+    )
+    request_id: Mapped[UUID]
+    created_by: Mapped[str]
+    dataset_version: Mapped[str]
+    dataset_hash: Mapped[str]
+    split: Mapped[str]
+    method: Mapped[str]
+    mode: Mapped[str]
+    model: Mapped[str]
+    prompt_version: Mapped[str | None]
+    status: Mapped[str] = mapped_column(default="queued")
+    source_map: Mapped[dict] = mapped_column(JSON, default=dict)
+    probe_workspace_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("workspace.id", ondelete="SET NULL")
+    )
+    probe_marker: Mapped[str | None]
+    prepared: Mapped[bool] = mapped_column(default=False)
+    lease_token: Mapped[UUID | None]
+    lease_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    summary: Mapped[dict] = mapped_column(JSON, default=dict)
+    error: Mapped[str | None]
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    __table_args__ = (
+        UniqueConstraint("workspace_id", "id"),
+        UniqueConstraint("workspace_id", "request_id"),
+        CheckConstraint("mode IN ('fixture','deepseek_sample')"),
+        CheckConstraint("split IN ('tuning','all')"),
+        CheckConstraint("method IN ('exact-cosine-v1','bm25-v1')"),
+        CheckConstraint(
+            "status IN ('queued','preparing','running','completed','cancelled','failed')"
+        ),
+    )
+
+
+class EvaluationCase(Base):
+    __tablename__ = "evaluation_case"
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID]
+    run_id: Mapped[UUID] = mapped_column(index=True)
+    ticket_id: Mapped[UUID]
+    case_key: Mapped[str]
+    definition: Mapped[dict] = mapped_column(JSON)
+    status: Mapped[str] = mapped_column(default="pending")
+    attempts: Mapped[int] = mapped_column(default=0)
+    retrieval: Mapped[dict | None] = mapped_column(JSON)
+    fixture_output: Mapped[dict | None] = mapped_column(JSON)
+    generation_id: Mapped[UUID | None]
+    provider_output: Mapped[dict | None] = mapped_column(JSON)
+    metrics: Mapped[dict] = mapped_column(JSON, default=dict)
+    error: Mapped[str | None]
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["workspace_id", "run_id"],
+            ["evaluation_run.workspace_id", "evaluation_run.id"],
+            ondelete="CASCADE",
+        ),
+        ForeignKeyConstraint(
+            ["workspace_id", "ticket_id"], ["ticket.workspace_id", "ticket.id"], ondelete="CASCADE"
+        ),
+        ForeignKeyConstraint(
+            ["workspace_id", "ticket_id", "generation_id"],
+            ["generation_run.workspace_id", "generation_run.ticket_id", "generation_run.id"],
+        ),
+        UniqueConstraint("run_id", "case_key"),
+        UniqueConstraint("workspace_id", "run_id", "id"),
+        CheckConstraint("status IN ('pending','running','completed','failed')"),
+        CheckConstraint("attempts >= 0 AND attempts <= 3"),
+    )
+
+
+class EvaluationReview(Base):
+    __tablename__ = "evaluation_review"
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    workspace_id: Mapped[UUID]
+    run_id: Mapped[UUID]
+    case_id: Mapped[UUID] = mapped_column(index=True)
+    request_id: Mapped[UUID]
+    output_hash: Mapped[str]
+    reviewer_id: Mapped[str]
+    reviewer_kind: Mapped[str]
+    verdict: Mapped[str]
+    note: Mapped[str]
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["workspace_id", "run_id", "case_id"],
+            ["evaluation_case.workspace_id", "evaluation_case.run_id", "evaluation_case.id"],
+            ondelete="CASCADE",
+        ),
+        UniqueConstraint("workspace_id", "request_id"),
+        CheckConstraint("reviewer_kind IN ('agent_rubric','member')"),
+        CheckConstraint(
+            "verdict IN ('supported','unsupported','safe_escalation','conservative_escalation')"
+        ),
+    )

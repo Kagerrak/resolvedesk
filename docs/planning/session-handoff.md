@@ -1,10 +1,10 @@
 # ResolveDesk session handoff
 
-Updated 18 November 2026.
+Updated 19 November 2026.
 
 ## Active work and branch safety
 
-Functional checkout: `/Users/rommelclarino/projects/resolvedesk-s01`, branch `feat/s10-recovery`. Original `/Users/rommelclarino/projects/resolvedesk` remains on `feat/ui-direction-prototypes` with its pre-existing screenshot changes and generated `apps/web/AGENTS.md`; do not overwrite or merge that prototype branch wholesale.
+Functional checkout: `/Users/rommelclarino/projects/resolvedesk-s01`, branch `feat/s11-quality`. Original `/Users/rommelclarino/projects/resolvedesk` remains on `feat/ui-direction-prototypes` with its pre-existing screenshot changes and generated `apps/web/AGENTS.md`; do not overwrite or merge that prototype branch wholesale.
 
 S01 PR #16 merged as `9427fec425c34cd65230c88863ac027ebea0502f`; issue #2 closed. Command Bright D adopted with real API data, light theme, mobile/keyboard flows. CI run 43829740801 passed.
 
@@ -26,7 +26,7 @@ README startup and scenario instructions apply. Existing ignored environment fil
 
 Only synthetic data is used. Temporary second QA workspace was removed. Browser sessions may expire; create fresh sessions through entry. Viewer QA membership may remain on the last synthetic session; a new session has Agent role.
 
-S06–S13 remain unfinished. No public hosted demo, completed S11 quality evaluation or real Gmail verification exists. Initial live DeepSeek smoke examples are recorded below. Native 200% browser zoom remains unverified. Public cleanup/abuse limits, live staff auth, OAuth/provider account setup, safe delivery and budget enforcement must still be delivered. Do not call the project complete.
+S08/S09, remaining S10 Gmail cases and S11–S13 delivery remain unfinished. No public hosted demo or real Gmail verification exists. S11 measured results are recorded below; GitHub delivery is pending. Initial live DeepSeek smoke examples are recorded below. Native 200% browser zoom remains unverified. Public cleanup/abuse limits, live staff auth, OAuth/provider account setup, safe delivery and budget enforcement must still be delivered. Do not call the project complete.
 
 ## S04 delivered
 
@@ -82,3 +82,21 @@ Behavior a35192f plus pending review/copy/queue-history refinements. Scoped Acti
 
 
 S10 final deletion review found that cascading deleted passages could make old retrieval appear empty. Fixed in 5a25a4d: source-version comparison exposes sources_changed, generation rejects stale deleted evidence before any provider dispatch, and Evidence shows a changed/deleted warning. Final29 real assertions passed; both reviewer refreshes clear. Browser verified the new warning after an actual source lifecycle. PR #23 final-head CI pending (old-head run44522227577 cancelled after this material fix). S08/S09 live verification remains explicitly deferred.
+
+
+## Current S11 frontier
+
+Independent S10 PR #23 merged fb059bf368f87086b74bb26db4375fa0db3b1670; CI44523451098 passed204 genuine integration assertions +16 separately canned provider-contract checks, static/migration/build/audit. Both final reviews through5a25a4d clear. Issue #11 remains open/blocked; native remaining dependencies #9/#10 added. User explicitly deferred real Gmail verification; no more OAuth setup questions during this phase.
+
+Active branch feat/s11-quality from merged main, issue #12. Dataset draft24 articles/50 tickets (12 tuning/38 held out) and rubric now present; no S11 evaluation or paid call executed. /tmp/resolvedesk-s11-plan.md has implementation preparation. Critical: GenerationRun quota counts ALL modes (10/workspace), so fixture evaluations must be separate EvaluationCase simulations through real scoped context/provider validation, not50 normal DraftGeneration runs or a hidden cap bypass. At most10 actual live sample generations use normal quota/usage controls, explicit local Admin-only enablement; public evaluation stays fixture-only. Existing public paid access remains off. Budget20/month and.25/session remain unchanged.
+
+Current API/web serve S10 final code; inspect processes before restart/build. No background worker runs. Ego space28 disappeared after user-turn/session interval; inventory confirmed absent, so fresh space29 was created for continuing verification. Fresh synthetic QA workspace096ba070-afc5-4824-9507-98ae13cbedf6, active local Admin; its published/retrieved test source was deleted to verify the stale warning. Prior expired QA workspaceea2303f7-ff7c-4eb8-af3f-128b7ec40bae is preserved. Do not touch user space0 or job-application space26. No additional paid calls during S07/S10; November conservative ledger remains S06 usage unless verified otherwise. S11 fresh evaluation should use a clean owned synthetic workspace.
+
+
+## S11 implemented / final delivery pending — 19 November 2026
+
+Branch feat/s11-quality. Behavior5b6ee51, recovery/35 actual API/PostgreSQL/worker scenarios34ee8ea. Frozen24-article/50-case dataset and fixed BM25 candidate; baseline tuning completed before candidate, candidate committed before held-out results. Full baseline38/40 answerable source labels, candidate40/40; held-out27/29→29/29. Public/default ticket retrieval remains exact fixture-vector cosine. Ten predetermined actual DeepSeek outputs completed through normal generation/quota/spend controls, all19 emitted IDs valid, structured workflow7/10 with retained c13/c43/c48 failures. Seven supported answers/two safe escalations/one conservative escalation under supplementary agent rubric; all ten exact-output reviews persisted. Not human ground truth or a numeric quality release threshold. Artifacts evaluations/s11/, report docs/verification/s11-quality.md.
+
+S11 measured usage13,567 input+2,943 output, conservative allocation USD0.019453. Central November usage_month verified USD0.043494 (S06 prior0.024041+S11). Not provider invoice. Local ignored key unchanged, server LIVE_AI_ENABLED=false; no more S11 paid calls needed. Dedicated evaluation workspace955b2086-caa1-4f35-b5fb-488d24d22e40 holds all three runs and ten normal paid generations, expires2026-11-19T14:31:28Z. Private probe workspaces were cleaned. Do not use other sessions to bypass the ten-generation limit.
+
+Static/build/fresh migration roundtrip and35 real scenarios pass;16 separately canned provider-contract assertions pass. Independent two-axis review clear through34ee8ea, final refresh pending current provenance/browser fixes. Actual browser queue/live comparison/source opening, split pagination, keyboard focus, unsaved-note confirmation, offline/recovery, five widths/both themes verified. Expanded hashes overflow found and fixed with wrapping. Final mobile Back-to-cases and truthful offline-state recovery passed. Ego space30 was finished with keep=[];29 no longer existed. Do not touch user0/job26. API/web safely rebuilt/restarted; inspect ports before mutations. No background workers running. Audit0 production/0 development findings, latest picomatch4.0.7, exception unchanged. Gmail remains explicitly deferred; no OAuth questions.

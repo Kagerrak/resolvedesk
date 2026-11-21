@@ -56,3 +56,12 @@ _Avoid_: Knowledge overwrite
 **Connector**: A Workspace's authorized connection to an external communication service.
 
 **Audit event**: A record of a meaningful support action and who or what performed it.
+
+
+## Quality assessment
+
+**Evaluation dataset**: A versioned collection of authored support scenarios, knowledge and expected outcomes used to assess retrieval and reply assistance. Synthetic labels are not independent human ground truth.
+
+**Evaluation case**: One support scenario and its stated expectations within an Evaluation dataset.
+
+**Evaluation run**: A recorded assessment of Evaluation cases against a particular knowledge basis and assistance configuration. Its results describe the observed set rather than universal quality or safety.
